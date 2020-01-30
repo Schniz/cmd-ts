@@ -11,7 +11,9 @@
     "build": "tsdx build",
     "test": "tsdx test",
     "lint": "tsdx lint",
-    "prepare": "tsdx build"
+    "prepare": "tsdx build",
+    "ts-node": "TS_NODE_TRANSPILE_ONLY=true node -r esm -r ts-node/register",
+    "run-example": "yarn --silent ts-node src/example/app.ts"
   },
   "peerDependencies": {},
   "husky": {
@@ -30,9 +32,27 @@
   "module": "dist/clio-ts.esm.js",
   "devDependencies": {
     "@types/jest": "^25.1.0",
+    "@types/lodash.camelcase": "^4.3.6",
+    "@types/lodash.kebabcase": "^4.1.6",
+    "@types/request": "^2.48.4",
+    "@types/yargs": "^15.0.2",
+    "esm": "^3.2.25",
+    "fp-ts": "^2.4.2",
     "husky": "^4.2.1",
+    "io-ts": "^2.0.6",
+    "io-ts-types": "^0.5.5",
+    "request": "^2.88.0",
+    "tempy": "^0.3.0",
+    "ts-node": "^8.6.2",
     "tsdx": "^0.12.3",
     "tslib": "^1.10.0",
     "typescript": "^3.7.5"
+  },
+  "dependencies": {
+    "chalk": "^3.0.0",
+    "lodash.camelcase": "^4.3.0",
+    "lodash.kebabcase": "^4.1.1",
+    "minimist": "^1.2.0",
+    "yargs": "^15.1.0"
   }
 }
