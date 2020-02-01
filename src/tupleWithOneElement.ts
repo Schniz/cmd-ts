@@ -1,6 +1,6 @@
 import { FromStr } from './utils';
 import * as t from 'io-ts';
-import {Either} from 'fp-ts/lib/Either';
+import { Either } from 'fp-ts/lib/Either';
 
 /**
  * Takes a decoder T (io-ts type) that accepts a string
@@ -26,11 +26,23 @@ export function tupleWithOneElement<T extends FromStr>(
       }
 
       if (obj.length > 1) {
-        return t.failure(
-          obj,
-          context,
-          `Too many arguments provided (${obj.length} for 1)`
+        const errors = obj.slice(1).map(
+          (_, i): t.ValidationError => {
+            const ctx: t.Context = [
+              ...context,
+              {
+                type: context.slice(-1)[0].type,
+                key: String(i),
+              },
+            ];
+            return {
+              context: ctx,
+              value: obj,
+              message: `Too many arguments provided (${obj.length} for 1)`,
+            };
+          }
         );
+        return t.failures(errors);
       }
 
       return decoder.validate(obj[0], context);
@@ -40,4 +52,3 @@ export function tupleWithOneElement<T extends FromStr>(
     }
   );
 }
-

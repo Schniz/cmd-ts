@@ -1,20 +1,14 @@
 import * as t from 'io-ts';
+import {array} from 'fp-ts/lib/Array';
 import { Stream } from 'stream';
 import { existsSync, createReadStream } from 'fs';
 import request from 'request';
 import URL from 'url';
 import { Either, either, Right } from 'fp-ts/lib/Either';
+import {BooleanFromString} from 'io-ts-types/lib/BooleanFromString';
+import { withMessage } from 'io-ts-types/lib/withMessage';
 
-export const BoolOfStr = new t.Type<boolean, string, unknown>(
-  'integer',
-  (x: unknown): x is boolean => typeof x === 'boolean',
-  (obj, ctx) => {
-    if (obj === 'true') return t.success(true);
-    if (obj === 'false') return t.success(false);
-    return t.failure(obj, ctx, `This is neither 'true' or 'false'`);
-  },
-  x => String(x)
-);
+export const BoolOfStr = withMessage(BooleanFromString, () => 'This is neither `true` nor `false`');
 
 export const IntOfStr = new t.Type<number, string, unknown>(
   'integer',
@@ -112,30 +106,11 @@ export function commaSeparated<T extends t.Type<any, string, unknown>>(
       if (typeof obj !== 'string') {
         return t.failure(obj, ctx, 'provided value is not a string');
       }
-      const validated = decoderArray.validate(obj.split(','), ctx);
-      return validated;
+      const splitted = obj.split(",");
+      return decoderArray.validate(splitted, ctx);
+      // return array.traverse(either)(splitted, x => decoder.validate(x, ctx));
     },
     x => x.join(',')
-  );
-}
-
-export function commaSeparatedArr<T extends t.Type<any, string, unknown>>(
-  decoder: T
-): t.Type<T[], string[], unknown> {
-  const decoderArray = t.array(decoder);
-  const commasep = commaSeparated(decoder);
-  return new t.Type<T[], string[], unknown>(
-    `comma separated ${decoder.name}`,
-    (x): x is T[] => decoderArray.is(x),
-    (obj, ctx) => {
-      if (!Array.isArray(obj)) {
-        return t.failure(obj, ctx, 'provided value is not a array');
-      }
-      return either.map(t.array(commasep).validate(obj, ctx), x => x.flat());
-    },
-    _x => {
-      throw new Error("Hadhasd");
-    }
   );
 }
 

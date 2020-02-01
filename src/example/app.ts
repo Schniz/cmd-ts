@@ -1,74 +1,63 @@
-import { parse, program, ensureCliSuccess } from '..';
-// import * as t from 'io-ts';
+#!/usr/bin/env YARN_SILENT=1 yarn ts-node
+
+import * as t from 'io-ts';
+import { IntOfStr, ReadStream, readStreamToString } from './test-types';
 import {
-  IntOfStr,
-  ReadStream,
-  readStreamToString,
-  commaSeparated,
-  flattened,
-} from './test-types';
-import { ComposedCommand } from '../ComposedCommand2';
+  ensureCliSuccess,
+  command,
+  subcommands,
+  binaryParser,
+  single,
+} from '../CommandBuilder4';
 
-const p = program('test-app', '0.1.0')
-  .boolArg({ name: 'someBool' })
-  .namedArg({ name: 'anInteger', type: IntOfStr })
-  .namedArg({ name: 'commas', type: commaSeparated(IntOfStr) })
-  .namedArg({ name: 'stream', type: ReadStream })
-  .multiNamedArg({
-    name: 'multipleNumbers',
-    type: flattened(commaSeparated(IntOfStr)),
-  });
-
-const welp = program('welp', '0.1.0').namedArg({ name: 'int', type: IntOfStr });
-const howdy = program('welp', '0.1.0').namedArg({
-  name: 'int',
-  type: IntOfStr,
+const y = command({
+  pos1: {
+    kind: 'positional',
+    displayName: 'pos1',
+    type: IntOfStr,
+  },
+  named1: single({
+    kind: 'named',
+    type: IntOfStr,
+    short: 'n',
+    long: 'number',
+  }),
 });
 
-// const composedCommand = ComposedCommand.new('test', p).subcommand('welp', welp).subcommand('howdy', howdy);
-const composedCommand = ComposedCommand.new('test', p)
-  .subcommand('welp', welp)
-  .subcommand('howdy', howdy)
-  .subcommand('how', howdy);
+const withStream = command({
+  stream: {
+    kind: 'positional',
+    displayName: 'stream',
+    type: ReadStream,
+  }
+})
 
-function main2() {
-  const y = parse(process.argv.slice(2), composedCommand);
-  ensureCliSuccess(y);
-  const x = (function() {
-    switch (y.right.command) {
-      case 'test':
-        return y.right.args[0].stream;
-      case 'howdy':
-        return y.right.args[0].int;
-      case 'welp':
-        return y.right.args[0].int;
-    }
-  })();
-  console.log(y);
-  console.log({ x });
+// const result = y.parse(process.argv.slice(2));
+
+const withSubcommands = subcommands({
+  hello: y,
+  cat: withStream,
+  greet: command({
+    name: {
+      kind: 'positional',
+      type: t.string,
+    },
+  }),
+});
+
+const cli = binaryParser(withSubcommands, 'app');
+
+
+async function main() {
+  const v = cli.parse(process.argv);
+  ensureCliSuccess(v);
+  const result = v.right;
+
+  if (result.command === 'cat') {
+    result.args[0].stream.pipe(process.stdout);
+  } else {
+    console.log(result);
+  }
 }
 
-// composedCommand.subcommandParser.test;
-
-// async function main1() {
-//   const result = parse(process.argv.slice(2), p);
-//   ensureCliSuccess(result);
-//   const [{ stream, ...other }, positional] = result.right;
-//   const streamContents = await readStreamToString(stream);
-//   console.log({ streamContents, ...other, positional });
-// }
-
-// async function main1() {
-//   const result = parse(process.argv.slice(2), composedCommand);
-//   ensureCliSuccess(result);
-
-//   if (result.right.command === 'welp') {
-//     console.log('WELP!');
-//   } else {
-//     const [{ stream, ...other }, positional] = result.right.parsed;
-//     const streamContents = await readStreamToString(stream);
-//     console.log({ streamContents, ...other, positional });
-//   }
-// }
-
-main2();
+main();

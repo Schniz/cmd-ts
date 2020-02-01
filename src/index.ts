@@ -1,18 +1,16 @@
-import { normalizeMinimist, NormalizedMinimist } from './normalMinimist';
+import { normalizeMinimist } from './normalMinimist';
 import minimist from 'minimist';
-import { ParseError } from './Parser';
+import { Parser, ParseError } from './Parser';
 import { Either } from 'fp-ts/lib/Either';
+import { ParsingContext } from './ParsingContext';
 export { program } from './CommandBuilder';
 export { ensureCliSuccess } from './ensureCliSuccess';
-
-interface Parser<Into> {
-  parse(args: NormalizedMinimist): Either<ParseError, Into>;
-}
 
 export function parse<Cmd>(
   argv: string[],
   command: Parser<Cmd>
 ): Either<ParseError, Cmd> {
   const args = normalizeMinimist(minimist(argv));
-  return command.parse(args);
+  const context = new ParsingContext();
+  return command.parse(args, context);
 }

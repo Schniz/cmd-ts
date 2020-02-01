@@ -12,8 +12,6 @@ export function ensureCliSuccess<T>(
 
   const { context, validationErrors, parsed } = result.left;
 
-  console.log(validationErrors);
-
   const missingKeys: string[] = [];
   const errorMessages: Record<string, string> = {};
   for (const error of validationErrors) {

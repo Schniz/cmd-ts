@@ -20,5 +20,5 @@ export function normalizeMinimist(
     named[key] = (named[key] || []).concat(value);
   }
 
-  return { named, positional };
+  return { named, positional: positional.map(String) };
 }
