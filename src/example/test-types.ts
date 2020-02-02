@@ -1,14 +1,17 @@
 import * as t from 'io-ts';
-import {array} from 'fp-ts/lib/Array';
 import { Stream } from 'stream';
 import { existsSync, createReadStream } from 'fs';
 import request from 'request';
 import URL from 'url';
 import { Either, either, Right } from 'fp-ts/lib/Either';
-import {BooleanFromString} from 'io-ts-types/lib/BooleanFromString';
+import { BooleanFromString } from 'io-ts-types/lib/BooleanFromString';
 import { withMessage } from 'io-ts-types/lib/withMessage';
+import {NumberFromString} from 'io-ts-types/lib/NumberFromString';
 
-export const BoolOfStr = withMessage(BooleanFromString, () => 'This is neither `true` nor `false`');
+export const BoolOfStr = withMessage(
+  BooleanFromString,
+  () => 'This is neither `true` nor `false`'
+);
 
 export const IntOfStr = new t.Type<number, string, unknown>(
   'integer',
@@ -16,19 +19,13 @@ export const IntOfStr = new t.Type<number, string, unknown>(
     return typeof x === 'number' && Math.round(x) === x;
   },
   (obj, ctx) => {
-    if (typeof obj !== 'string') {
-      return t.failure(obj, ctx, `Something other than string provided`);
-    }
-
-    const asInt = parseInt(obj, 10);
-    if (Number.isNaN(asInt)) {
-      return t.failure(obj, ctx, `The string provided is not a number`);
-    }
-
-    if (asInt !== parseFloat(obj)) {
-      return t.failure(obj, ctx, `The string provided is a float`);
-    }
-    return t.success(asInt);
+    const Num = withMessage(NumberFromString, () => `Provided value is not a number`);
+    return either.chain(Num.validate(obj, ctx), n => {
+      if (n !== Math.round(n)) {
+        return t.failure(obj, ctx, `The string provided is a float`);
+      }
+      return t.success(n);
+    });
   },
   obj => String(obj)
 );
@@ -106,7 +103,7 @@ export function commaSeparated<T extends t.Type<any, string, unknown>>(
       if (typeof obj !== 'string') {
         return t.failure(obj, ctx, 'provided value is not a string');
       }
-      const splitted = obj.split(",");
+      const splitted = obj.split(',');
       return decoderArray.validate(splitted, ctx);
       // return array.traverse(either)(splitted, x => decoder.validate(x, ctx));
     },
@@ -121,10 +118,10 @@ export function flattened<T extends t.Type<any[], string, unknown>>(
     `array(${decoder.name})`,
     (x): x is t.TypeOf<T> => decoder.is(x),
     (obj, ctx) => {
-      return either.map(t.array(decoder).validate(obj, ctx), x => x.flat())
+      return either.map(t.array(decoder).validate(obj, ctx), x => x.flat());
     },
     _x => {
-      throw new Error("unimplemented")
+      throw new Error('unimplemented');
     }
   );
 }
