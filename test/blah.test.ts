@@ -1,4 +1,4 @@
-import { command, single } from '../src/CommandBuilder4';
+import { command, single } from '../src/command';
 import { ReadStream, readStreamToString } from '../src/example/test-types';
 import tempy from 'tempy';
 import fs from 'fs';
@@ -6,7 +6,7 @@ import { expectToBeRight } from '../src/jest-fp-ts';
 
 describe('blah', () => {
   const app = command({
-    stream: single({ long: 'stream', type: ReadStream, kind: 'named' }),
+    stream: { long: 'stream', type: single(ReadStream), kind: 'named' },
   });
 
   it('stream works with urls', async () => {

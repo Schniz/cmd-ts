@@ -73,7 +73,7 @@ export function minimist(
       if (input.includes('=')) {
         const [inputKey_, ...inputValues] = input.split('=');
         value = inputValues.join('=');
-        inputValue = undefined;
+        inputValue = value;
         inputKey = inputKey_;
       } else {
         inputKey = input;
@@ -94,8 +94,26 @@ export function minimist(
         skipped = !Boolean(namedArgs.long[keyWithoutPrefix]);
       } else {
         const keyWithoutPrefix = inputKey.slice(1);
-        key = namedArgs.short[keyWithoutPrefix] ?? keyWithoutPrefix;
-        skipped = !Boolean(namedArgs.short[keyWithoutPrefix]);
+        if (keyWithoutPrefix.length === 1) {
+          key = namedArgs.short[keyWithoutPrefix] ?? keyWithoutPrefix;
+          skipped = !Boolean(namedArgs.short[keyWithoutPrefix]);
+        } else {
+          for (const shortBooleanKey of keyWithoutPrefix.slice(0, -1)) {
+            const key = namedArgs.short[shortBooleanKey] ?? shortBooleanKey;
+            result.context.push({
+              type: 'namedArgument',
+              inputKey: `-${shortBooleanKey}`,
+              skipped: !Boolean(namedArgs.short[shortBooleanKey]),
+              key,
+              value: 'true',
+            });
+            result.named[key] = (result.named[key] ?? []).concat(['true']);
+          }
+          const lastKey = keyWithoutPrefix[keyWithoutPrefix.length - 1];
+          inputKey = `-${lastKey}`;
+          key = namedArgs.short[lastKey] ?? lastKey;
+          skipped = !Boolean(namedArgs.short[keyWithoutPrefix]);
+        }
       }
       if (!skipped && namedArgs.forceBoolean.has(key) && inputValue) {
         index--;
@@ -106,7 +124,7 @@ export function minimist(
       result.named[key] = (result.named[key] ?? []).concat([value]);
       result.context.push({
         type: 'namedArgument',
-        inputKey: input,
+        inputKey,
         inputValue,
         key,
         value,

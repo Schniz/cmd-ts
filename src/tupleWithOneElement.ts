@@ -1,4 +1,3 @@
-import { FromStr } from './utils';
 import * as t from 'io-ts';
 import { Either } from 'fp-ts/lib/Either';
 
@@ -7,9 +6,9 @@ import { Either } from 'fp-ts/lib/Either';
  * and creates a new decoder that accepts [string] and rejects
  * if provided 0 or more than 1 element
  */
-export function tupleWithOneElement<T extends FromStr>(
+export function tupleWithOneElement<T extends t.Type<any, string>>(
   decoder: T
-): t.Type<t.TypeOf<T>, [string], unknown> {
+): t.Type<t.TypeOf<T>, [t.OutputOf<T>], unknown> {
   const tupleT = t.array(decoder);
   return new t.Type(
     decoder.name,

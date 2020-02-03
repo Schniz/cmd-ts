@@ -19,6 +19,7 @@ import {
   TRErrors,
 } from './composedType';
 import { withMessage } from 'io-ts-types/lib/withMessage';
+import { BooleanFromString } from './BooleanFromString';
 
 type Parser<Into = unknown> = {
   parse(
@@ -34,13 +35,17 @@ type NamedArgument = {
   long?: string;
   argumentName?: string;
   env?: string;
+  description?: string;
 };
+
+export const bool = BooleanFromString;
 
 type Argument =
   | {
       kind: 'positional';
       type: t.Type<any, string>;
       displayName?: string;
+      description?: string;
     }
   | NamedArgument
   | {
@@ -48,6 +53,7 @@ type Argument =
       type: t.Type<any, ('true' | 'false')[]>;
       short?: string;
       long?: string;
+      description?: string;
     };
 
 type CommandConfig = Record<string, Argument>;
@@ -98,27 +104,76 @@ function minimistArguments<Config extends CommandConfig>(
   return { long, short, forceBoolean, positional };
 }
 
-export function single<
-  T extends Omit<NamedArgument, 'type'> & { type: t.Type<any, string> }
->(arg: T): NamedArgument {
-  return {
-    ...arg,
-    type: tupleWithOneElement(arg.type),
-  };
-}
-
-export function command<Config extends CommandConfig>(config: Config) {
+export function command<Config extends CommandConfig>(
+  config: Config,
+  description?: string
+) {
   const types = getTypes(config);
   const type = composedType(types);
   const minimistArgs = minimistArguments(config);
 
   type Types = typeof types;
 
+  function showHelp(context: ParseItem[]): never {
+    const argsSoFar = contextToString(context);
+
+    console.log(`\`${argsSoFar}\``);
+    console.log();
+
+    if (description) {
+      console.log(description);
+      console.log();
+    }
+
+    if (Object.keys(config).length > 0) {
+      console.log('Use the following arguments:');
+      console.log();
+    }
+
+    for (const [argName, argValue] of Object.entries(config)) {
+      const description = argValue.description
+        ? ` - ${argValue.description}`
+        : '';
+      switch (argValue.kind) {
+        case 'positional': {
+          const explain = chalk.dim('(positional)');
+          console.log(
+            `  <${argValue.displayName}>${description} ${explain}`.trimEnd()
+          );
+          break;
+        }
+        case 'boolean': {
+          const explain = chalk.dim('(takes no args)');
+          console.log(
+            `  --${argValue.long ??
+              kebabCase(argName)}${description} ${explain}`.trimEnd()
+          );
+          break;
+        }
+        case 'named': {
+          const valueDisplayName = argValue.argumentName ?? argValue.type.name;
+          const argDisplayName = argValue.long ?? kebabCase(argName);
+          console.log(
+            `  --${argDisplayName} <${valueDisplayName}>${description}`.trimEnd()
+          );
+        }
+      }
+    }
+
+    console.log();
+
+    process.exit(1);
+  }
+
   function parse(
     argv: string[],
     context: ParseItem[] = []
   ): Either<ParseError<Types>, [TROutput<Types>, string[]]> {
     const mmst = minimist(argv, minimistArgs);
+    if (mmst.named['h'] || mmst.named['help']) {
+      showHelp(context);
+    }
+
     return either.mapLeft(decodeMmst(mmst, type), errors => {
       return {
         ...errors,
@@ -244,20 +299,23 @@ type SubcommandResult<Config extends Record<string, Parser<any>>> = {
   ? X[keyof X]
   : never;
 
-export function binaryParser<P extends Parser<any>>(p: P, binaryName?: string): Parser<Into<P>> {
+export function binaryParser<P extends Parser<any>>(
+  p: P,
+  binaryName?: string
+): Parser<Into<P>> {
   function parse(argv: string[], context: ParseItem[] = []) {
     const [, _binaryName, ...args] = argv;
     const newContext: ParseItem[] = [
       ...context,
+      // {
+      //   type: 'positional',
+      //   position: 0,
+      //   input: 'node',
+      //   forced: false,
+      // },
       {
         type: 'positional',
         position: 0,
-        input: "node",
-        forced: false,
-      },
-      {
-        type: 'positional',
-        position: 1,
         input: binaryName ?? _binaryName,
         name: 'binaryName',
         forced: false,
@@ -269,30 +327,91 @@ export function binaryParser<P extends Parser<any>>(p: P, binaryName?: string): 
   return { parse };
 }
 
+function contextToString(ctx: ParseItem[]): string {
+  const getColor = (() => {
+    let i = 0;
+    return () => colorCycle[i++ % colorCycle.length];
+  })();
+
+  let parts: string[] = [];
+  for (const item of ctx) {
+    switch (item.type) {
+      case 'positional': {
+        parts.push(item.input);
+        break;
+      }
+      case 'namedArgument': {
+        parts.push(`${item.inputKey} ${item.inputValue}`);
+        break;
+      }
+      case 'forcePositional': {
+        parts.push('--');
+        break;
+      }
+    }
+  }
+  return parts.map(x => getColor()(x)).join(' ');
+}
+
 export function subcommands<Config extends Record<string, Parser<any>>>(
-  config: Config
+  config: Config,
+  description?: string
 ): Parser<SubcommandResult<Config>> {
   const cmdNames = Object.keys(config);
   const literals = cmdNames.map(x => t.literal(x));
-  const type: t.Type<keyof Config, string> = withMessage(
-    t.union(literals as any),
+  const type: t.Type<keyof Config | '--help' | '-h', string> = withMessage(
+    t.union([t.literal('--help'), t.literal('-h'), t.union(literals as any)]),
     () => {
       return `Not a valid command. Must be one of: ${cmdNames}`;
     }
   );
 
+  function showHelp(context: ParseItem[]): never {
+    const argsSoFar = contextToString(context);
+
+    console.log(argsSoFar + chalk.italic(' <subcommand>'));
+    console.log();
+
+    if (description) {
+      console.log(description);
+      console.log();
+    }
+
+    console.log(`${chalk.italic('<subcommand>')} can be one of:`);
+    console.log();
+
+    for (const key of cmdNames) {
+      console.log(chalk.dim('- ') + key);
+    }
+
+    const helpCommand = `${stripAnsi(argsSoFar)} <subcommand> --help`;
+
+    console.log();
+    console.log(chalk.dim(`For more help, try running \`${helpCommand}\``));
+
+    process.exit(1);
+  }
+
   function parse(
     argv: string[],
-    context: ParseItem[] = [],
+    context: ParseItem[] = []
   ): Either<ParseError<TypeRecord>, SubcommandResult<Config>> {
     const [commandName, ...args] = argv;
-    const newContext: ParseItem[] = [...context, {
-      type: 'positional',
-      name: 'subcommand',
-      input: commandName,
-      position: 0,
-      forced: false,
-    }];
+
+    if (commandName === '--help' || commandName === '-h' || !commandName) {
+      showHelp(context);
+    }
+
+    const newContext: ParseItem[] = [
+      ...context,
+      {
+        type: 'positional',
+        name: 'subcommand',
+        input: commandName,
+        position: 0,
+        forced: false,
+      },
+    ];
     const command = either.mapLeft(
       type.decode(commandName),
       (errors): ParseError<TypeRecord> => {
@@ -318,8 +437,12 @@ export function subcommands<Config extends Record<string, Parser<any>>>(
   return { parse };
 }
 
-export function ensureCliSuccess(cliResult: Either<ParseError<any>, any>): asserts cliResult is Right<any> {
-  if (cliResult._tag === "Right") return;
+export function ensureCliSuccess(
+  cliResult: Either<ParseError<any>, any>
+): asserts cliResult is Right<any> {
+  if (cliResult._tag === 'Right') return;
   prettyFormat(cliResult.left);
   process.exit(1);
 }
+
+export const single = tupleWithOneElement;

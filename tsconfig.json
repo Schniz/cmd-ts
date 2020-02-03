@@ -1,7 +1,7 @@
 {
   "include": ["src", "types", "test", "example"],
   "compilerOptions": {
-    "target": "es5",
+    "target": "es2019",
     "module": "esnext",
     "lib": ["esnext"],
     "importHelpers": true,
