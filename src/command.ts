@@ -36,6 +36,16 @@ type NamedArgument = {
   argumentName?: string;
   env?: string;
   description?: string;
+  defaultValue?: string;
+};
+
+type BooleanArgument = {
+  kind: 'boolean';
+  type: t.Type<any, ('true' | 'false')[]>;
+  short?: string;
+  long?: string;
+  description?: string;
+  defaultValue?: boolean;
 };
 
 export const bool = BooleanFromString;
@@ -48,13 +58,7 @@ type Argument =
       description?: string;
     }
   | NamedArgument
-  | {
-      kind: 'boolean';
-      type: t.Type<any, ('true' | 'false')[]>;
-      short?: string;
-      long?: string;
-      description?: string;
-    };
+  | BooleanArgument;
 
 type CommandConfig = Record<string, Argument>;
 
@@ -111,6 +115,24 @@ export function command<Config extends CommandConfig>(
   const types = getTypes(config);
   const type = composedType(types);
   const minimistArgs = minimistArguments(config);
+  const defaultValues: Record<string, string[]> = {};
+
+  for (const [argName, argValue] of Object.entries(config)) {
+    switch (argValue.kind) {
+      case 'boolean': {
+        defaultValues[argName] = [argValue.defaultValue?.toString() ?? 'false'];
+        break;
+      }
+      case 'named': {
+        const env = argValue.env ? process.env[argValue.env] : undefined;
+        const defaultValue = env ?? argValue.defaultValue;
+        if (defaultValue) {
+          defaultValues[argName] = [defaultValue];
+        }
+        break;
+      }
+    }
+  }
 
   type Types = typeof types;
 
@@ -137,9 +159,8 @@ export function command<Config extends CommandConfig>(
       switch (argValue.kind) {
         case 'positional': {
           const explain = chalk.dim('(positional)');
-          console.log(
-            `  <${argValue.displayName}>${description} ${explain}`.trimEnd()
-          );
+          const displayName = argValue.displayName ?? argValue.type.name;
+          console.log(`  <${displayName}>${description} ${explain}`.trimEnd());
           break;
         }
         case 'boolean': {
@@ -151,10 +172,19 @@ export function command<Config extends CommandConfig>(
           break;
         }
         case 'named': {
+          const env = argValue.env
+            ? chalk.dim(`[env: ${argValue.env}=${process.env[argValue.env]}]`)
+            : '';
+          const defaultValue = argValue.defaultValue
+            ? chalk.dim(`[default: ${argValue.defaultValue}]`)
+            : '';
           const valueDisplayName = argValue.argumentName ?? argValue.type.name;
           const argDisplayName = argValue.long ?? kebabCase(argName);
+          const trailing = [description, defaultValue, env]
+            .filter(Boolean)
+            .join(' ');
           console.log(
-            `  --${argDisplayName} <${valueDisplayName}>${description}`.trimEnd()
+            `  --${argDisplayName} <${valueDisplayName}>${trailing}`.trimEnd()
           );
         }
       }
@@ -170,6 +200,7 @@ export function command<Config extends CommandConfig>(
     context: ParseItem[] = []
   ): Either<ParseError<Types>, [TROutput<Types>, string[]]> {
     const mmst = minimist(argv, minimistArgs);
+    mmst.named = Object.assign({}, defaultValues, mmst.named);
     if (mmst.named['h'] || mmst.named['help']) {
       showHelp(context);
     }
@@ -278,6 +309,11 @@ function prettyFormat<TR extends TypeRecord>(parseError: ParseError<TR>) {
     }
   }
 
+  console.error(
+    chalk.red(`Can't run the requested command. Here's what I understand:`)
+  );
+  console.error();
+
   console.error(items.join(' '));
 
   const longestA = rows.reduce(
@@ -289,6 +325,12 @@ function prettyFormat<TR extends TypeRecord>(parseError: ParseError<TR>) {
     const aa = padNoAnsi(a, longestA, 'start');
     console.error(color(`${aa}  ${b}`.trimEnd()));
   }
+
+  const currentCmd = stripAnsi(contextToString(parseError.parsed.context));
+  console.error();
+  console.error(
+    chalk.red(`Try running \`${currentCmd} --help\` to learn more`)
+  );
 }
 
 type Into<P extends Parser<any>> = P extends Parser<infer Into> ? Into : never;

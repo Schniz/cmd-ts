@@ -53,6 +53,18 @@ const withSubcommands = subcommands({
       kind: 'positional',
       type: t.string,
     },
+    noExclaim: {
+      kind: 'boolean',
+      type: single(bool),
+      long: 'no-exclaim',
+    },
+    greeting: {
+      kind: 'named',
+      type: single(t.string),
+      description: 'the greeting to say',
+      env: 'GREETING_NAME',
+      defaultValue: 'hello',
+    }
   }),
   composed: subcommands({
     cat: withStream,
@@ -68,6 +80,10 @@ async function main() {
 
   if (result.command === 'cat') {
     result.args[0].stream.pipe(process.stdout);
+  } else if (result.command === 'greet') {
+    const { greeting, name, noExclaim } = result.args[0];
+    const exclaim = noExclaim ? '' : '!';
+    console.log(`${greeting}, ${name}${exclaim}`);
   } else if (result.command === 'hello') {
     console.log(result.args[0].bool);
   } else if (result.command === 'composed' && result.args.command === 'cat') {

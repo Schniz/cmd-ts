@@ -1,10 +1,4 @@
 import stripAnsi from 'strip-ansi';
-import * as t from 'io-ts';
-
-export type FromStr<T = any> = t.Type<T, string | undefined, unknown>;
-export type FromStrArray<T = any> = t.Type<T, string[] | undefined, unknown>;
-
-export const INTERNAL_CLI_ARGS_NAME = '__clio_ts__';
 
 export function padNoAnsi(
   str: string,
