@@ -39,6 +39,7 @@ const withStream = command({
     kind: 'positional',
     displayName: 'stream',
     type: ReadStream,
+    description: 'A file/url to read',
   },
 }, 'A simple `cat` clone');
 
