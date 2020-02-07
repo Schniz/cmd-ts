@@ -9,67 +9,67 @@ import {
   binaryParser,
   single,
   bool,
+  named,
+  boolean,
+  positional,
 } from '../command';
 
 const y = command(
   {
-    pos1: {
-      kind: 'positional',
+    pos1: positional({
       displayName: 'pos1',
       type: IntOfStr,
       description: 'some integer number',
-    },
-    named1: {
-      kind: 'named',
+    }),
+    named1: named({
       type: single(IntOfStr),
       short: 'n',
       long: 'number',
-    },
-    bool: {
-      kind: 'boolean',
+    }),
+    bool: boolean({
       type: t.array(bool),
       long: 'boolean',
-    },
+    }),
   },
   'Just prints the arguments'
 );
 
-const withStream = command({
-  stream: {
-    kind: 'positional',
-    displayName: 'stream',
-    type: ReadStream,
-    description: 'A file/url to read',
+const withStream = command(
+  {
+    stream: positional({
+      displayName: 'stream',
+      type: ReadStream,
+      description: 'A file/url to read',
+    }),
   },
-}, 'A simple `cat` clone');
+  'A simple `cat` clone'
+);
 
-// const result = y.parse(process.argv.slice(2));
-
-const withSubcommands = subcommands({
-  hello: y,
-  cat: withStream,
-  greet: command({
-    name: {
-      kind: 'positional',
-      type: t.string,
-    },
-    noExclaim: {
-      kind: 'boolean',
-      type: single(bool),
-      long: 'no-exclaim',
-    },
-    greeting: {
-      kind: 'named',
-      type: single(t.string),
-      description: 'the greeting to say',
-      env: 'GREETING_NAME',
-      defaultValue: 'hello',
-    }
-  }),
-  composed: subcommands({
+const withSubcommands = subcommands(
+  {
+    hello: y,
     cat: withStream,
-  })
-}, `my wonderful multicommand app`);
+    greet: command({
+      name: positional({
+        type: t.string,
+      }),
+      noExclaim: boolean({
+        type: single(bool),
+        long: 'no-exclaim',
+      }),
+      greeting: named({
+        type: single(t.string),
+        description: 'the greeting to say',
+        env: 'GREETING_NAME',
+        defaultValue: 'hello',
+      }),
+    }),
+    composed: subcommands({
+      cat: withStream,
+    }),
+  },
+  `my wonderful multicommand app`
+);
 
 const cli = binaryParser(withSubcommands, 'app');
 

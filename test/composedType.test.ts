@@ -1,6 +1,6 @@
-import { composedType } from './composedType';
+import { composedType } from '../src/composedType';
 import * as t from 'io-ts';
-import { expectToBeLeft, expectToBeRight } from './jest-fp-ts';
+import { expectToBeLeft, expectToBeRight } from './fp-ts-helpers';
 
 it('combines all the errors', () => {
   const value = composedType({

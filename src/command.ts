@@ -49,16 +49,26 @@ type BooleanArgument = {
 };
 
 export const bool = BooleanFromString;
+export function boolean(t: Omit<BooleanArgument, 'kind'>): BooleanArgument {
+  return { kind: 'boolean', ...t };
+}
+export function positional(
+  t: Omit<PositionalArgument, 'kind'>
+): PositionalArgument {
+  return { kind: 'positional', ...t };
+}
+export function named(t: Omit<NamedArgument, 'kind'>): NamedArgument {
+  return { kind: 'named', ...t };
+}
 
-type Argument =
-  | {
-      kind: 'positional';
-      type: t.Type<any, string>;
-      displayName?: string;
-      description?: string;
-    }
-  | NamedArgument
-  | BooleanArgument;
+type PositionalArgument = {
+  kind: 'positional';
+  type: t.Type<any, string>;
+  displayName?: string;
+  description?: string;
+};
+
+type Argument = PositionalArgument | NamedArgument | BooleanArgument;
 
 type CommandConfig = Record<string, Argument>;
 

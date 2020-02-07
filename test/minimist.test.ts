@@ -1,4 +1,4 @@
-import { minimist, MinimistResult } from './minimist';
+import { minimist, MinimistResult } from '../src/minimist';
 
 test('works', () => {
   const result = minimist(
