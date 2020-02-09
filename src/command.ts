@@ -194,7 +194,7 @@ export function command<Config extends CommandConfig>(
             .filter(Boolean)
             .join(' ');
           console.log(
-            `  --${argDisplayName} <${valueDisplayName}>${trailing}`.trimEnd()
+            `  --${argDisplayName} <${valueDisplayName}> ${trailing}`.trimEnd()
           );
         }
       }
@@ -460,7 +460,7 @@ export function subcommands<Config extends Record<string, Parser<any>>>(
         type: 'positional',
         name: 'subcommand',
         input: commandName,
-        position: 0,
+        position: 0, // TODO: get real position here
         forced: false,
       },
     ];
