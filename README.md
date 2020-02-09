@@ -30,14 +30,14 @@ const [{ file }] = parsed;
 fs.createReadStream(file).pipe(stdout);
 ```
 
-That works okay. But we can do better. What if we had a way to get a `Stream` in return? This is where `clio-ts` gets its power from. Custom types.
+That works okay. But we can do better. What if we had a way to get a `Stream` in return? This is where `clio-ts` gets its power from. Custom types with `io-ts`:
 
 ```ts
 // ReadStream.ts
 
 const ReadStream = new t.Type<Stream, string>(
   'ReadStream',
-  _ => unimplemented(),
+  _ => unimplemented(), // This isn't relevant for one-way casting
   (obj, ctx) => {
     // Check that the value provided is a string
     if (typeof obj !== 'string') {
@@ -48,7 +48,7 @@ const ReadStream = new t.Type<Stream, string>(
     const stream = fs.createReadStream(file);
     return t.success(stream);
   },
-  _ => unimplemented()
+  _ => unimplemented(), // This isn't relevant for one-way casting
 );
 ```
 
