@@ -35,7 +35,12 @@ That works okay. But we can do better. What if we had a way to get a `Stream` in
 ```ts
 // ReadStream.ts
 
-const ReadStream = new t.Type<Stream, string>(
+const ReadStream = new t.Type<
+  /* Into a */
+  Stream,
+  /* From a */
+  string
+>(
   'ReadStream',
   _ => unimplemented(), // This isn't relevant for one-way casting
   (obj, ctx) => {
