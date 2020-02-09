@@ -10,7 +10,9 @@ export type ComposedType<TR extends TypeRecord> = (
   value: unknown
 ) => Either<TRErrors<TR>, TROutput<TR>>;
 
-export function emptyError<TR extends TypeRecord = TypeRecord>(record: TR): TRErrors<TR> {
+export function emptyError<TR extends TypeRecord = TypeRecord>(
+  record: TR
+): TRErrors<TR> {
   const result = {} as TRErrors<TR>;
 
   for (const key of Object.keys(record)) {

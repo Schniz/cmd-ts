@@ -29,7 +29,7 @@ test('works', () => {
         'one-word': 'oneWord',
       },
       forceBoolean: new Set(['boolean']),
-      positional: { 0: 'greeting' }
+      positional: { 0: 'greeting' },
     }
   );
   expect(result).toEqual({

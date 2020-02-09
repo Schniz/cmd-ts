@@ -128,55 +128,58 @@ describe('a command with positional arguments', () => {
 });
 
 describe('command help', () => {
-  const app = command({
-    posWODisplay: positional({ type: t.string }),
-    posWithDisplay: positional({
-      type: t.string,
-      displayName: 'PositionalWithDisplayName',
-      description: 'pos argument with a display name',
-    }),
-    plainNamed: named({
-      type: single(t.string),
-      argumentName: 'pokemon name',
-    }),
-    namedWithLong: named({
-      type: single(t.string),
-      long: 'named-with-long',
-    }),
-    namedWithShort: named({
-      type: single(t.string),
-      short: 'p',
-      description: 'a short, named argument',
-    }),
-    namedWithLongAndShort: named({
-      type: single(t.string),
-      long: 'named-with-long-and-short',
-      short: 'x',
-      env: 'HOWDY',
-    }),
-    namedWithDefaultValue: named({
-      type: single(t.string),
-      long: 'named-with-default-value',
-      defaultValue: 'DEFAULT_VALUE',
-    }),
-    noExclaim: boolean({
-      type: single(bool),
-      description: 'drop the exclamation mark',
-      long: 'no-exclaim',
-    }),
-    verbose: boolean({
-      type: single(bool),
-      description: 'silly logging',
-    }),
-  }, 'Some description');
+  const app = command(
+    {
+      posWODisplay: positional({ type: t.string }),
+      posWithDisplay: positional({
+        type: t.string,
+        displayName: 'PositionalWithDisplayName',
+        description: 'pos argument with a display name',
+      }),
+      plainNamed: named({
+        type: single(t.string),
+        argumentName: 'pokemon name',
+      }),
+      namedWithLong: named({
+        type: single(t.string),
+        long: 'named-with-long',
+      }),
+      namedWithShort: named({
+        type: single(t.string),
+        short: 'p',
+        description: 'a short, named argument',
+      }),
+      namedWithLongAndShort: named({
+        type: single(t.string),
+        long: 'named-with-long-and-short',
+        short: 'x',
+        env: 'HOWDY',
+      }),
+      namedWithDefaultValue: named({
+        type: single(t.string),
+        long: 'named-with-default-value',
+        defaultValue: 'DEFAULT_VALUE',
+      }),
+      noExclaim: boolean({
+        type: single(bool),
+        description: 'drop the exclamation mark',
+        long: 'no-exclaim',
+      }),
+      verbose: boolean({
+        type: single(bool),
+        description: 'silly logging',
+      }),
+    },
+    'Some description'
+  );
 
   it('prints help', () => {
-    let log = "";
+    let log = '';
     jest.spyOn(console, 'log').mockImplementation((...v) => {
-      log += "\n" + v.join(' ');
+      log += '\n' + v.join(' ');
     });
     jest.spyOn(console, 'error').mockImplementation((...v) => {
-      log += "\n" + v.join(' ');
+      log += '\n' + v.join(' ');
     });
     jest.spyOn(process, 'exit').mockImplementation(() => {
       return ({} as any) as never;

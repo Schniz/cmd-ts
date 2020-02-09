@@ -6,7 +6,7 @@ import URL from 'url';
 import { Either, either, Right } from 'fp-ts/lib/Either';
 import { BooleanFromString } from 'io-ts-types/lib/BooleanFromString';
 import { withMessage } from 'io-ts-types/lib/withMessage';
-import {NumberFromString} from 'io-ts-types/lib/NumberFromString';
+import { NumberFromString } from 'io-ts-types/lib/NumberFromString';
 
 export const BoolOfStr = withMessage(
   BooleanFromString,
@@ -19,7 +19,10 @@ export const IntOfStr = new t.Type<number, string, unknown>(
     return typeof x === 'number' && Math.round(x) === x;
   },
   (obj, ctx) => {
-    const Num = withMessage(NumberFromString, () => `Provided value is not a number`);
+    const Num = withMessage(
+      NumberFromString,
+      () => `Provided value is not a number`
+    );
     return either.chain(Num.validate(obj, ctx), n => {
       if (n !== Math.round(n)) {
         return t.failure(obj, ctx, `The string provided is a float`);
