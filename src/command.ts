@@ -454,13 +454,16 @@ export function subcommands<Config extends Record<string, Parser<any>>>(
       showHelp(context);
     }
 
+    const position = context.map(x => x.type === 'positional').length;
+    const key = `subcommand${position}`;
+
     const newContext: ParseItem[] = [
       ...context,
       {
         type: 'positional',
-        name: 'subcommand',
+        name: key,
         input: commandName,
-        position: 0, // TODO: get real position here
+        position,
         forced: false,
       },
     ];
@@ -468,11 +471,11 @@ export function subcommands<Config extends Record<string, Parser<any>>>(
       type.decode(commandName),
       (errors): ParseError<TypeRecord> => {
         return {
-          errors: { subcommand: errors },
+          errors: { [key]: errors },
           parsed: {
             positional: [],
             named: {
-              subcommand: [commandName],
+              [key]: [commandName],
             },
             context: newContext,
           },
