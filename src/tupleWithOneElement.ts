@@ -1,5 +1,6 @@
 import * as t from 'io-ts';
 import { Either } from 'fp-ts/lib/Either';
+import { unimplemented } from './utils';
 
 /**
  * Takes a decoder T (io-ts type) that accepts a string
@@ -46,8 +47,6 @@ export function tupleWithOneElement<T extends t.Type<any, string>>(
 
       return decoder.validate(obj[0], context);
     },
-    function encode(_val) {
-      throw new Error('WERA');
-    }
+    _ => unimplemented()
   );
 }

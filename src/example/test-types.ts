@@ -7,6 +7,7 @@ import { Either, either, Right } from 'fp-ts/lib/Either';
 import { BooleanFromString } from 'io-ts-types/lib/BooleanFromString';
 import { withMessage } from 'io-ts-types/lib/withMessage';
 import { NumberFromString } from 'io-ts-types/lib/NumberFromString';
+import { unimplemented } from '../utils';
 
 export const BoolOfStr = withMessage(
   BooleanFromString,
@@ -63,9 +64,7 @@ export const ReadStream = new t.Type<Stream, string, unknown>(
 
     return t.success(createReadStream(obj));
   },
-  _obj => {
-    throw new Error("Can't unparse it");
-  }
+  _ => unimplemented()
 );
 
 export function ensureRight<T>(e: Either<any, T>): asserts e is Right<T> {
@@ -123,8 +122,6 @@ export function flattened<T extends t.Type<any[], string, unknown>>(
     (obj, ctx) => {
       return either.map(t.array(decoder).validate(obj, ctx), x => x.flat());
     },
-    _x => {
-      throw new Error('unimplemented');
-    }
+    _ => unimplemented()
   );
 }

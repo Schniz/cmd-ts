@@ -1,5 +1,9 @@
 import stripAnsi from 'strip-ansi';
 
+export function unimplemented(): never {
+  throw new Error('unimplemented');
+}
+
 export function padNoAnsi(
   str: string,
   length: number,
