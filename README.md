@@ -4,14 +4,17 @@
 
 A fully-fledged command line argument parser, influenced by Rust's `clap`, using `io-ts` for safe type conversions:
 
-👏 Awesome autocomplete, awesome safeness
-👏 Decode your own custom types from strings
-👏 Multiple arguments: `--number 10 --number 20`
-👏 Nested subcommands
+🤩 Awesome autocomplete, awesome safeness
+
+🎭 Decode your own custom types from strings
+
+🌲 Nested subcommands, composable API
 
 ### Decoding custom types from strings
 
-> ℹ Note: this section describes the `ReadStream` type, implemented in `./src/example/test-types.ts`
+Not all command line arguments should be strings. You sometimes want integers, UUIDs, file paths, directories, globs...
+
+> **Note:** this section describes the `ReadStream` type, implemented in `./src/example/test-types.ts`
 
 Let's say we're about to write a `cat` clone. We want to accept a file to read into stdout. A simple example would be something like:
 
