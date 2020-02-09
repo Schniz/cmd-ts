@@ -57,6 +57,8 @@ Now we can use (and share) this type and always get a Stream, instead of carryin
 const app = command({
   stream: positional({ type: ReadStream, displayName: 'file' }),
 });
+// const parsed = app.parse(...);
+// ensureCliSuccess(parsed);
 const [{ stream }] = parsed;
 stream.pipe(stdout);
 ```
