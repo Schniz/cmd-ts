@@ -22,8 +22,13 @@ jobs:
           environment:
             JEST_JUNIT_OUTPUT_DIR: "test-results/jest"
 
+      - run: yarn pack -f clio-ts.tgz
+
       - store_test_results:
           path: test-results
 
       - store_artifacts:
           path: coverage
+
+      - store_artifacts:
+          path: clio-ts.tgz
