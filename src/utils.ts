@@ -1,5 +1,8 @@
 import stripAnsi from 'strip-ansi';
 
+/**
+ * Throws an error with an `unimplemented` message
+ */
 export function unimplemented(): never {
   throw new Error('unimplemented');
 }

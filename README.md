@@ -2,7 +2,7 @@
 
 > 💻 A type-driven command line argument parser, based on [`io-ts`](https://github.com/gcanti/io-ts).
 
-A fully-fledged command line argument parser, influenced by Rust's `clap`, using `io-ts` for safe type conversions:
+A fully-fledged command line argument parser, influenced by Rust's [`clap`](https://github.com/clap-rs/clap), using `io-ts` for safe type conversions:
 
 🤩 Awesome autocomplete, awesome safeness
 
@@ -24,8 +24,11 @@ Let's say we're about to write a `cat` clone. We want to accept a file to read i
 const app = command({
   file: positional({ type: t.string, displayName: 'file' }),
 });
-// const parsed = app.parse(...);
-// ensureCliSuccess(parsed);
+
+// parse arguments
+const parsed = app.parse(process.argv.slice(2));
+ensureCliSuccess(parsed);
+
 const [{ file }] = parsed;
 fs.createReadStream(file).pipe(stdout);
 ```
@@ -34,6 +37,8 @@ That works okay. But we can do better. What if we had a way to get a `Stream` in
 
 ```ts
 // ReadStream.ts
+
+import { t, unimplemented } from 'clio-ts';
 
 const ReadStream = new t.Type<
   /* Into a */
@@ -53,7 +58,7 @@ const ReadStream = new t.Type<
     const stream = fs.createReadStream(file);
     return t.success(stream);
   },
-  _ => unimplemented(), // This isn't relevant for one-way casting
+  _ => unimplemented() // This isn't relevant for one-way casting
 );
 ```
 
@@ -65,8 +70,11 @@ Now we can use (and share) this type and always get a Stream, instead of carryin
 const app = command({
   stream: positional({ type: ReadStream, displayName: 'file' }),
 });
-// const parsed = app.parse(...);
-// ensureCliSuccess(parsed);
+
+// parse arguments
+const parsed = app.parse(process.argv.slice(2));
+ensureCliSuccess(parsed);
+
 const [{ stream }] = parsed;
 stream.pipe(stdout);
 ```
