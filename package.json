@@ -42,6 +42,7 @@
     "husky": "^4.2.1",
     "io-ts": "^2.0.6",
     "io-ts-types": "^0.5.5",
+    "jest-junit": "^10.0.0",
     "request": "^2.88.0",
     "strip-ansi": "^6.0.0",
     "tempy": "^0.3.0",

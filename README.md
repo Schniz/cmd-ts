@@ -21,13 +21,14 @@ Let's say we're about to write a `cat` clone. We want to accept a file to read i
 ```ts
 // my-app.ts
 
+import { command, parse, positional, t } from 'clio-ts';
+
 const app = command({
   file: positional({ type: t.string, displayName: 'file' }),
 });
 
 // parse arguments
-const parsed = app.parse(process.argv.slice(2));
-ensureCliSuccess(parsed);
+const parsed = parse(app, process.argv.slice(2));
 
 const [{ file }] = parsed;
 fs.createReadStream(file).pipe(stdout);
@@ -67,13 +68,14 @@ Now we can use (and share) this type and always get a Stream, instead of carryin
 ```ts
 // my-app.ts
 
+import { command, parse, positional, t } from 'clio-ts';
+
 const app = command({
   stream: positional({ type: ReadStream, displayName: 'file' }),
 });
 
 // parse arguments
-const parsed = app.parse(process.argv.slice(2));
-ensureCliSuccess(parsed);
+const parsed = parse(app, process.argv.slice(2));
 
 const [{ stream }] = parsed;
 stream.pipe(stdout);

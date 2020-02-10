@@ -4,29 +4,24 @@ import { existsSync, createReadStream } from 'fs';
 import request from 'request';
 import URL from 'url';
 import { Either, either, Right } from 'fp-ts/lib/Either';
-import { BooleanFromString } from 'io-ts-types/lib/BooleanFromString';
 import { withMessage } from 'io-ts-types/lib/withMessage';
 import { NumberFromString } from 'io-ts-types/lib/NumberFromString';
 import { unimplemented } from '../utils';
 
-export const BoolOfStr = withMessage(
-  BooleanFromString,
-  () => 'This is neither `true` nor `false`'
+const NumOfStr = withMessage(
+  NumberFromString,
+  () => `Provided value is not a number`
 );
 
-export const IntOfStr = new t.Type<number, string, unknown>(
+export const Integer = new t.Type<number, string>(
   'integer',
   (x: unknown): x is number => {
     return typeof x === 'number' && Math.round(x) === x;
   },
   (obj, ctx) => {
-    const Num = withMessage(
-      NumberFromString,
-      () => `Provided value is not a number`
-    );
-    return either.chain(Num.validate(obj, ctx), n => {
+    return either.chain(NumOfStr.validate(obj, ctx), n => {
       if (n !== Math.round(n)) {
-        return t.failure(obj, ctx, `The string provided is a float`);
+        return t.failure(obj, ctx, `This is a float, not an integer`);
       }
       return t.success(n);
     });
@@ -38,7 +33,7 @@ function stdin() {
   return (global as any).mockStdin || process.stdin;
 }
 
-export const ReadStream = new t.Type<Stream, string, unknown>(
+export const ReadStream = new t.Type<Stream, string>(
   'read stream',
   (x: unknown): x is Stream => {
     return x && typeof (x as any).pipe === 'function';

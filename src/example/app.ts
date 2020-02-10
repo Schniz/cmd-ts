@@ -1,7 +1,7 @@
 #!/usr/bin/env YARN_SILENT=1 yarn ts-node
 
 import * as t from 'io-ts';
-import { IntOfStr, ReadStream } from './test-types';
+import { Integer, ReadStream } from './test-types';
 import {
   ensureCliSuccess,
   command,
@@ -18,11 +18,11 @@ const y = command(
   {
     pos1: positional({
       displayName: 'pos1',
-      type: IntOfStr,
+      type: Integer,
       description: 'some integer number',
     }),
     named1: named({
-      type: single(IntOfStr),
+      type: single(Integer),
       short: 'n',
       long: 'number',
     }),

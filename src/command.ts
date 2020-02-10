@@ -492,12 +492,31 @@ export function subcommands<Config extends Record<string, Parser<any>>>(
   return { parse };
 }
 
+/**
+ * Pretty-print errors and exit with exit code 1 on error,
+ * otherwise, continue.
+ */
 export function ensureCliSuccess(
   cliResult: Either<ParseError<any>, any>
 ): asserts cliResult is Right<any> {
   if (cliResult._tag === 'Right') return;
   prettyFormat(cliResult.left);
   process.exit(1);
+}
+
+/**
+ * Parse arguments and exit on errors
+ *
+ * @param parser The command to parse with
+ * @param args String arguments to pass to the command
+ */
+export function parse<P extends Parser>(
+  parser: P,
+  args: string[]
+): Into<Parser> {
+  const result = parser.parse(args);
+  ensureCliSuccess(result);
+  return result.right;
 }
 
 export const single = tupleWithOneElement;

@@ -1,16 +1,8 @@
-import * as t from 'io-ts';
-import {
-  command,
-  single,
-  named,
-  positional,
-  boolean,
-  bool,
-} from '../src/command';
+import { command, single, named, positional, boolean, bool, t } from '../src';
 import {
   ReadStream,
   readStreamToString,
-  IntOfStr,
+  Integer,
 } from '../src/example/test-types';
 import tempy from 'tempy';
 import fs from 'fs';
@@ -18,7 +10,7 @@ import { expectToBeRight, expectToBeLeft } from './fp-ts-helpers';
 
 describe('multiple named arguments', () => {
   const app = command({
-    numbers: named({ long: 'number', short: 'n', type: t.array(IntOfStr) }),
+    numbers: named({ long: 'number', short: 'n', type: t.array(Integer) }),
   });
 
   it('collects all the named arguments', () => {
