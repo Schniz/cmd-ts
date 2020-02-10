@@ -11,38 +11,39 @@ import {
   binaryParser,
   single,
   bool,
-  named,
-  boolean,
-  positional,
 } from '../command';
 
 const y = command(
   {
-    pos1: positional({
+    pos1: {
+      kind: 'positional',
       displayName: 'pos1',
       type: Integer,
       description: 'some integer number',
-    }),
-    named1: named({
+    },
+    named1: {
+      kind: 'named',
       type: single(Integer),
       short: 'n',
       long: 'number',
-    }),
-    bool: boolean({
+    },
+    bool: {
+      kind: 'boolean',
       type: t.array(bool),
       long: 'boolean',
-    }),
+    },
   },
   'Just prints the arguments'
 );
 
 const withStream = command(
   {
-    stream: positional({
+    stream: {
+      kind: 'positional',
       displayName: 'stream',
       type: ReadStream,
       description: 'A file/url to read',
-    }),
+    },
   },
   'A simple `cat` clone'
 );
@@ -52,19 +53,22 @@ const withSubcommands = subcommands(
     hello: y,
     cat: withStream,
     greet: command({
-      name: positional({
+      name: {
+        kind: 'positional',
         type: t.string,
-      }),
-      noExclaim: boolean({
+      },
+      noExclaim: {
+        kind: 'named',
         type: single(bool),
         long: 'no-exclaim',
-      }),
-      greeting: named({
+      },
+      greeting: {
+        kind: 'named',
         type: single(t.string),
         description: 'the greeting to say',
         env: 'GREETING_NAME',
         defaultValue: 'hello',
-      }),
+      },
     }),
     composed: subcommands({
       cat: withStream,

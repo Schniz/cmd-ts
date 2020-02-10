@@ -1,14 +1,4 @@
-import {
-  subcommands,
-  parse,
-  command,
-  single,
-  named,
-  positional,
-  boolean,
-  bool,
-  t,
-} from '../src';
+import { subcommands, parse, command, single, bool, t } from '../src';
 import {
   ReadStream,
   readStreamToString,
@@ -20,7 +10,12 @@ import { expectToBeRight, expectToBeLeft } from './fp-ts-helpers';
 
 describe('multiple named arguments', () => {
   const app = command({
-    numbers: named({ long: 'number', short: 'n', type: t.array(Integer) }),
+    numbers: {
+      kind: 'named',
+      long: 'number',
+      short: 'n',
+      type: t.array(Integer),
+    },
   });
 
   it('collects all the named arguments', () => {
@@ -45,7 +40,7 @@ describe('multiple named arguments', () => {
 
 describe('a simple command using a stream', () => {
   const app = command({
-    stream: named({ long: 'stream', type: single(ReadStream) }),
+    stream: { kind: 'named', long: 'stream', type: single(ReadStream) },
   });
 
   it('stream works with urls', async () => {
@@ -77,17 +72,19 @@ describe('a simple command using a stream', () => {
 
 describe('a command with positional arguments', () => {
   const app = command({
-    name: positional({ type: t.string }),
-    greeting: named({
+    name: { kind: 'positional', type: t.string },
+    greeting: {
+      kind: 'named',
       type: single(t.string),
       long: 'greeting',
       defaultValue: 'Hello',
-    }),
-    noExclaim: boolean({
+    },
+    noExclaim: {
+      kind: 'boolean',
       type: single(bool),
       description: 'drop the exclamation mark',
       long: 'no-exclaim',
-    }),
+    },
   });
 
   it(`fails when a positional argument is missing`, () => {
@@ -132,45 +129,53 @@ describe('a command with positional arguments', () => {
 describe('command help', () => {
   const app = command(
     {
-      posWODisplay: positional({ type: Integer }),
-      posWithDisplay: positional({
+      posWODisplay: { kind: 'positional', type: Integer },
+      posWithDisplay: {
+        kind: 'positional',
         type: t.string,
         displayName: 'PositionalWithDisplayName',
         description: 'pos argument with a display name',
-      }),
-      plainNamed: named({
+      },
+      plainNamed: {
+        kind: 'named',
         type: single(t.string),
         argumentName: 'pokemon name',
-      }),
-      namedWithLong: named({
+      },
+      namedWithLong: {
+        kind: 'named',
         type: single(t.string),
         long: 'named-with-long',
-      }),
-      namedWithShort: named({
+      },
+      namedWithShort: {
+        kind: 'named',
         type: single(t.string),
         short: 'p',
         description: 'a short, named argument',
-      }),
-      namedWithLongAndShort: named({
+      },
+      namedWithLongAndShort: {
+        kind: 'named',
         type: single(t.string),
         long: 'named-with-long-and-short',
         short: 'x',
         env: 'HOWDY',
-      }),
-      namedWithDefaultValue: named({
+      },
+      namedWithDefaultValue: {
+        kind: 'named',
         type: single(t.string),
         long: 'named-with-default-value',
         defaultValue: 'DEFAULT_VALUE',
-      }),
-      noExclaim: boolean({
+      },
+      noExclaim: {
+        kind: 'boolean',
         type: single(bool),
         description: 'drop the exclamation mark',
         long: 'no-exclaim',
-      }),
-      verbose: boolean({
+      },
+      verbose: {
+        kind: 'boolean',
         type: single(bool),
         description: 'silly logging',
-      }),
+      },
     },
     'Some description'
   );
@@ -202,10 +207,10 @@ describe('command help', () => {
 });
 
 describe('subcommands', () => {
-  const hello = command({ name: positional({ type: t.string }) });
+  const hello = command({ name: { kind: 'positional', type: t.string } });
   const greet = command({
-    greeting: positional({ type: t.string }),
-    name: positional({ type: t.string }),
+    greeting: { kind: 'positional', type: t.string },
+    name: { kind: 'positional', type: t.string },
   });
   const app = subcommands({
     hello,

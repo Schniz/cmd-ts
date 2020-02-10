@@ -21,6 +21,8 @@ import {
 import { withMessage } from 'io-ts-types/lib/withMessage';
 import { BooleanFromString } from './BooleanFromString';
 
+export const bool = BooleanFromString;
+
 type Parser<Into = unknown> = {
   parse(
     argv: string[],
@@ -47,25 +49,6 @@ type BooleanArgument = {
   description?: string;
   defaultValue?: boolean;
 };
-
-export const bool = BooleanFromString;
-export function boolean<B extends NoKind<BooleanArgument>>(
-  t: B
-): B & { kind: 'boolean' } {
-  return { kind: 'boolean', ...t };
-}
-
-type NoKind<T extends Argument> = Omit<T, 'kind'>;
-export function positional<P extends NoKind<PositionalArgument>>(
-  t: P
-): P & { kind: 'positional' } {
-  return { kind: 'positional', ...t };
-}
-export function named<N extends NoKind<NamedArgument>>(
-  t: N
-): N & { kind: 'named' } {
-  return { kind: 'named', ...t };
-}
 
 type PositionalArgument = {
   kind: 'positional';
