@@ -15,7 +15,10 @@
     "ts-node": "TS_NODE_TRANSPILE_ONLY=true node -r esm -r ts-node/register",
     "run-example": "yarn --silent ts-node src/example/app.ts"
   },
-  "peerDependencies": {},
+  "peerDependencies": {
+    "fp-ts": "^2.4.2",
+    "io-ts": "^2.0.6"
+  },
   "husky": {
     "hooks": {
       "pre-commit": "tsdx lint"
@@ -36,7 +39,6 @@
     "@types/lodash.kebabcase": "^4.1.6",
     "@types/minimist": "^1.2.0",
     "@types/request": "^2.48.4",
-    "@types/yargs": "^15.0.2",
     "esm": "^3.2.25",
     "fp-ts": "^2.4.2",
     "husky": "^4.2.1",

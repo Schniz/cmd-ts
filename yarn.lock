@@ -1064,11 +1064,12 @@
     "@types/istanbul-lib-report" "*"
 
 "@types/jest@^25.1.0":
-  version "25.1.0"
-  resolved "https://registry.npmjs.org/@types/jest/-/jest-25.1.0.tgz#b3955aa0be6057c65c0bfb11ac2ef1e078598d76"
-  integrity sha512-MYX8LpNQboef1NDZQTchM5poL8WITRVG/4/1XLK/Xsamjptsvgb8ELTRoXixBARi+a81mMT4n2hooqaydEOE9A==
+  version "25.1.2"
+  resolved "https://registry.npmjs.org/@types/jest/-/jest-25.1.2.tgz#1c4c8770c27906c7d8def5d2033df9dbd39f60da"
+  integrity sha512-EsPIgEsonlXmYV7GzUqcvORsSS9Gqxw/OvkGwHfAdpjduNRxMlhsav0O5Kb0zijc/eXSO/uW6SJt9nwull8AUQ==
   dependencies:
     jest-diff "^25.1.0"
+    pretty-format "^25.1.0"
 
 "@types/json-schema@^7.0.3":
   version "7.0.4"
@@ -1169,10 +1170,10 @@
   dependencies:
     "@types/yargs-parser" "*"
 
-"@types/yargs@^15.0.0", "@types/yargs@^15.0.2":
-  version "15.0.2"
-  resolved "https://registry.npmjs.org/@types/yargs/-/yargs-15.0.2.tgz#0bf292a0369493cee030e2e4f4ff84f5982b028d"
-  integrity sha512-hFkuAp58M2xOc1QgJhkFrLMnqa8KWTFRTnzrI1zlEcOfg3DZ0eH3aPAo/N6QlVVu8E4KS4xD1jtEG3rdQYFmIg==
+"@types/yargs@^15.0.0":
+  version "15.0.3"
+  resolved "https://registry.npmjs.org/@types/yargs/-/yargs-15.0.3.tgz#41453a0bc7ab393e995d1f5451455638edbd2baf"
+  integrity sha512-XCMQRK6kfpNBixHLyHUsGmXrpEmFFxzMrcnSXFMziHd8CoNJo8l16FkHyQq4x+xbM7E2XL83/O78OD8u+iZTdQ==
   dependencies:
     "@types/yargs-parser" "*"
 
@@ -2753,9 +2754,9 @@ form-data@~2.3.2:
     mime-types "^2.1.12"
 
 fp-ts@^2.4.2:
-  version "2.4.2"
-  resolved "https://registry.npmjs.org/fp-ts/-/fp-ts-2.4.2.tgz#a24cd18d1f3a484913838de482125e6ddabdd939"
-  integrity sha512-/6dNmbu2CRhwR+/OpjLYT3OAlIlyrnY1qjbGDeyYkisTqQfbIdWL1P4sn28yKhcBLcfIvjo9614sfo0EKscOMA==
+  version "2.4.4"
+  resolved "https://registry.npmjs.org/fp-ts/-/fp-ts-2.4.4.tgz#d1ffe3e62ee4fa789562242d5a3f9b957740b783"
+  integrity sha512-J5wFa/BzT57A+DIvwAYS5LTsbRiXsvF9hsefP3ZfzsHLuWGjtHAheG1WscG1tX3og1PDZyv6mZAUTlpH1MmHhA==
 
 fragment-cache@^0.2.1:
   version "0.2.1"
@@ -3116,9 +3117,9 @@ io-ts-types@^0.5.5:
   integrity sha512-REkSSrgkfxFzDy32dsrPiQqGERO2o4KUtSox96B4ZKFSiB5mg0zl4cXl072TvROzcvuc0zGPlFzrRTYWaTcj/w==
 
 io-ts@^2.0.6:
-  version "2.0.6"
-  resolved "https://registry.npmjs.org/io-ts/-/io-ts-2.0.6.tgz#49e65cb8508ace0329a45bfa94cd9d29d1e0cce5"
-  integrity sha512-WNfGzm4csMVwL4hX6QlpQWu65SV6GmOUtDo259GKlLYH1cC5bpOENgYHqQIRJ9uR3FuU1RQKDke5STwHZAn3KA==
+  version "2.1.0"
+  resolved "https://registry.npmjs.org/io-ts/-/io-ts-2.1.0.tgz#5623a8eb567686651364443dac6826c2bdc40d64"
+  integrity sha512-GnTYtJRVu8L9QEhJrkJBaVr6aR13IBH+MEIeq0WW0IE1zIk9XzMNqqf220p8InJGYwuoHNTVsHDvBQzFIp4ieg==
 
 is-accessor-descriptor@^0.1.6:
   version "0.1.6"
