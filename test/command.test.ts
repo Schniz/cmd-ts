@@ -1,4 +1,14 @@
-import { command, single, named, positional, boolean, bool, t } from '../src';
+import {
+  subcommands,
+  parse,
+  command,
+  single,
+  named,
+  positional,
+  boolean,
+  bool,
+  t,
+} from '../src';
 import {
   ReadStream,
   readStreamToString,
@@ -122,7 +132,7 @@ describe('a command with positional arguments', () => {
 describe('command help', () => {
   const app = command(
     {
-      posWODisplay: positional({ type: t.string }),
+      posWODisplay: positional({ type: Integer }),
       posWithDisplay: positional({
         type: t.string,
         displayName: 'PositionalWithDisplayName',
@@ -166,18 +176,100 @@ describe('command help', () => {
   );
 
   it('prints help', () => {
-    let log = '';
-    jest.spyOn(console, 'log').mockImplementation((...v) => {
-      log += '\n' + v.join(' ');
-    });
-    jest.spyOn(console, 'error').mockImplementation((...v) => {
-      log += '\n' + v.join(' ');
-    });
-    jest.spyOn(process, 'exit').mockImplementation(() => {
-      return ({} as any) as never;
-    });
-    app.parse(['--help']);
-    expect(log).toEqual(expect.any(String));
+    const { log } = spyCli();
+    expect(() => {
+      parse(app, ['--help']);
+    }).toThrow('process.exit(1)');
+    expect(log()).toEqual(expect.any(String));
     // expect(log.trim()).toMatchSnapshot();
   });
+
+  it('fails to parse', () => {
+    const { log } = spyCli();
+    expect(() => {
+      parse(app, []);
+    }).toThrow('process.exit(1)');
+    expect(log()).toEqual(expect.any(String));
+  });
+
+  it('fails to parse with force positional', () => {
+    const { log } = spyCli();
+    expect(() => {
+      parse(app, ['10 in --the way -- she goes']);
+    }).toThrow('process.exit(1)');
+    expect(log()).toEqual(expect.any(String));
+  });
 });
+
+describe('subcommands', () => {
+  const hello = command({ name: positional({ type: t.string }) });
+  const greet = command({
+    greeting: positional({ type: t.string }),
+    name: positional({ type: t.string }),
+  });
+  const app = subcommands({
+    hello,
+    greet,
+  });
+
+  it('parses a subcommand', () => {
+    const result = parse(app, ['hello', 'gal']);
+    expect(result.command).toEqual('hello');
+    expect(result.args[0]).toEqual({ name: 'gal' });
+  });
+
+  it('parses another subcommand', () => {
+    const result = parse(app, ['greet', 'hello', 'gal']);
+    expect(result.command).toEqual('greet');
+    expect(result.args[0]).toEqual({ greeting: 'hello', name: 'gal' });
+  });
+
+  it('shows help', () => {
+    const { log } = spyCli();
+    expect(() => {
+      parse(app, ['--help']);
+    }).toThrow('process.exit(1)');
+    expect(log()).toContain('hello');
+    expect(log()).toContain('greet');
+  });
+
+  it('shows an error when a command is not found', () => {
+    const { error } = spyCli();
+    expect(() => {
+      parse(app, ['unknown-command']);
+    }).toThrow('process.exit(1)');
+    expect(error()).toContain(
+      'Not a valid command. Must be one of: hello,greet'
+    );
+  });
+});
+
+function spyCli() {
+  let log = '';
+  let all = '';
+  let error = '';
+
+  jest.spyOn(console, 'log').mockImplementation((...v) => {
+    all += '\n' + v.join(' ');
+    log += '\n' + v.join(' ');
+  });
+  jest.spyOn(console, 'error').mockImplementation((...v) => {
+    all += '\n' + v.join(' ');
+    error += '\n' + v.join(' ');
+  });
+  jest.spyOn(process, 'exit').mockImplementation(n => {
+    throw new Error(`process.exit(${n})`);
+  });
+
+  return {
+    log() {
+      return log.trim();
+    },
+    error() {
+      return error.trim();
+    },
+    all() {
+      return all.trim();
+    },
+  };
+}

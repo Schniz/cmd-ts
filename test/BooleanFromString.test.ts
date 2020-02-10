@@ -27,3 +27,23 @@ it(`fails on a number`, () => {
   const result = BooleanFromString.decode(1000);
   expectToBeLeft(result);
 });
+
+describe('#is', () => {
+  it('returns false for a string that isnt a boolean', () => {
+    expect(BooleanFromString.is('not boolean')).toBe(false);
+  });
+
+  it('returns true for a boolean', () => {
+    expect(BooleanFromString.is(true)).toBe(true);
+    expect(BooleanFromString.is(false)).toBe(true);
+  });
+});
+
+describe('#encode', () => {
+  it(`true => 'true'`, () => {
+    expect(BooleanFromString.encode(true)).toBe('true');
+  });
+  it(`false => 'false'`, () => {
+    expect(BooleanFromString.encode(false)).toBe('false');
+  });
+});

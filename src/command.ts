@@ -510,10 +510,10 @@ export function ensureCliSuccess(
  * @param parser The command to parse with
  * @param args String arguments to pass to the command
  */
-export function parse<P extends Parser>(
+export function parse<P extends Parser<any>>(
   parser: P,
   args: string[]
-): Into<Parser> {
+): Into<P> {
   const result = parser.parse(args);
   ensureCliSuccess(result);
   return result.right;

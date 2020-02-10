@@ -1,3 +1,5 @@
+/* istanbul ignore file */
+
 import * as t from 'io-ts';
 import { Stream } from 'stream';
 import { existsSync, createReadStream } from 'fs';

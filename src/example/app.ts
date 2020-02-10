@@ -1,5 +1,7 @@
 #!/usr/bin/env YARN_SILENT=1 yarn ts-node
 
+/* istanbul ignore file */
+
 import * as t from 'io-ts';
 import { Integer, ReadStream } from './test-types';
 import {
