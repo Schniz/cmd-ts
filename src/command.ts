@@ -49,15 +49,21 @@ type BooleanArgument = {
 };
 
 export const bool = BooleanFromString;
-export function boolean(t: Omit<BooleanArgument, 'kind'>): BooleanArgument {
+export function boolean<B extends NoKind<BooleanArgument>>(
+  t: B
+): B & { kind: 'boolean' } {
   return { kind: 'boolean', ...t };
 }
-export function positional(
-  t: Omit<PositionalArgument, 'kind'>
-): PositionalArgument {
+
+type NoKind<T extends Argument> = Omit<T, 'kind'>;
+export function positional<P extends NoKind<PositionalArgument>>(
+  t: P
+): P & { kind: 'positional' } {
   return { kind: 'positional', ...t };
 }
-export function named(t: Omit<NamedArgument, 'kind'>): NamedArgument {
+export function named<N extends NoKind<NamedArgument>>(
+  t: N
+): N & { kind: 'named' } {
   return { kind: 'named', ...t };
 }
 

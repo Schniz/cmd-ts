@@ -10,6 +10,26 @@ A fully-fledged command line argument parser, influenced by Rust's [`clap`](http
 
 🌲 Nested subcommands, composable API
 
+### Basic usage
+
+```ts
+import { command, parse, single, positional, named, t } from 'clio-ts';
+
+const cmd = command({
+  name: positional({ type: t.string }),
+  greeting: named({
+    long: 'greeting',
+    short: 'g',
+    defaultValue: 'Hello',
+    type: single(t.string),
+  }),
+});
+
+const [{ name, greeting }, rest] = parse(cmd, process.argv.slice(2));
+
+console.log(`${greeting}, ${name}!`);
+```
+
 ### Decoding custom types from strings
 
 Not all command line arguments should be strings. You sometimes want integers, UUIDs, file paths, directories, globs...

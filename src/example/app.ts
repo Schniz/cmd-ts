@@ -5,9 +5,9 @@
 import * as t from 'io-ts';
 import { Integer, ReadStream } from './test-types';
 import {
-  ensureCliSuccess,
   command,
   subcommands,
+  parse,
   binaryParser,
   single,
   bool,
@@ -76,20 +76,28 @@ const withSubcommands = subcommands(
 const cli = binaryParser(withSubcommands, 'app');
 
 async function main() {
-  const v = cli.parse(process.argv);
-  ensureCliSuccess(v);
-  const result = v.right;
+  const result = parse(cli, process.argv);
 
   if (result.command === 'cat') {
-    result.args[0].stream.pipe(process.stdout);
+    /** @export cat -> stream */
+    const stream = result.args[0].stream;
+    stream.pipe(process.stdout);
   } else if (result.command === 'greet') {
-    const { greeting, name, noExclaim } = result.args[0];
+    const args = result.args[0];
+    /** @export greet -> greeting */
+    const greeting = args.greeting;
+    /** @export greet -> noExclaim */
+    const noExclaim = args.noExclaim;
+    /** @export greet -> name */
+    const name = args.name;
     const exclaim = noExclaim ? '' : '!';
     console.log(`${greeting}, ${name}${exclaim}`);
   } else if (result.command === 'hello') {
     console.log(result.args[0].bool);
   } else if (result.command === 'composed' && result.args.command === 'cat') {
-    result.args.args[0].stream.pipe(process.stdout);
+    /** @export composed -> cat -> stream */
+    const stream = result.args.args[0].stream;
+    stream.pipe(process.stdout);
   } else {
     console.log(result);
   }
