@@ -288,7 +288,6 @@ function prettyFormat<TR extends TypeRecord>(parseError: ParseError<TR>) {
       }
       case 'namedArgument': {
         const errors = namedErrors?.[parseItem.key as keyof TR];
-        console.log({ key: parseItem.key, errors });
         const value = parseItem.inputValue
           ? chalk.bold(parseItem.inputValue)
           : '';
