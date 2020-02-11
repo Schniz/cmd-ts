@@ -23,6 +23,10 @@ import { BooleanFromString } from './BooleanFromString';
 
 export const bool = BooleanFromString;
 
+export function optional<T extends t.Mixed>(decoder: T) {
+  return t.union([t.undefined, decoder]);
+}
+
 type Parser<Into = unknown> = {
   parse(
     argv: string[],
@@ -284,6 +288,7 @@ function prettyFormat<TR extends TypeRecord>(parseError: ParseError<TR>) {
       }
       case 'namedArgument': {
         const errors = namedErrors?.[parseItem.key as keyof TR];
+        console.log({ key: parseItem.key, errors });
         const value = parseItem.inputValue
           ? chalk.bold(parseItem.inputValue)
           : '';
@@ -292,7 +297,7 @@ function prettyFormat<TR extends TypeRecord>(parseError: ParseError<TR>) {
         const mainErrorMessage = mainError
           ? mainError.message ?? 'No message given'
           : '';
-        const color = mainError ? getColor() : chalk.green;
+        const color = mainError ? chalk.red : getColor();
         rows.push([color, arg, mainErrorMessage]);
 
         const inputKey = chalk.italic(parseItem.inputKey);
@@ -304,16 +309,22 @@ function prettyFormat<TR extends TypeRecord>(parseError: ParseError<TR>) {
 
   for (const [name, value] of Object.entries(namedErrors)) {
     if (value.length > 0) {
-      rows.push([chalk.red, chalk.italic(name), 'no value provided']);
+      const err = value[0];
+      const message =
+        err.message ??
+        (err.value === undefined ? 'no value provided' : 'no message provided');
+      rows.push([chalk.red, chalk.italic(name), message]);
     }
   }
 
-  console.error(
-    chalk.red(`Can't run the requested command. Here's what I understand:`)
-  );
+  console.error(chalk.red(`Can't run the requested command.`));
+  console.error();
+  console.error(chalk.yellow('Input:'));
+
+  console.error('  ' + items.join(' '));
   console.error();
 
-  console.error(items.join(' '));
+  console.error(chalk.yellow('Parsed:'));
 
   const longestA = rows.reduce(
     (a, b) => Math.max(a, stripAnsi(b[1]).length),
@@ -321,7 +332,7 @@ function prettyFormat<TR extends TypeRecord>(parseError: ParseError<TR>) {
   );
 
   for (const [color, a, b] of rows) {
-    const aa = padNoAnsi(a, longestA, 'start');
+    const aa = padNoAnsi(a, longestA + 2, 'start');
     console.error(color(`${aa}  ${b}`.trimEnd()));
   }
 
