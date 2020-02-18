@@ -48,6 +48,7 @@ test('works', () => {
       {
         forced: false,
         type: 'positional',
+        hide: false,
         position: 0,
         input: 'hello',
         name: 'greeting',
@@ -108,6 +109,7 @@ test('works', () => {
       {
         forced: false,
         type: 'positional',
+        hide: false,
         position: 1,
         input: 'world',
       },
@@ -130,8 +132,20 @@ test('works', () => {
       {
         type: 'forcePositional',
       },
-      { type: 'positional', input: 'my', forced: true, position: 2 },
-      { type: 'positional', input: '--friends', forced: true, position: 3 },
+      {
+        type: 'positional',
+        hide: false,
+        input: 'my',
+        forced: true,
+        position: 2,
+      },
+      {
+        type: 'positional',
+        hide: false,
+        input: '--friends',
+        forced: true,
+        position: 3,
+      },
     ],
   } as MinimistResult);
 });

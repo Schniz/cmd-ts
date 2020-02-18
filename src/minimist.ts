@@ -5,6 +5,7 @@ export type ParseItem =
       position: number;
       input: string;
       forced: boolean;
+      hide: boolean;
     }
   | {
       type: 'namedArgument';
@@ -58,6 +59,7 @@ export function minimist(
         input,
         name: namedArgs.positional[positionalIndex],
         position: positionalIndex,
+        hide: false,
       });
       positionalIndex++;
       index++;

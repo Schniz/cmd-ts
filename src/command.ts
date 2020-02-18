@@ -198,6 +198,20 @@ export function command<Config extends CommandConfig>(
     process.exit(1);
   }
 
+  function decodeMmst<TR extends TypeRecord>(
+    mmst: MinimistResult,
+    namedArgDecoder: ComposedType<TR>
+  ): Either<ParseError<TR>, [TROutput<TR>, string[]]> {
+    type Result = [TROutput<TR>, string[]];
+    const result = either.map(
+      namedArgDecoder(mmst.named),
+      named => [named, mmst.positional] as Result
+    );
+    return either.mapLeft(result, errors => {
+      return { parsed: mmst, errors, commandConfig: config };
+    });
+  }
+
   function parse(
     argv: string[],
     context: ParseItem[] = []
@@ -225,21 +239,8 @@ export function command<Config extends CommandConfig>(
 type ParseError<TR extends TypeRecord> = {
   parsed: MinimistResult;
   errors: TRErrors<TR>;
+  commandConfig: CommandConfig;
 };
-
-function decodeMmst<TR extends TypeRecord>(
-  mmst: MinimistResult,
-  namedArgDecoder: ComposedType<TR>
-): Either<ParseError<TR>, [TROutput<TR>, string[]]> {
-  type Result = [TROutput<TR>, string[]];
-  const result = either.map(
-    namedArgDecoder(mmst.named),
-    named => [named, mmst.positional] as Result
-  );
-  return either.mapLeft(result, errors => {
-    return { parsed: mmst, errors };
-  });
-}
 
 const colorCycle = [
   chalk.green,
@@ -267,6 +268,10 @@ function prettyFormat<TR extends TypeRecord>(parseError: ParseError<TR>) {
         break;
       }
       case 'positional': {
+        if (parseItem.hide) {
+          continue;
+        }
+
         let color = getColor();
 
         if (parseItem.name) {
@@ -358,15 +363,17 @@ export function binaryParser<P extends Parser<any>>(
     const [, _binaryName, ...args] = argv;
     const newContext: ParseItem[] = [
       ...context,
-      // {
-      //   type: 'positional',
-      //   position: 0,
-      //   input: 'node',
-      //   forced: false,
-      // },
       {
         type: 'positional',
         position: 0,
+        input: 'node',
+        forced: false,
+        hide: true,
+      },
+      {
+        type: 'positional',
+        hide: true,
+        position: 1,
         input: binaryName ?? _binaryName,
         name: 'binaryName',
         forced: false,
@@ -460,6 +467,7 @@ export function subcommands<Config extends Record<string, Parser<any>>>(
       ...context,
       {
         type: 'positional',
+        hide: true,
         name: key,
         input: commandName,
         position,
@@ -478,6 +486,7 @@ export function subcommands<Config extends Record<string, Parser<any>>>(
             },
             context: newContext,
           },
+          commandConfig: {},
         };
       }
     );
