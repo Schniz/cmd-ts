@@ -13,7 +13,8 @@
     "lint": "tsdx lint",
     "prepare": "tsdx build",
     "ts-node": "TS_NODE_TRANSPILE_ONLY=true node -r esm -r ts-node/register",
-    "run-example": "yarn --silent ts-node src/example/app.ts"
+    "run-example": "yarn --silent ts-node src/example/app.ts",
+    "now-build": "typedoc --out public"
   },
   "peerDependencies": {
     "fp-ts": "^2.4.2",
@@ -52,6 +53,7 @@
     "ts-node": "^8.6.2",
     "tsdx": "^0.12.3",
     "tslib": "^1.10.0",
+    "typedoc": "^0.16.10",
     "typescript": "^3.7.5"
   },
   "dependencies": {
