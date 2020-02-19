@@ -7,6 +7,9 @@ export function unimplemented(): never {
   throw new Error('unimplemented');
 }
 
+/**
+ * @ignore
+ */
 export function padNoAnsi(str: string, length: number, place: 'end' | 'start') {
   const noAnsiStr = stripAnsi(str);
   if (length < noAnsiStr.length) return str;

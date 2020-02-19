@@ -1,16 +1,30 @@
+/** @ignore */
+
 import * as t from 'io-ts';
 import { Either, either } from 'fp-ts/lib/Either';
 
+/**
+ * @ignore
+ */
 export type TypeRecord<A extends t.Any = t.Any> = Record<string, A>;
+/**
+ * @ignore
+ */
 export type TRErrors<TR extends TypeRecord> = { [key in keyof TR]: t.Errors };
+/**
+ * @ignore
+ */
 export type TROutput<TR extends TypeRecord> = {
   [key in keyof TR]: t.TypeOf<TR[key]>;
 };
+/**
+ * @ignore
+ */
 export type ComposedType<TR extends TypeRecord> = (
   value: unknown
 ) => Either<TRErrors<TR>, TROutput<TR>>;
 
-export function emptyError<TR extends TypeRecord = TypeRecord>(
+function emptyError<TR extends TypeRecord = TypeRecord>(
   record: TR
 ): TRErrors<TR> {
   const result = {} as TRErrors<TR>;
@@ -22,6 +36,7 @@ export function emptyError<TR extends TypeRecord = TypeRecord>(
   return result;
 }
 
+/** @ignore */
 export function composedType<TR extends TypeRecord>(
   record: TR
 ): ComposedType<TR> {

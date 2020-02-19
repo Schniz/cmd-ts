@@ -1,3 +1,10 @@
+/** @ignore */
+
+/**
+ * A parsed item
+ *
+ * @ignore
+ */
 export type ParseItem =
   | {
       name?: string;
@@ -17,16 +24,19 @@ export type ParseItem =
     }
   | { type: 'forcePositional' };
 
+/** @ignore */
 export interface MinimistResult {
   positional: string[];
   named: Record<string, string[]>;
   context: ParseItem[];
 }
 
+/** @ignore */
 function hasNamedArgumentPrefix(s: string): boolean {
   return s.startsWith('-') && !/^-+$/.test(s);
 }
 
+/** @ignore */
 export type MinimistNamedArguments = {
   short: Record<string, string>;
   long: Record<string, string>;
@@ -34,6 +44,7 @@ export type MinimistNamedArguments = {
   positional: Record<number, string>;
 };
 
+/** @ignore */
 export function minimist(
   args: string[],
   namedArgs: MinimistNamedArguments

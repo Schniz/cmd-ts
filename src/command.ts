@@ -1,5 +1,5 @@
 import { tupleWithOneElement } from './tupleWithOneElement';
-import { Either, either, Right } from 'fp-ts/lib/Either';
+import { Either, either } from 'fp-ts/lib/Either';
 import chalk from 'chalk';
 import { padNoAnsi } from './utils';
 import stripAnsi from 'strip-ansi';
@@ -21,48 +21,146 @@ import {
 import { withMessage } from 'io-ts-types/lib/withMessage';
 import { BooleanFromString } from './BooleanFromString';
 
+/**
+ * A boolean argument, parses a string into a boolean:
+ *
+ * * `'true'` => true
+ * * otherwise, false.
+ */
 export const bool = BooleanFromString;
 
+/**
+ * An optional argument type.
+ *
+ * @param decoder an `io-ts` decoder to make undefinedable.
+ * @example
+ *  ```ts
+ *  const optionalString = optional(t.string);
+ *  ```
+ */
 export function optional<T extends t.Mixed>(decoder: T) {
   return t.union([t.undefined, decoder]);
 }
 
-type Parser<Into = unknown> = {
+/**
+ * A command line argument parser
+ */
+export type Parser<Into = unknown> = {
   parse(
     argv: string[],
     context?: ParseItem[]
   ): Either<ParseError<TypeRecord>, Into>;
 };
 
-type NamedArgument = {
+/**
+ * A named argument (`--long {value}` for the long names or `-s {value}` as short)
+ */
+export type NamedArgument = {
   kind: 'named';
+  /**
+   * An `io-ts` decoder to be used for parsing the values.
+   *
+   * By default, the type expected to be able to parse from a list of strings,
+   * so users will be able to write command line applications with multiple
+   * named arguments with the same name: `--value=hello --value=world`.
+   *
+   * To allow only one value, use the [[single]] combinator that turns a decoder from string
+   * to a decoder of a list of strings.
+   */
   type: t.Type<any, string[]>;
+  /**
+   * A short (one-letter) name to be used. For instance, providing `s` would result in
+   * allowing the user to pass `-s value`
+   */
   short?: string;
+  /**
+   * A long name to be used. For instance, providing `long-name` would result in
+   * allowing the user to pass `--long-name value`
+   */
   long?: string;
+  /**
+   * A display name for the value, when showing help. For instance, when providing "hello",
+   * it would result as `--long-name <hello>`
+   */
   argumentName?: string;
+  /**
+   * An environment variable name to take as default, if given
+   */
   env?: string;
+  /**
+   * A description to be provided when showing help
+   */
   description?: string;
+  /**
+   * A default value, when no value is given
+   */
   defaultValue?: string;
 };
 
-type BooleanArgument = {
+/**
+ * A boolean argument (`--long` for long booleans, `-s` for short booleans)
+ */
+export type BooleanArgument = {
   kind: 'boolean';
+  /**
+   * An `io-ts` decoder to be used for parsing the values.
+   *
+   * By default, the type expected to be able to parse from a list of strings,
+   * so users will be able to write command line applications with multiple
+   * named arguments with the same name: `--value=hello --value=world`.
+   *
+   * To allow only one value, use the [[single]] combinator that turns a decoder from string
+   * to a decoder of a list of strings.
+   */
   type: t.Type<any, ('true' | 'false')[]>;
+  /**
+   * A short (one-letter) name to be used. For instance, providing `s` would result in
+   * allowing the user to pass `-s`
+   */
   short?: string;
+  /**
+   * A long name to be used. For instance, providing `long-name` would result in
+   * allowing the user to pass `--long-name`
+   */
   long?: string;
+  /**
+   * A description to be provided when showing help
+   */
   description?: string;
+  /**
+   * A default value, when missing
+   */
   defaultValue?: boolean;
 };
 
-type PositionalArgument = {
+/**
+ * A positional argument
+ */
+export type PositionalArgument = {
   kind: 'positional';
+  /**
+   * A type to parse from the string
+   */
   type: t.Type<any, string>;
+  /**
+   * A display name for the argument. If missing, inferred from the given type
+   */
   displayName?: string;
+  /**
+   * A description to be provided when showing help
+   */
   description?: string;
 };
 
-type Argument = PositionalArgument | NamedArgument | BooleanArgument;
+/**
+ * An argument configuration
+ */
+export type Argument = PositionalArgument | NamedArgument | BooleanArgument;
 
+/**
+ * A command configurations. An object where the keys are the results of a successful parse
+ * and the values are a parsable [[Argument]]
+ */
 type CommandConfig = Record<string, Argument>;
 
 function getTypes<T extends CommandConfig>(
@@ -111,16 +209,34 @@ function minimistArguments<Config extends CommandConfig>(
   return { long, short, forceBoolean, positional };
 }
 
+/**
+ * Creates a command line argument parser
+ *
+ * @param args the command arguments: an object where the keys are the names in your code
+ * and the values are an [[Argument]]
+ * @example
+ * ```ts
+ * const cmd = command({
+ *   positional: { kind: 'positional', type: t.string },
+ *   named: { kind: 'named', long: 'username', type: single(t.string), env: 'MY_APP_USER' },
+ *   someBoolean: { kind: 'boolean', long: 'authenticate', short: 'a', type: bool }
+ * });
+ *
+ * const { positional, named, someBoolean } = parse(cmd, process.argv.slice(2));
+ * ```
+ * @returns [[Parser]] which parses into an object where its keys are the same
+ * as the keys provided into the `args` argument, and the values are the result of the types for each key.
+ */
 export function command<Config extends CommandConfig>(
-  config: Config,
+  args: Config,
   description?: string
-) {
-  const types = getTypes(config);
+): Parser<TROutput<{ [key in keyof Config]: Config[key]['type'] }>> {
+  const types = getTypes(args);
   const type = composedType(types);
-  const minimistArgs = minimistArguments(config);
+  const minimistArgs = minimistArguments(args);
   const defaultValues: Record<string, string[]> = {};
 
-  for (const [argName, argValue] of Object.entries(config)) {
+  for (const [argName, argValue] of Object.entries(args)) {
     switch (argValue.kind) {
       case 'boolean': {
         defaultValues[argName] = [argValue.defaultValue?.toString() ?? 'false'];
@@ -150,12 +266,12 @@ export function command<Config extends CommandConfig>(
       console.log();
     }
 
-    if (Object.keys(config).length > 0) {
+    if (Object.keys(args).length > 0) {
       console.log('Use the following arguments:');
       console.log();
     }
 
-    for (const [argName, argValue] of Object.entries(config)) {
+    for (const [argName, argValue] of Object.entries(args)) {
       const description = argValue.description
         ? ` - ${argValue.description}`
         : '';
@@ -209,7 +325,7 @@ export function command<Config extends CommandConfig>(
       _: mmst.positional,
     }));
     return either.mapLeft(result, errors => {
-      return { parsed: mmst, errors, commandConfig: config };
+      return { parsed: mmst, errors, commandConfig: args };
     });
   }
 
@@ -234,7 +350,7 @@ export function command<Config extends CommandConfig>(
     });
   }
 
-  return { parse, config };
+  return { parse };
 }
 
 type ParseError<TR extends TypeRecord> = {
@@ -356,6 +472,17 @@ type SubcommandResult<Config extends Record<string, Parser<any>>> = {
   ? X[keyof X]
   : never;
 
+/**
+ * Lifts a parser (`command` or `subcommands`) into a binary parser
+ * that can take a complete `process.argv` without slicing
+ *
+ * @example
+ * ```ts
+ * const cmd = command({ ... });
+ * const binary = binaryParser(cmd, 'my-app');
+ * const result = parse(binary, process.argv);
+ * ```
+ */
 export function binaryParser<P extends Parser<any>>(
   p: P,
   binaryName?: string
@@ -412,6 +539,17 @@ function contextToString(ctx: ParseItem[]): string {
   return parts.map(x => getColor()(x)).join(' ');
 }
 
+/**
+ * Creates a subcommand selection in order to compose multiple commands into one
+ *
+ * @example
+ * ```ts
+ * const install = command({ ... });
+ * const uninstall = command({ ... });
+ * const cli = subcommands({ install, uninstall });
+ * const { command, args } = parse(cli, process.argv.slice(2));
+ * ```
+ */
 export function subcommands<Config extends Record<string, Parser<any>>>(
   config: Config,
   description?: string
@@ -502,30 +640,32 @@ export function subcommands<Config extends Record<string, Parser<any>>>(
 }
 
 /**
- * Pretty-print errors and exit with exit code 1 on error,
- * otherwise, continue.
- */
-export function ensureCliSuccess(
-  cliResult: Either<ParseError<any>, any>
-): asserts cliResult is Right<any> {
-  if (cliResult._tag === 'Right') return;
-  prettyFormat(cliResult.left);
-  process.exit(1);
-}
-
-/**
  * Parse arguments and exit on errors
  *
  * @param parser The command to parse with
  * @param args String arguments to pass to the command
+ * @example
+ * ```ts
+ * const mycommand = command({ name: { kind: 'positional', type: t.string });
+ * const { name, _ } = parse(mycommand, ['hello', 'world']);
+ * console.log(name); // => "hello"
+ * console.log(_); // => ["world"]
+ * ```
  */
 export function parse<P extends Parser<any>>(
   parser: P,
   args: string[]
 ): Into<P> {
   const result = parser.parse(args);
-  ensureCliSuccess(result);
-  return result.right;
+  if (result._tag === 'Right') return result.right;
+  prettyFormat(result.left);
+  process.exit(1);
 }
 
+/**
+ * Ensures that there's only one value provided for the argument.
+ *
+ * Takes an `io-ts` decoder that parses `A => B` and returns a decoder that parses `A[] => B`
+ * and fails if there are more or less than one item.
+ */
 export const single = tupleWithOneElement;
