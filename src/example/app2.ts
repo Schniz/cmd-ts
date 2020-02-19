@@ -62,6 +62,8 @@ const app = command({
     defaultValue: false,
   },
 });
-const parsed = parse(binaryParser(app, 'app'), process.argv);
-const [{ repo, user, password, prNumber, dev }] = parsed;
+const { repo, user, password, prNumber, dev } = parse(
+  binaryParser(app, 'app'),
+  process.argv
+);
 console.log({ repo, user, password, prNumber, dev });
