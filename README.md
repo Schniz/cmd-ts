@@ -25,10 +25,14 @@ const cmd = command({
   }),
 });
 
-const [{ name, greeting }, rest] = parse(cmd, process.argv.slice(2));
+const { name, greeting } = parse(cmd, process.argv.slice(2));
 
 console.log(`${greeting}, ${name}!`);
 ```
+
+#### `command(arguments)`
+
+Creates a CLI command. Returns either a parsing error, or an object where every argument provided gets the value with the correct type, along with a special `_` key that contains the "rest" of the positional arguments.
 
 ### Decoding custom types from strings
 

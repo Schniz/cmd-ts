@@ -84,10 +84,10 @@ async function main() {
 
   if (result.command === 'cat') {
     /** @export cat -> stream */
-    const stream = result.args[0].stream;
+    const stream = result.args.stream;
     stream.pipe(process.stdout);
   } else if (result.command === 'greet') {
-    const args = result.args[0];
+    const args = result.args;
     /** @export greet -> greeting */
     const greeting = args.greeting;
     /** @export greet -> noExclaim */
@@ -97,10 +97,10 @@ async function main() {
     const exclaim = noExclaim ? '' : '!';
     console.log(`${greeting}, ${name}${exclaim}`);
   } else if (result.command === 'hello') {
-    console.log(result.args[0].bool);
+    console.log(result.args.bool);
   } else if (result.command === 'composed' && result.args.command === 'cat') {
     /** @export composed -> cat -> stream */
-    const stream = result.args.args[0].stream;
+    const stream = result.args.args.stream;
     stream.pipe(process.stdout);
   } else {
     console.log(result);

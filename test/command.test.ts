@@ -28,7 +28,7 @@ describe('multiple named arguments', () => {
       '4',
     ]);
     expectToBeRight(parsed);
-    expect(parsed.right[0].numbers).toEqual([1, 2, 3, 4]);
+    expect(parsed.right.numbers).toEqual([1, 2, 3, 4]);
   });
 
   it('throws an error on malformed input', () => {
@@ -46,7 +46,7 @@ describe('a simple command using a stream', () => {
   it('stream works with urls', async () => {
     const parsed = app.parse(['--stream', 'https://example.com']);
     expectToBeRight(parsed);
-    const result = await readStreamToString(parsed.right[0].stream);
+    const result = await readStreamToString(parsed.right.stream);
     expect(result).toMatch('<h1>Example Domain</h1>');
   });
 
@@ -55,7 +55,7 @@ describe('a simple command using a stream', () => {
     fs.writeFileSync(tmpfile, 'hello world!!!');
     const parsed = app.parse(['--stream', tmpfile]);
     expectToBeRight(parsed);
-    const result = await readStreamToString(parsed.right[0].stream);
+    const result = await readStreamToString(parsed.right.stream);
     expect(result).toEqual('hello world!!!');
   });
 
@@ -65,7 +65,7 @@ describe('a simple command using a stream', () => {
     (global as any).mockStdin = fs.createReadStream(tmpfile);
     const parsed = app.parse(['--stream', '-']);
     expectToBeRight(parsed);
-    const result = await readStreamToString(parsed.right[0].stream);
+    const result = await readStreamToString(parsed.right.stream);
     expect(result).toEqual("hello world!!!\nwhat's up?");
   });
 });
@@ -95,7 +95,7 @@ describe('a command with positional arguments', () => {
   it('has a default value', () => {
     const parsed = app.parse(['world']);
     expectToBeRight(parsed);
-    const [{ name, greeting, noExclaim }] = parsed.right;
+    const { name, greeting, noExclaim } = parsed.right;
     expect({ name, greeting, noExclaim }).toEqual({
       greeting: 'Hello',
       name: 'world',
@@ -106,7 +106,7 @@ describe('a command with positional arguments', () => {
   it('can get a greeting', () => {
     const parsed = app.parse(['--no-exclaim', 'world', '--greeting=Welcome']);
     expectToBeRight(parsed);
-    const [{ name, greeting, noExclaim }] = parsed.right;
+    const { name, greeting, noExclaim } = parsed.right;
     expect({ name, greeting, noExclaim }).toEqual({
       greeting: 'Welcome',
       name: 'world',
@@ -117,7 +117,7 @@ describe('a command with positional arguments', () => {
   it('order of named/positional does not matter', () => {
     const parsed = app.parse(['--greeting=Welcome', 'world', '--no-exclaim']);
     expectToBeRight(parsed);
-    const [{ name, greeting, noExclaim }] = parsed.right;
+    const { name, greeting, noExclaim } = parsed.right;
     expect({ name, greeting, noExclaim }).toEqual({
       greeting: 'Welcome',
       name: 'world',
@@ -220,13 +220,13 @@ describe('subcommands', () => {
   it('parses a subcommand', () => {
     const result = parse(app, ['hello', 'gal']);
     expect(result.command).toEqual('hello');
-    expect(result.args[0]).toEqual({ name: 'gal' });
+    expect(result.args).toEqual({ name: 'gal', _: [] });
   });
 
   it('parses another subcommand', () => {
     const result = parse(app, ['greet', 'hello', 'gal']);
     expect(result.command).toEqual('greet');
-    expect(result.args[0]).toEqual({ greeting: 'hello', name: 'gal' });
+    expect(result.args).toEqual({ greeting: 'hello', name: 'gal', _: [] });
   });
 
   it('shows help', () => {

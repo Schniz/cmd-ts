@@ -198,15 +198,16 @@ export function command<Config extends CommandConfig>(
     process.exit(1);
   }
 
+  type CommandOutput<TR extends TypeRecord> = TROutput<TR> & { _: string[] };
+
   function decodeMmst<TR extends TypeRecord>(
     mmst: MinimistResult,
     namedArgDecoder: ComposedType<TR>
-  ): Either<ParseError<TR>, [TROutput<TR>, string[]]> {
-    type Result = [TROutput<TR>, string[]];
-    const result = either.map(
-      namedArgDecoder(mmst.named),
-      named => [named, mmst.positional] as Result
-    );
+  ): Either<ParseError<TR>, CommandOutput<TR>> {
+    const result = either.map(namedArgDecoder(mmst.named), named => ({
+      ...named,
+      _: mmst.positional,
+    }));
     return either.mapLeft(result, errors => {
       return { parsed: mmst, errors, commandConfig: config };
     });
@@ -215,7 +216,7 @@ export function command<Config extends CommandConfig>(
   function parse(
     argv: string[],
     context: ParseItem[] = []
-  ): Either<ParseError<Types>, [TROutput<Types>, string[]]> {
+  ): Either<ParseError<Types>, CommandOutput<Types>> {
     const mmst = minimist(argv, minimistArgs);
     mmst.named = Object.assign({}, defaultValues, mmst.named);
     if (mmst.named['h'] || mmst.named['help']) {
