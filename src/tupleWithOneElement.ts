@@ -1,5 +1,3 @@
-/** @ignore */
-
 import * as t from 'io-ts';
 import { Either } from 'fp-ts/lib/Either';
 import { unimplemented } from './utils';
@@ -7,11 +5,9 @@ import { unimplemented } from './utils';
 /**
  * Accept a single value argument
  *
- * Takes a decoder T (io-ts type) that accepts a string
- * and creates a new decoder that accepts [string] and rejects
+ * @param decoder `io-ts` type that accepts a string
+ * @returns `io-ts` decoder that accepts [string] and rejects
  * if provided 0 or more than 1 element
- *
- * @ignore
  */
 export function tupleWithOneElement<T extends t.Type<any, string>>(
   decoder: T
