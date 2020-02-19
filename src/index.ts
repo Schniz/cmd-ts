@@ -1,5 +1,9 @@
 /**
- * @since 0.1.2
+ * The index module: the entrance to the world of clio-ts 😎
+ *
+ * Also export the entire `io-ts` module as `t`, for convenience.
+ *
+ * @packageDocumentation
  */
 
 import * as t from 'io-ts';
