@@ -5,6 +5,7 @@ import { Stream } from 'stream';
 import { existsSync, createReadStream } from 'fs';
 import request from 'request';
 import URL from 'url';
+import { fromStr } from '..';
 import { Either, either, Right } from 'fp-ts/lib/Either';
 import { withMessage } from 'io-ts-types/lib/withMessage';
 import { NumberFromString } from 'io-ts-types/lib/NumberFromString';
@@ -15,54 +16,40 @@ const NumOfStr = withMessage(
   () => `Provided value is not a number`
 );
 
-export const Integer = new t.Type<number, string>(
-  'integer',
-  (x: unknown): x is number => {
-    return typeof x === 'number' && Math.round(x) === x;
-  },
-  (obj, ctx) => {
-    return either.chain(NumOfStr.validate(obj, ctx), n => {
-      if (n !== Math.round(n)) {
-        return t.failure(obj, ctx, `This is a float, not an integer`);
-      }
-      return t.success(n);
-    });
-  },
-  obj => String(obj)
-);
+export const Integer = fromStr<number>((obj, ctx) => {
+  return either.chain(NumOfStr.validate(obj, ctx), n => {
+    if (n !== Math.round(n)) {
+      return t.failure(obj, ctx, `This is a float, not an integer`);
+    }
+    return t.success(n);
+  });
+});
 
 function stdin() {
   return (global as any).mockStdin || process.stdin;
 }
 
-export const ReadStream = new t.Type<Stream, string>(
-  'read stream',
-  (x: unknown): x is Stream => {
-    return x && typeof (x as any).pipe === 'function';
-  },
-  (obj, ctx) => {
-    if (typeof obj !== 'string') {
-      return t.failure(obj, ctx, `Something other than string provided`);
-    }
+export const ReadStream = fromStr<Stream>((obj, ctx) => {
+  if (typeof obj !== 'string') {
+    return t.failure(obj, ctx, `Something other than string provided`);
+  }
 
-    const parsedUrl = URL.parse(obj);
+  const parsedUrl = URL.parse(obj);
 
-    if (parsedUrl.protocol?.startsWith('http')) {
-      return t.success(request(obj));
-    }
+  if (parsedUrl.protocol?.startsWith('http')) {
+    return t.success(request(obj));
+  }
 
-    if (obj === '-') {
-      return t.success(stdin());
-    }
+  if (obj === '-') {
+    return t.success(stdin());
+  }
 
-    if (!existsSync(obj)) {
-      return t.failure(obj, ctx, `Can't find file in path ${obj}`);
-    }
+  if (!existsSync(obj)) {
+    return t.failure(obj, ctx, `Can't find file in path ${obj}`);
+  }
 
-    return t.success(createReadStream(obj));
-  },
-  _ => unimplemented()
-);
+  return t.success(createReadStream(obj));
+});
 
 export function ensureRight<T>(e: Either<any, T>): asserts e is Right<T> {
   if (e._tag === 'Left') {
@@ -79,17 +66,12 @@ export function readStreamToString(s: Stream): Promise<string> {
   });
 }
 
-export const CommaSeparatedString = new t.Type<string[], string, unknown>(
-  'comma separated string',
-  (x): x is string[] => t.array(t.string).is(x),
-  (obj, ctx) => {
-    if (typeof obj !== 'string') {
-      return t.failure(obj, ctx, 'provided value is not a string');
-    }
-    return t.success(obj.split(','));
-  },
-  x => x.join(',')
-);
+export const CommaSeparatedString = fromStr<string[]>((obj, ctx) => {
+  if (typeof obj !== 'string') {
+    return t.failure(obj, ctx, 'provided value is not a string');
+  }
+  return t.success(obj.split(','));
+});
 
 export function commaSeparated<T extends t.Type<any, string, unknown>>(
   decoder: T
