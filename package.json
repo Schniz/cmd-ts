@@ -1,24 +1,24 @@
 {
+  "name": "clio-ts",
   "version": "0.2.1",
+  "homepage": "https://clio-ts.now.sh",
   "license": "MIT",
+  "author": "Gal Schlezinger",
   "main": "dist/index.js",
+  "module": "dist/clio-ts.esm.js",
   "typings": "dist/index.d.ts",
   "files": [
     "dist"
   ],
   "scripts": {
-    "start": "tsdx watch",
     "build": "tsdx build",
-    "test": "tsdx test",
     "lint": "tsdx lint",
+    "now-build": "typedoc --out public",
     "prepare": "tsdx build",
-    "ts-node": "TS_NODE_TRANSPILE_ONLY=true node -r esm -r ts-node/register",
     "run-example": "yarn --silent ts-node src/example/app.ts",
-    "now-build": "typedoc --out public"
-  },
-  "peerDependencies": {
-    "fp-ts": "^2.4.2",
-    "io-ts": "^2.0.6"
+    "start": "tsdx watch",
+    "test": "tsdx test",
+    "ts-node": "TS_NODE_TRANSPILE_ONLY=true node -r esm -r ts-node/register"
   },
   "husky": {
     "hooks": {
@@ -31,10 +31,13 @@
     "singleQuote": true,
     "trailingComma": "es5"
   },
-  "name": "clio-ts",
-  "author": "Gal Schlezinger",
-  "module": "dist/clio-ts.esm.js",
-  "homepage": "https://clio-ts.now.sh",
+  "dependencies": {
+    "chalk": "^3.0.0",
+    "io-ts-types": "^0.5.5",
+    "lodash.camelcase": "^4.3.0",
+    "lodash.kebabcase": "^4.1.1",
+    "strip-ansi": "^6.0.0"
+  },
   "devDependencies": {
     "@types/jest": "^25.1.0",
     "@types/lodash.camelcase": "^4.3.6",
@@ -42,15 +45,14 @@
     "@types/minimist": "^1.2.0",
     "@types/request": "^2.48.4",
     "docs-ts": "^0.3.4",
+    "eslint-plugin-import": "^2.20.1",
     "esm": "^3.2.25",
     "fp-ts": "^2.4.2",
     "husky": "^4.2.1",
     "infer-types": "^0.0.2",
     "io-ts": "^2.0.6",
-    "io-ts-types": "^0.5.5",
     "jest-junit": "^10.0.0",
     "request": "^2.88.0",
-    "strip-ansi": "^6.0.0",
     "tempy": "^0.3.0",
     "ts-node": "^8.6.2",
     "tsdx": "^0.12.3",
@@ -58,9 +60,8 @@
     "typedoc": "^0.16.10",
     "typescript": "^3.7.5"
   },
-  "dependencies": {
-    "chalk": "^3.0.0",
-    "lodash.camelcase": "^4.3.0",
-    "lodash.kebabcase": "^4.1.1"
+  "peerDependencies": {
+    "fp-ts": "^2.4.2",
+    "io-ts": "^2.0.6"
   }
 }
