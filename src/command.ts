@@ -501,15 +501,8 @@ export function binaryParser<P extends Parser<any>>(
       ...context,
       {
         type: 'positional',
+        hide: true,
         position: 0,
-        input: 'node',
-        forced: false,
-        hide: true,
-      },
-      {
-        type: 'positional',
-        hide: true,
-        position: 1,
         input: binaryName ?? _binaryName,
         name: 'binaryName',
         forced: false,
