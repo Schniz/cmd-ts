@@ -464,7 +464,12 @@ function prettyFormat<TR extends TypeRecord>(parseError: ParseError<TR>) {
   );
 }
 
-type Into<P extends Parser<any>> = P extends Parser<infer Into> ? Into : never;
+/**
+ * Returns the value a parser resolves into
+ */
+export type Into<P extends Parser<any>> = P extends Parser<infer Into>
+  ? Into
+  : never;
 
 type SubcommandResult<Config extends Record<string, Parser<any>>> = {
   [key in keyof Config]: { command: key; args: Into<Config[key]> };
