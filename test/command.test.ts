@@ -1,4 +1,12 @@
-import { subcommands, parse, command, single, bool, t } from '../src';
+import {
+  subcommands,
+  parse,
+  command,
+  single,
+  bool,
+  t,
+  unimplemented,
+} from '../src';
 import {
   ReadStream,
   readStreamToString,
@@ -7,6 +15,7 @@ import {
 import tempy from 'tempy';
 import fs from 'fs';
 import { expectToBeRight, expectToBeLeft } from './fp-ts-helpers';
+import { either } from 'fp-ts/lib/Either';
 
 describe('multiple named arguments', () => {
   const app = command({
@@ -277,6 +286,33 @@ describe('subcommands', () => {
     expect(error()).toContain(
       'Not a valid command. Must be one of: hello,greet'
     );
+  });
+});
+
+describe('verbose counter', () => {
+  const counter = new t.Type<number, string[]>(
+    'counter',
+    (x): x is number => typeof x === 'number',
+    (obj, ctx) => {
+      return either.map(t.array(bool).validate(obj, ctx), bools => {
+        return bools.filter(Boolean).length;
+      });
+    },
+    unimplemented
+  );
+
+  const app = command({
+    logLevel: { kind: 'boolean', type: counter, short: 'v' },
+  });
+
+  it('sets 0 if no boolean provided', () => {
+    const { logLevel } = parse(app, []);
+    expect(logLevel).toBe(0);
+  });
+
+  it('counts the verbose level', () => {
+    const { logLevel } = parse(app, ['-vvvvv']);
+    expect(logLevel).toBe(5);
   });
 });
 
