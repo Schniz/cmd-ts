@@ -3,7 +3,7 @@ import * as t from 'io-ts';
 /**
  * A type that turns a string into a boolean
  */
-export const BooleanFromString = new t.Type<boolean, 'true' | 'false', unknown>(
+export const BooleanFromString = new t.Type<boolean, string, unknown>(
   'boolean',
   (x): x is boolean => typeof x === 'boolean',
   (obj, ctx) => {

@@ -25,7 +25,8 @@ import { BooleanFromString } from './BooleanFromString';
  * A boolean argument, parses a string into a boolean:
  *
  * * `'true'` => true
- * * otherwise, false.
+ * * `'false'` => false
+ * * otherwise => fails
  */
 export const bool = BooleanFromString;
 
@@ -38,7 +39,7 @@ export const bool = BooleanFromString;
  *  const optionalString = optional(t.string);
  *  ```
  */
-export function optional<T extends t.Mixed>(decoder: T) {
+export function optional<T extends t.Any>(decoder: T) {
   return t.union([t.undefined, decoder]);
 }
 
@@ -112,7 +113,7 @@ export type BooleanArgument = {
    * To allow only one value, use the [[single]] combinator that turns a decoder from string
    * to a decoder of a list of strings.
    */
-  type: t.Type<any, ('true' | 'false')[]>;
+  type: t.Type<any, string[]>;
   /**
    * A short (one-letter) name to be used. For instance, providing `s` would result in
    * allowing the user to pass `-s`
@@ -247,6 +248,8 @@ export function command<Config extends CommandConfig>(
         const defaultValue = env ?? argValue.defaultValue;
         if (defaultValue) {
           defaultValues[argName] = [defaultValue];
+        } else {
+          defaultValues[argName] = [];
         }
         break;
       }

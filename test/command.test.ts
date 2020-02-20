@@ -38,6 +38,37 @@ describe('multiple named arguments', () => {
   });
 });
 
+describe('a command that takes array of named arguments', () => {
+  const app = command({
+    action: { kind: 'positional', type: t.string },
+    numbers: { kind: 'named', short: 'n', type: t.array(Integer) },
+  });
+
+  it('allows zero occurences', () => {
+    const { numbers } = parse(app, ['sum']);
+    expect(numbers).toEqual([]);
+  });
+
+  it('allows one occurence', () => {
+    const { numbers } = parse(app, ['sum', '-n=10']);
+    expect(numbers).toEqual([10]);
+  });
+
+  it('allows multiple occurences', () => {
+    const { numbers } = parse(app, ['sum', '-n=10', '-n=20', '-n=30']);
+    expect(numbers).toEqual([10, 20, 30]);
+  });
+
+  it('fails nicely', () => {
+    const csx = spyCli();
+    expect(() => {
+      parse(app, []);
+    }).toThrowError();
+    expect(csx.all()).not.toContain('numbers');
+    expect(csx.all()).toContain('action');
+  });
+});
+
 describe('a simple command using a stream', () => {
   const app = command({
     stream: { kind: 'named', long: 'stream', type: single(ReadStream) },
