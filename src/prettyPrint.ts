@@ -4,6 +4,9 @@ import { TypeRecord } from './composedType';
 import { ParseError } from './Parser';
 import { contextToString, generateColorCycle, padNoAnsi } from './utils';
 
+/**
+ * Prints a parsing error nicely
+ */
 export function prettyPrint<TR extends TypeRecord>(
   parseError: ParseError<TR, unknown>
 ) {
