@@ -31,11 +31,21 @@ const colorCycle = [
   chalk.white,
 ];
 
+/**
+ * Creates a function to get a new color
+ *
+ * @ignore
+ */
 export function generateColorCycle(): () => chalk.Chalk {
   let i = 0;
   return () => colorCycle[i++ % colorCycle.length];
 }
 
+/**
+ * Generates a string from the parsed context of argparse
+ *
+ * @ignore
+ */
 export function contextToString(ctx: ParseItem[]): string {
   const getColor = generateColorCycle();
 
