@@ -254,7 +254,9 @@ describe('subcommands', () => {
   });
   const app = subcommands({
     hello,
-    greet,
+    greet: {
+      cmd: greet,
+    },
   });
 
   it('parses a subcommand', () => {

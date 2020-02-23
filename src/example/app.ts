@@ -4,14 +4,7 @@
 
 import * as t from 'io-ts';
 import { Integer, ReadStream } from './test-types';
-import {
-  command,
-  subcommands,
-  parse,
-  binaryParser,
-  single,
-  bool,
-} from '../command';
+import { command, subcommands, parse, binaryParser, single, bool } from '..';
 
 const y = command(
   {
@@ -70,9 +63,13 @@ const withSubcommands = subcommands(
         defaultValue: 'hello',
       },
     }),
-    composed: subcommands({
-      cat: withStream,
-    }),
+    composed: {
+      description: 'Another subcommand!',
+      cmd: subcommands({
+        cat: withStream,
+      }),
+      aliases: ['cmp'],
+    },
   },
   `my wonderful multicommand app`
 );

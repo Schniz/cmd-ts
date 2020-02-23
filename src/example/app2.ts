@@ -1,7 +1,6 @@
 #!/usr/bin/env YARN_SILENT=1 yarn ts-node
 
-import { binaryParser, command, single, t, bool, parse } from '..';
-import { fromStr } from '../command';
+import { fromStr, binaryParser, command, single, t, bool, parse } from '..';
 
 const getRepoUrl = () => 'my-repo-uri';
 
