@@ -1,7 +1,7 @@
-import { minimist, MinimistResult } from '../src/minimist';
+import { argparse, ArgParserResult } from '../src/argparse';
 
 test('works', () => {
-  const result = minimist(
+  const result = argparse(
     [
       'hello',
       '--number',
@@ -147,5 +147,5 @@ test('works', () => {
         position: 3,
       },
     ],
-  } as MinimistResult);
+  } as ArgParserResult);
 });

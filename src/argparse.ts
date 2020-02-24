@@ -25,7 +25,7 @@ export type ParseItem =
     }
   | { type: 'forcePositional' };
 
-export interface MinimistResult {
+export interface ArgParserResult {
   positional: string[];
   named: Record<string, string[]>;
   context: ParseItem[];
@@ -35,21 +35,21 @@ function hasNamedArgumentPrefix(s: string): boolean {
   return s.startsWith('-') && !/^-+$/.test(s);
 }
 
-export type MinimistNamedArguments = {
+export type ArgParserNamedArguments = {
   short: Record<string, string>;
   long: Record<string, string>;
   forceBoolean: Set<string>;
   positional: Record<number, string>;
 };
 
-export function minimist(
+export function argparse(
   args: string[],
-  namedArgs: MinimistNamedArguments
-): MinimistResult {
+  namedArgs: ArgParserNamedArguments
+): ArgParserResult {
   let index = 0;
   let forcePositional = false;
   let positionalIndex = 0;
-  const result: MinimistResult = { positional: [], named: {}, context: [] };
+  const result: ArgParserResult = { positional: [], named: {}, context: [] };
 
   while (index < args.length) {
     const input = args[index];
