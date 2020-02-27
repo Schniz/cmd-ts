@@ -42,7 +42,6 @@
     "@types/jest": "^25.1.0",
     "@types/lodash.camelcase": "^4.3.6",
     "@types/lodash.kebabcase": "^4.1.6",
-    "@types/minimist": "^1.2.0",
     "@types/request": "^2.48.4",
     "docs-ts": "^0.3.4",
     "eslint-plugin-import": "^2.20.1",
