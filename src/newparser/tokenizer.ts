@@ -18,7 +18,6 @@ export type Token =
       raw: string;
     };
 
-
 export function tokenize(strings: string[]): Token[] {
   let tokens: Token[] = [];
   let overallIndex = 0;
@@ -26,23 +25,23 @@ export function tokenize(strings: string[]): Token[] {
   const push = (token: Token) => {
     tokens.push(token);
     overallIndex += token.raw.length;
-  }
+  };
 
   for (const [stringIndex, string] of enumerate(strings)) {
     const chars = [...string];
     for (let i = 0; i < chars.length; i++) {
-      if (chars[i] === "-" && chars[i+1] === "-") {
-        push({ type: 'longPrefix', raw: '--', index: overallIndex })
+      if (chars[i] === '-' && chars[i + 1] === '-') {
+        push({ type: 'longPrefix', raw: '--', index: overallIndex });
         i++;
-      } else if (chars[i] === "-") {
-        push({ type: 'shortPrefix', raw: '-', index: overallIndex })
+      } else if (chars[i] === '-') {
+        push({ type: 'shortPrefix', raw: '-', index: overallIndex });
       } else {
-        push({ type: 'char', raw: chars[i], index: overallIndex })
+        push({ type: 'char', raw: chars[i], index: overallIndex });
       }
     }
 
     if (stringIndex + 1 !== strings.length) {
-      push({ type: 'argumentDivider', raw: ' ', index: overallIndex })
+      push({ type: 'argumentDivider', raw: ' ', index: overallIndex });
     }
   }
 

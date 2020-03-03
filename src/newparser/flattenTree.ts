@@ -1,6 +1,11 @@
-import { AstNode, ShortOptions, ShortOption } from './parser';
-import { enumerate } from './enumerate';
+import { AstNode } from './parser';
 
+/**
+ * This function should not be used,
+ * but I'd rather have a traversal functions
+ * to look for elements and stuff. This is just
+ * for the POC
+ */
 export function flattenTree(nodes: AstNode[]): any {
   const options: Record<string, string[]> = {};
   const flags = new Set<string>();

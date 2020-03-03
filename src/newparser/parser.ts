@@ -7,23 +7,25 @@ export type AstNode =
   | PositionalArgument
   | ForcePositional;
 
-type BaseAstNode<Type extends string> = { type: Type, index: number; raw: string };
+type BaseAstNode<Type extends string> = {
+  type: Type;
+  index: number;
+  raw: string;
+};
 
 interface LongOption extends BaseAstNode<'longOption'> {
   key: string;
   value?: OptionValue;
 }
 
-interface Delimiter extends BaseAstNode<'delimiter'> {
-}
+interface Delimiter extends BaseAstNode<'delimiter'> {}
 
-interface Value extends BaseAstNode<'value'> {
-}
+interface Value extends BaseAstNode<'value'> {}
 
 interface OptionValue extends BaseAstNode<'optionValue'> {
   delimiter: Delimiter;
   node: Value;
-};
+}
 
 export interface ShortOptions extends BaseAstNode<'shortOptions'> {
   options: ShortOption[];
@@ -34,8 +36,7 @@ export interface ShortOption extends BaseAstNode<'shortOption'> {
   value?: OptionValue;
 }
 
-interface PositionalArgument extends BaseAstNode<'positionalArgument'> {
-}
+interface PositionalArgument extends BaseAstNode<'positionalArgument'> {}
 
 interface ForcePositional extends BaseAstNode<'forcePositional'> {
   type: 'forcePositional';
@@ -77,7 +78,7 @@ function parseOptionValue(opts: {
   }
 
   return {
-    type: "optionValue",
+    type: 'optionValue',
     index: delimiterToken.index,
     delimiter: { type: 'delimiter', raw: delimiter, index: delimiterIndex },
     node: { type: 'value', raw: value, index: valueIndex },

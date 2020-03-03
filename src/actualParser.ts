@@ -3,6 +3,7 @@
 import { tokenize } from './newparser/tokenizer';
 import { parse } from './newparser/parser';
 import { flattenTree } from './newparser/flattenTree';
+
 const tokens = tokenize(process.argv.slice(2));
 const tree = parse(tokens, {
   longOptionKeys: new Set(),

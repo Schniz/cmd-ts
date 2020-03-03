@@ -16,16 +16,19 @@ const NumOfStr = withMessage(
   () => `Provided value is not a number`
 );
 
-export const Integer = fromStr<number>((obj, ctx) => {
-  return either.chain(NumOfStr.validate(obj, ctx), n => {
-    if (n !== Math.round(n)) {
-      return t.failure(obj, ctx, `This is a float, not an integer`);
-    }
-    return t.success(n);
-  });
-}, {
-  name: 'integer'
-});
+export const Integer = fromStr<number>(
+  (obj, ctx) => {
+    return either.chain(NumOfStr.validate(obj, ctx), n => {
+      if (n !== Math.round(n)) {
+        return t.failure(obj, ctx, `This is a float, not an integer`);
+      }
+      return t.success(n);
+    });
+  },
+  {
+    name: 'integer',
+  }
+);
 
 function stdin() {
   return (global as any).mockStdin || process.stdin;

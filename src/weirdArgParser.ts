@@ -1,10 +1,21 @@
 #!/usr/bin/env YARN_SILENT=1 yarn ts-node --
 
+/////
+///// IGNORE THIS FILE!!!
+/////
+
 import { either, Either, isRight } from 'fp-ts/lib/Either';
 import chalk from 'chalk';
 import { array } from 'fp-ts/lib/Array';
 import * as t from 'io-ts';
 import immer from 'immer';
+
+import { codeFrameColumns } from '@babel/code-frame';
+
+import { generateColorCycle, padNoAnsi } from './utils';
+import stripAnsi from 'strip-ansi';
+import { Integer } from './example/test-types';
+import { BooleanFromString } from './BooleanFromString';
 
 type Descriptive = {
   description: () => string;
@@ -33,7 +44,11 @@ export function elevate<T extends t.Any>(
   return { ...t, ...args };
 }
 
-export type ContextError = { fromIndex: number; toIndex: number; message: string };
+export type ContextError = {
+  fromIndex: number;
+  toIndex: number;
+  message: string;
+};
 
 export type StringContext = {
   value: string;
@@ -238,8 +253,6 @@ function flag<Decoder extends Elevated<t.Any>>(args: {
     },
   };
 }
-
-import { codeFrameColumns } from '@babel/code-frame';
 
 function printAllErrors(context: StringContext[]) {
   let str = '';
@@ -775,11 +788,6 @@ function binaryParser<R extends Runner<any> & Partial<Named>>(cmd: R): R {
     },
   };
 }
-
-import { generateColorCycle, padNoAnsi } from './utils';
-import stripAnsi from 'strip-ansi';
-import { Integer } from './example/test-types';
-import { BooleanFromString } from './BooleanFromString';
 
 const greeting = elevate(t.string, { defaultValue: () => 'Hello' });
 
