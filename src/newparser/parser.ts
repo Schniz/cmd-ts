@@ -1,6 +1,7 @@
 import { Token } from './tokenizer';
 
 export type AstNode =
+  | Value
   | LongOption
   | ShortOption
   | ShortOptions
@@ -13,7 +14,7 @@ type BaseAstNode<Type extends string> = {
   raw: string;
 };
 
-interface LongOption extends BaseAstNode<'longOption'> {
+export interface LongOption extends BaseAstNode<'longOption'> {
   key: string;
   value?: OptionValue;
 }
@@ -36,7 +37,7 @@ export interface ShortOption extends BaseAstNode<'shortOption'> {
   value?: OptionValue;
 }
 
-interface PositionalArgument extends BaseAstNode<'positionalArgument'> {}
+export interface PositionalArgument extends BaseAstNode<'positionalArgument'> {}
 
 interface ForcePositional extends BaseAstNode<'forcePositional'> {
   type: 'forcePositional';
@@ -58,7 +59,7 @@ function parseOptionValue(opts: {
   const shouldReadKeyAsFlag =
     forceFlag.has(key) || opts.peekToken()?.type !== 'char';
 
-  if (!delimiterToken || shouldReadKeyAsFlag) {
+  if (!delimiterToken || (delimiterToken.raw !== '=' && shouldReadKeyAsFlag)) {
     return;
   }
 

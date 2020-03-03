@@ -1,13 +1,23 @@
 #!/usr/bin/env YARN_SILENT=1 yarn ts-node --
 
-import { tokenize } from './newparser/tokenizer';
-import { parse } from './newparser/parser';
-import { flattenTree } from './newparser/flattenTree';
+import { command } from './newimpl/command';
+import { option } from './newimpl/option';
+import { flag } from './newimpl/flag';
+import { positional } from './newimpl/positional';
+import { string, boolean, number } from '../test/newimpl/test-types';
+import { run } from './newimpl/runner';
 
-const tokens = tokenize(process.argv.slice(2));
-const tree = parse(tokens, {
-  longOptionKeys: new Set(),
-  shortOptionKeys: new Set(),
+const cmd = command({
+  name: 'My app',
+  failOnUnknownArguments: true,
+  args: {
+    pos1: positional({ decoder: string, displayName: 'pos1' }),
+    flag: flag({ decoder: boolean, short: 'f', long: 'flag' }),
+    pos2: positional({ decoder: string, displayName: 'pos2' }),
+    opt: option({ decoder: number, short: 'n', long: 'number' }),
+  },
+  handler: console.log,
 });
-const flattened = flattenTree(tree);
-console.log(flattened);
+
+const result = run(cmd, process.argv.slice(2));
+console.log(result);
