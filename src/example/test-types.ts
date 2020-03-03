@@ -23,6 +23,8 @@ export const Integer = fromStr<number>((obj, ctx) => {
     }
     return t.success(n);
   });
+}, {
+  name: 'integer'
 });
 
 function stdin() {

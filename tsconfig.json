@@ -4,6 +4,7 @@
     "target": "es2019",
     "module": "esnext",
     "lib": ["esnext"],
+    "downlevelIteration": true,
     "importHelpers": true,
     "declaration": true,
     "sourceMap": true,

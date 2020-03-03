@@ -19,10 +19,11 @@ export const string = withMessage(
  * tiny handler helps with providing defaults and `unimplemented` calls when necessary.
  */
 export function fromStr<Output = unknown>(
-  validator: t.Validate<string, Output>
+  validator: t.Validate<string, Output>,
+  options?: { name?: string }
 ): t.Type<Output, string> {
   return new t.Type<Output, string>(
-    'CustomValidator',
+    options?.name ?? 'CustomValidator',
     (_x): _x is Output => false,
     (obj, ctx) => {
       return either.chain(string.validate(obj, ctx), s => validator(s, ctx));
