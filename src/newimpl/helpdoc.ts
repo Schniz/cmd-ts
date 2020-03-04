@@ -1,9 +1,19 @@
+import { ParseContext } from './argparser';
+
 export type Descriptive = {
   description: string;
 };
 
 export type Versioned = {
   version: string;
+};
+
+export type Named = {
+  name: string;
+};
+
+export type Displayed = {
+  displayName: string;
 };
 
 export type HelpTopic = {
@@ -18,5 +28,5 @@ export type ProvidesHelp = {
 };
 
 export type PrintHelp = {
-  printHelp(): void;
+  printHelp(context: ParseContext): void;
 };

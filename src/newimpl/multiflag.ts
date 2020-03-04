@@ -1,31 +1,24 @@
-import { ArgParser, ParsingResult, ParseContext } from './argparser';
-import { From, OutputOf, extend } from './from';
+import {
+  ArgParser,
+  ParsingResult,
+  ParseContext,
+  ParsingError,
+} from './argparser';
+import { From, OutputOf } from './from';
 import { findOption } from '../newparser/findOption';
 import { ProvidesHelp } from './helpdoc';
+import { boolean } from './flag';
 
-type FlagConfig<Decoder extends From<boolean, any>> = {
+type MultiFlagConfig<Decoder extends From<boolean[], any>> = {
   decoder: Decoder;
   long: string;
   short?: string;
   description?: string;
 };
 
-export const boolean: From<string, boolean> = {
-  from(str) {
-    if (str === 'true') return { result: 'ok', value: true };
-    if (str === 'false') return { result: 'ok', value: false };
-    return {
-      result: 'error',
-      message: `expected value to be either "true" or "false". got: "${str}"`,
-    };
-  },
-};
-
-export function flag<Decoder extends From<boolean, any>>(
-  config: FlagConfig<Decoder>
+export function multiflag<Decoder extends From<boolean[], any>>(
+  config: MultiFlagConfig<Decoder>
 ): ArgParser<OutputOf<Decoder>> & ProvidesHelp {
-  const decoder = extend(boolean, config.decoder);
-
   return {
     helpTopics() {
       let usage = `--${config.long}`;
@@ -56,40 +49,44 @@ export function flag<Decoder extends From<boolean, any>>(
         shortNames: config.short ? [config.short] : [],
       }).filter(x => !visitedNodes.has(x));
 
-      if (options.length > 1) {
+      for (const option of options) {
+        visitedNodes.add(option);
+      }
+
+      const optionValues: boolean[] = [];
+      const errors: ParsingError[] = [];
+
+      for (const option of options) {
+        const decoded = boolean.from(option.value?.node.raw ?? 'true');
+        if (decoded.result === 'error') {
+          errors.push({ nodes: [option], message: decoded.message });
+        } else {
+          optionValues.push(decoded.value);
+        }
+      }
+
+      if (errors.length > 0) {
+        return {
+          outcome: 'failure',
+          errors,
+        };
+      }
+
+      const multiDecoded = config.decoder.from(optionValues);
+
+      if (multiDecoded.result === 'error') {
         return {
           outcome: 'failure',
           errors: [
             {
               nodes: options,
-              message: 'Expected 1 occurence, got ' + options.length,
+              message: multiDecoded.message,
             },
           ],
         };
       }
 
-      if (options[0]) {
-        visitedNodes.add(options[0]);
-      }
-
-      const value = options[0]
-        ? options[0]?.value?.node?.raw ?? 'true'
-        : 'false';
-      const decoded = decoder.from(value);
-
-      if (decoded.result === 'error') {
-        return {
-          outcome: 'failure',
-          errors: [
-            {
-              nodes: options,
-              message: decoded.message,
-            },
-          ],
-        };
-      }
-
-      return { outcome: 'success', value: decoded.value };
+      return { outcome: 'success', value: multiDecoded.value };
     },
   };
 }

@@ -36,8 +36,7 @@ test('merges options, positionals and flags', () => {
 
   const nodes = parse(tokens, { longOptionKeys, shortOptionKeys });
   const result = cmd.parse({ nodes, visitedNodes: new Set() });
-
-  expect(result).toEqual({
+  const expected: typeof result = {
     outcome: 'success',
     value: {
       positionals: ['first', 'second', 'third'],
@@ -45,7 +44,9 @@ test('merges options, positionals and flags', () => {
       secondOption: 'works-too',
       flag: true,
     },
-  });
+  };
+
+  expect(result).toEqual(expected);
 });
 
 test('fails if an argument fail to parse', () => {
@@ -62,7 +63,10 @@ test('fails if an argument fail to parse', () => {
   });
 
   const nodes = parse(tokens, { longOptionKeys, shortOptionKeys });
-  const result = cmd.parse({ nodes, visitedNodes: new Set() });
+  const result = cmd.parse({
+    nodes,
+    visitedNodes: new Set(),
+  });
 
   expect(result).toEqual({
     outcome: 'failure',
@@ -76,6 +80,10 @@ test('fails if an argument fail to parse', () => {
         message: `expected value to be either "true" or "false". got: "fails-too"`,
       },
     ],
+    partialValue: {
+      positionals: ['first', 'second', 'third'],
+      secondOption: 'works-too',
+    },
   });
 });
 
@@ -99,7 +107,10 @@ test('fails if providing unknown arguments', () => {
   });
 
   const nodes = parse(tokens, { longOptionKeys, shortOptionKeys });
-  const result = cmd.parse({ nodes, visitedNodes: new Set() });
+  const result = cmd.parse({
+    nodes,
+    visitedNodes: new Set(),
+  });
 
   expect(result).toEqual({
     outcome: 'failure',
@@ -112,5 +123,8 @@ test('fails if providing unknown arguments', () => {
         ),
       },
     ],
+    partialValue: {
+      positionals: ['okay', 'alright'],
+    },
   });
 });

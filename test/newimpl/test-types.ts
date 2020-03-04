@@ -1,16 +1,17 @@
-import { NumberFromString } from 'io-ts-types/lib/NumberFromString';
 import { From, identity } from '../../src/newimpl/from';
-import { Descriptive } from '../../src/newimpl/helpdoc';
+import { Descriptive, Displayed } from '../../src/newimpl/helpdoc';
 
-export const number: From<string, number> & Descriptive = {
+export const number: From<string, number> & Descriptive & Displayed = {
   from(str) {
-    const decoded = NumberFromString.decode(str);
-    if (decoded._tag === 'Right') {
-      return { result: 'ok', value: decoded.right };
-    } else {
+    const decoded = parseInt(str, 10);
+
+    if (Number.isNaN(decoded)) {
       return { result: 'error', message: 'Not a number' };
+    } else {
+      return { result: 'ok', value: decoded };
     }
   },
+  displayName: 'number',
   description: 'a number',
 };
 

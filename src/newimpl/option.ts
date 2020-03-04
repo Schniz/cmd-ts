@@ -6,7 +6,7 @@ import {
 } from './argparser';
 import { From, OutputOf } from './from';
 import { findOption } from '../newparser/findOption';
-import { ProvidesHelp } from './helpdoc';
+import { ProvidesHelp, Descriptive, Displayed } from './helpdoc';
 
 type OptionConfig<Decoder extends From<string, any>> = {
   decoder: Decoder;
@@ -15,14 +15,15 @@ type OptionConfig<Decoder extends From<string, any>> = {
   description?: string;
 };
 
-export function option<Decoder extends From<string, any>>(
-  config: OptionConfig<Decoder>
-): ArgParser<OutputOf<Decoder>> & ProvidesHelp {
+export function option<
+  Decoder extends From<string, any> & Partial<Descriptive & Displayed>
+>(config: OptionConfig<Decoder>): ArgParser<OutputOf<Decoder>> & ProvidesHelp {
   return {
     helpTopics() {
-      let usage = `--${config.long} <value>`;
+      const displayName = config.decoder.displayName ?? 'value';
+      let usage = `--${config.long} <${displayName}>`;
       if (config.short) {
-        usage += `, -${config.short}=<value>`;
+        usage += `, -${config.short}=<${displayName}>`;
       }
 
       return [
@@ -30,7 +31,10 @@ export function option<Decoder extends From<string, any>>(
           category: 'options',
           usage,
           defaults: [],
-          description: config.description ?? 'self explainatory',
+          description:
+            config.description ??
+            config.decoder.description ??
+            'self explanatory',
         },
       ];
     },
@@ -43,6 +47,8 @@ export function option<Decoder extends From<string, any>>(
         longNames: [config.long],
         shortNames: config.short ? [config.short] : [],
       }).filter(x => !visitedNodes.has(x));
+
+      options.forEach(opt => visitedNodes.add(opt));
 
       if (options.length > 1) {
         const error: ParsingError = {
@@ -66,15 +72,16 @@ export function option<Decoder extends From<string, any>>(
       }
 
       const option = options[0];
-      visitedNodes.add(option);
 
       if (!option.value) {
+        const raw =
+          option.type === 'shortOption' ? `-${option.key}` : `--${option.key}`;
         return {
           outcome: 'failure',
           errors: [
             {
               nodes: [option],
-              message: `No value provided for --${config.long}`,
+              message: `No value provided for ${raw}`,
             },
           ],
         };

@@ -1,6 +1,4 @@
-import { AstNode, parse } from '../newparser/parser';
-import { tokenize } from '../newparser/tokenizer';
-import { errorBox } from './errorBox';
+import { AstNode } from '../newparser/parser';
 
 export type Nodes = AstNode[];
 
@@ -9,9 +7,14 @@ export type ParsingError = {
   message: string;
 };
 
-export type FailedParse = {
+export type DeepPartial<X> = {
+  [key in keyof X]?: DeepPartial<X[key]>;
+};
+
+export type FailedParse<Into> = {
   outcome: 'failure';
   errors: ParsingError[];
+  partialValue?: DeepPartial<Into>;
 };
 
 export type SuccessfulParse<Into> = {
@@ -22,18 +25,22 @@ export type SuccessfulParse<Into> = {
 export type ParseContext = {
   nodes: Nodes;
   visitedNodes: Set<AstNode>;
+  hotPath?: string[];
 };
 
-export type ParsingResult<Into> = FailedParse | SuccessfulParse<Into>;
+export type ParsingResult<Into> = FailedParse<Into> | SuccessfulParse<Into>;
 
 export type RegisterOptions = {
   forceFlagLongNames: Set<string>;
   forceFlagShortNames: Set<string>;
 };
 
-export type ArgParser<Into> = {
-  parse(context: ParseContext): ParsingResult<Into>;
+export type Register = {
   register(opts: RegisterOptions): void;
+};
+
+export type ArgParser<Into> = Register & {
+  parse(context: ParseContext): ParsingResult<Into>;
 };
 
 export type ParsingInto<AP extends ArgParser<any>> = AP extends ArgParser<
@@ -41,27 +48,3 @@ export type ParsingInto<AP extends ArgParser<any>> = AP extends ArgParser<
 >
   ? R
   : never;
-
-export function argparse<AP extends ArgParser<any>>(
-  ap: AP,
-  strings: string[]
-): ParsingInto<AP> {
-  const longOptionKeys = new Set<string>();
-  const shortOptionKeys = new Set<string>();
-  ap.register({
-    forceFlagShortNames: shortOptionKeys,
-    forceFlagLongNames: longOptionKeys,
-  });
-
-  const tokens = tokenize(strings);
-  const nodes = parse(tokens, { longOptionKeys, shortOptionKeys });
-
-  const result = ap.parse({ nodes, visitedNodes: new Set() });
-
-  if (result.outcome === 'failure') {
-    console.error(errorBox(nodes, result.errors));
-    process.exit(1);
-  } else {
-    return result.value;
-  }
-}

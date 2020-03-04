@@ -19,13 +19,16 @@ test('works for multiple nodes', () => {
     long: 'some',
   });
 
-  const result = opt.parse({ nodes: tree, visitedNodes: new Set() });
+  const result = opt.parse({
+    nodes: tree,
+    visitedNodes: new Set(),
+  });
 
   if (result.outcome === 'success') {
     throw new Error('should fail...');
   }
 
-  const errors = errorBox(tree, result.errors);
+  const errors = errorBox(tree, result.errors, []);
   expect(errors).toMatch('Too many times provided');
 });
 
@@ -44,13 +47,16 @@ test('works for a short flag', () => {
     short: 'n',
   });
 
-  const result = opt.parse({ nodes: tree, visitedNodes: new Set() });
+  const result = opt.parse({
+    nodes: tree,
+    visitedNodes: new Set(),
+  });
 
   if (result.outcome === 'success') {
     throw new Error('should fail...');
   }
 
-  const errors = errorBox(tree, result.errors);
+  const errors = errorBox(tree, result.errors, []);
   expect(errors).toMatch(chalk.red('n not_a_number'));
 });
 
@@ -68,13 +74,16 @@ test('works for a single node', () => {
     long: 'some',
   });
 
-  const result = opt.parse({ nodes: tree, visitedNodes: new Set() });
+  const result = opt.parse({
+    nodes: tree,
+    visitedNodes: new Set(),
+  });
 
   if (result.outcome === 'success') {
     throw new Error('should fail...');
   }
 
-  const errors = errorBox(tree, result.errors);
+  const errors = errorBox(tree, result.errors, []);
   expect(errors).toMatch('Not a number');
 });
 
@@ -92,12 +101,15 @@ test('works when no nodes', () => {
     long: 'some',
   });
 
-  const result = opt.parse({ nodes: tree, visitedNodes: new Set() });
+  const result = opt.parse({
+    nodes: tree,
+    visitedNodes: new Set(),
+  });
 
   if (result.outcome === 'success') {
     throw new Error('should fail...');
   }
 
-  const errors = errorBox(tree, result.errors);
+  const errors = errorBox(tree, result.errors, []);
   expect(errors).toMatch(`No value provided for --some`);
 });

@@ -1,37 +1,61 @@
 import { ParsingError } from './argparser';
 import chalk from 'chalk';
 import { AstNode } from '../newparser/parser';
+import { padNoAnsi } from '../utils';
+import stripAnsi from 'strip-ansi';
 
-function highlight(nodes: AstNode[], error: ParsingError): string | undefined {
+type HighlightResult = { colorized: string; errorIndex: number };
+
+function highlight(
+  nodes: AstNode[],
+  error: ParsingError
+): HighlightResult | undefined {
+  const strings: string[] = [];
+  let errorIndex: undefined | number = undefined;
+
+  function foundError() {
+    if (errorIndex !== undefined) return;
+    errorIndex = stripAnsi(strings.join(' ')).length;
+  }
+
   if (error.nodes.length === 0) return;
-  return nodes
-    .map(node => {
-      if (error.nodes.includes(node)) {
-        return chalk.red(node.raw);
-      } else {
-        if (node.type === 'shortOptions') {
-          let failed = false;
-          let s = '';
-          for (const option of node.options) {
-            if (error.nodes.includes(option)) {
-              s += chalk.red(option.raw);
-              failed = true;
-            } else {
-              s += chalk.dim(option.raw);
-            }
-          }
-          const prefix = failed ? chalk.red(`-`) : chalk.dim('-');
-          return prefix + s;
-        }
 
-        return chalk.dim(node.raw);
+  nodes.forEach(node => {
+    if (error.nodes.includes(node)) {
+      foundError();
+      return strings.push(chalk.red(node.raw));
+    } else {
+      if (node.type === 'shortOptions') {
+        let failed = false;
+        let s = '';
+        for (const option of node.options) {
+          if (error.nodes.includes(option)) {
+            s += chalk.red(option.raw);
+            failed = true;
+          } else {
+            s += chalk.dim(option.raw);
+          }
+        }
+        const prefix = failed ? chalk.red(`-`) : chalk.dim('-');
+        if (failed) {
+          foundError();
+        }
+        return strings.push(prefix + s);
       }
-    })
-    .join(' ');
+
+      return strings.push(chalk.dim(node.raw));
+    }
+  });
+
+  return { colorized: strings.join(' '), errorIndex: errorIndex ?? 0 };
 }
 
-export function errorBox(nodes: AstNode[], errors: ParsingError[]): string {
-  let withHighlight: { message: string; highlighted?: string }[] = [];
+export function errorBox(
+  nodes: AstNode[],
+  errors: ParsingError[],
+  hotPath: string[]
+): string {
+  let withHighlight: { message: string; highlighted?: HighlightResult }[] = [];
 
   let errorMessages: string[] = [];
 
@@ -41,21 +65,56 @@ export function errorBox(nodes: AstNode[], errors: ParsingError[]): string {
   }
 
   let number = 1;
+  const maxNumberWidth = String(withHighlight.length).length;
 
-  withHighlight
-    .filter(x => !x.highlighted)
-    .forEach(({ message }) => {
-      errorMessages.push(`${number}. ${message}`);
-      number++;
-    });
+  errorMessages.push(
+    chalk.red.bold('error: ') +
+      'found ' +
+      chalk.yellow(withHighlight.length) +
+      ' error' +
+      (withHighlight.length > 1 ? 's' : '')
+  );
+  errorMessages.push('');
 
   withHighlight
     .filter(x => x.highlighted)
     .forEach(x => {
-      errorMessages.push(`${number}. ${x.message}`);
-      errorMessages.push(chalk.dim('  > ') + x.highlighted);
+      if (!x.highlighted) {
+        throw new Error('WELP');
+      }
+
+      const msg = chalk.red(`${chalk.bold('^')} ${x.message}`);
+
+      errorMessages.push(`  ${x.highlighted.colorized}`);
+      errorMessages.push(`  ${''.padStart(x.highlighted.errorIndex)} ${msg}`);
+      errorMessages.push('');
       number++;
     });
+
+  const withNoHighlight = withHighlight.filter(x => !x.highlighted);
+
+  if (number > 1) {
+    if (withNoHighlight.length === 1) {
+      errorMessages.push('Along the following error:');
+    } else if (withNoHighlight.length > 1) {
+      errorMessages.push('Along the following errors:');
+    }
+  }
+
+  withNoHighlight.forEach(({ message }) => {
+    const num = chalk.red.bold(
+      `${padNoAnsi(number.toString(), maxNumberWidth, 'start')}.`
+    );
+    errorMessages.push(`  ${num} ${chalk.red(message)}`);
+    number++;
+  });
+
+  const helpCmd = chalk.yellow(hotPath.join(' ') + ' --help');
+
+  errorMessages.push('');
+  errorMessages.push(
+    chalk.red.bold('hint: ') + `for more information, try '${helpCmd}'`
+  );
 
   return errorMessages.join('\n');
 }

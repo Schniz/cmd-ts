@@ -4,13 +4,19 @@ import {
   ArgParser,
   ParsingError,
   ParsingResult,
+  ParseContext,
 } from './argparser';
 import { AstNode } from '../newparser/parser';
-import { PrintHelp, ProvidesHelp, Versioned } from './helpdoc';
+import {
+  PrintHelp,
+  ProvidesHelp,
+  Versioned,
+  Named,
+  Descriptive,
+} from './helpdoc';
 import { padNoAnsi } from '../utils';
-import { flag } from './flag';
-import { identity } from './from';
 import { Runner } from './runner';
+import { circuitbreaker } from './circuitbreaker';
 
 type ArgTypes = Record<string, ArgParser<any> & Partial<ProvidesHelp>>;
 type HandlerFunc<Args extends ArgTypes> = (args: Output<Args>) => any;
@@ -44,20 +50,6 @@ function groupBy<A, B extends string>(
   return result;
 }
 
-const helpFlag = flag({
-  long: 'help',
-  short: 'h',
-  decoder: identity<boolean>(),
-  description: 'show help',
-});
-
-const versionFlag = flag({
-  long: 'version',
-  short: 'v',
-  decoder: identity<boolean>(),
-  description: 'print the version',
-});
-
 export function command<
   Arguments extends ArgTypes,
   Handler extends HandlerFunc<Arguments>
@@ -66,28 +58,29 @@ export function command<
 ): ArgParser<Output<Arguments>> &
   PrintHelp &
   ProvidesHelp &
-  Runner<Output<Arguments>> &
-  Partial<Versioned> {
+  Named &
+  Runner<Output<Arguments>, ReturnType<Handler>> &
+  Partial<Versioned & Descriptive> {
   const argEntries = entries(config.args);
 
   return {
+    name: config.name,
+    handler: config.handler,
+    description: config.description,
     version: config.version,
     helpTopics() {
-      const subentries = argEntries.flatMap(
-        ([, parser]) => parser.helpTopics?.() ?? []
-      );
-      const withHelpFlag = [...subentries, ...helpFlag.helpTopics()];
-
-      if (!config.version) {
-        return withHelpFlag;
-      } else {
-        return [...withHelpFlag, ...versionFlag.helpTopics()];
-      }
+      return Object.values(config.args)
+        .concat([circuitbreaker])
+        .flatMap(x => x.helpTopics?.() ?? []);
     },
-    printHelp() {
-      let name = config.name;
+    printHelp(context) {
+      let name = context.hotPath?.join(' ') ?? '';
+      if (!name) {
+        name = config.name;
+      }
+
       if (config.version) {
-        name += ' ' + config.version;
+        name += ' ' + chalk.dim(config.version);
       }
 
       console.log(name);
@@ -122,7 +115,7 @@ export function command<
         arg.register(opts);
       }
     },
-    parse(context): ParsingResult<Output<Arguments>> {
+    parse(context: ParseContext): ParsingResult<Output<Arguments>> {
       const resultObject = {} as Output<Arguments>;
       const errors: ParsingError[] = [];
 
@@ -166,6 +159,7 @@ export function command<
         return {
           outcome: 'failure',
           errors: errors,
+          partialValue: resultObject,
         };
       } else {
         return {
@@ -175,16 +169,31 @@ export function command<
       }
     },
     run(context) {
-      const help = helpFlag.parse(context);
-      const version = versionFlag.parse(context);
+      const parsed = this.parse(context);
 
-      if (help.outcome === 'success' && help.value) {
-        return { type: 'circuitbreaker', value: 'help' };
-      } else if (version.outcome === 'success' && version.value) {
-        return { type: 'circuitbreaker', value: 'version' };
-      } else {
-        return { type: 'parsing', value: this.parse(context) };
+      const breaker = circuitbreaker.parse(context);
+      const shouldShowHelp =
+        breaker.outcome === 'success' && breaker.value === 'help';
+      const shouldShowVersion =
+        breaker.outcome === 'success' && breaker.value === 'version';
+
+      if (shouldShowHelp) {
+        this.printHelp(context);
+        process.exit(1);
+      } else if (shouldShowVersion) {
+        console.log(config.version || '0.0.0');
+        process.exit(0);
       }
+
+      if (parsed.outcome === 'failure') {
+        return {
+          outcome: 'failure',
+          errors: parsed.errors,
+          partialValue: { ...parsed.partialValue },
+        };
+      }
+
+      return { outcome: 'success', value: this.handler(parsed.value) };
     },
   };
 }

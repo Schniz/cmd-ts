@@ -15,7 +15,7 @@ export function positional<
   Decoder extends From<string, any> & Partial<Descriptive>
 >(
   config: PositionalConfig<Decoder>
-): ArgParser<OutputOf<Decoder>[]> & ProvidesHelp {
+): ArgParser<OutputOf<Decoder>> & ProvidesHelp {
   return {
     helpTopics() {
       return [
@@ -25,7 +25,7 @@ export function positional<
           description:
             config.description ??
             config.decoder.description ??
-            'self explainatory',
+            'self explanatory',
           defaults: [],
         },
       ];
@@ -34,7 +34,7 @@ export function positional<
     parse({
       nodes,
       visitedNodes,
-    }: ParseContext): ParsingResult<OutputOf<Decoder>[]> {
+    }: ParseContext): ParsingResult<OutputOf<Decoder>> {
       const positionals = nodes.filter(
         (node): node is PositionalArgument =>
           node.type === 'positionalArgument' && !visitedNodes.has(node)

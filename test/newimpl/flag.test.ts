@@ -22,7 +22,10 @@ test('fails on incompatible value', () => {
     longOptionKeys,
   });
 
-  const result = argparser.parse({ nodes, visitedNodes: new Set() });
+  const result = argparser.parse({
+    nodes,
+    visitedNodes: new Set(),
+  });
 
   expect(result).toEqual({
     outcome: 'failure',
@@ -54,7 +57,10 @@ test('defaults to false', () => {
     longOptionKeys,
   });
 
-  const result = argparser.parse({ nodes, visitedNodes: new Set() });
+  const result = argparser.parse({
+    nodes,
+    visitedNodes: new Set(),
+  });
 
   expect(result).toEqual({
     outcome: 'success',
@@ -82,7 +88,10 @@ test('allows short arguments', () => {
     longOptionKeys,
   });
 
-  const result = argparser.parse({ nodes, visitedNodes: new Set() });
+  const result = argparser.parse({
+    nodes,
+    visitedNodes: new Set(),
+  });
 
   expect(result).toEqual({
     outcome: 'success',

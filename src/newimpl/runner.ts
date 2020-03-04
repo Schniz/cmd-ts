@@ -1,26 +1,29 @@
 import { PrintHelp, Versioned } from './helpdoc';
-import { ArgParser, ParseContext, ParsingResult } from './argparser';
+import { ParseContext, ParsingResult, Register } from './argparser';
 import { tokenize } from '../newparser/tokenizer';
 import { parse } from '../newparser/parser';
 import { errorBox } from './errorBox';
 
-export type Runner<Into> = PrintHelp &
-  Partial<Versioned> &
-  ArgParser<Into> & {
-    run(
-      context: ParseContext
-    ):
-      | {
-          type: 'circuitbreaker';
-          value: 'help' | 'version';
-        }
-      | { type: 'parsing'; value: ParsingResult<Into> };
-  };
-export type Into<R extends Runner<any>> = R extends Runner<infer X> ? X : never;
+export type Handling<Values, Result> = { handler: (values: Values) => Result };
 
-export function run<R extends Runner<any>>(ap: R, strings: string[]): Into<R> {
+export type Runner<HandlerArgs, HandlerResult> = PrintHelp &
+  Partial<Versioned> &
+  Register &
+  Handling<HandlerArgs, HandlerResult> & {
+    run(context: ParseContext): ParsingResult<HandlerResult>;
+  };
+
+export type Into<R extends Runner<any, any>> = R extends Runner<any, infer X>
+  ? X
+  : never;
+
+export function run<R extends Runner<any, any>>(
+  ap: R,
+  strings: string[]
+): Into<R> {
   const longOptionKeys = new Set<string>();
   const shortOptionKeys = new Set<string>();
+  const hotPath: string[] = [];
   ap.register({
     forceFlagShortNames: shortOptionKeys,
     forceFlagLongNames: longOptionKeys,
@@ -28,26 +31,12 @@ export function run<R extends Runner<any>>(ap: R, strings: string[]): Into<R> {
 
   const tokens = tokenize(strings);
   const nodes = parse(tokens, { longOptionKeys, shortOptionKeys });
-  const result = ap.run({ nodes, visitedNodes: new Set() });
+  const result = ap.run({ nodes, visitedNodes: new Set(), hotPath });
 
-  if (result.type === 'circuitbreaker') {
-    if (result.value === 'help') {
-      ap.printHelp();
-      process.exit(1);
-    }
-
-    if (result.value === 'version') {
-      console.log(ap.version ?? 'No version provided');
-      process.exit(0);
-    }
-
-    throw new Error('unknown circuitbreaker');
+  if (result.outcome === 'failure') {
+    console.error(errorBox(nodes, result.errors, hotPath));
+    process.exit(1);
   } else {
-    if (result.value.outcome === 'failure') {
-      console.error(errorBox(nodes, result.value.errors));
-      process.exit(1);
-    } else {
-      return result.value.value;
-    }
+    return result.value;
   }
 }
