@@ -7,9 +7,11 @@ import { positional } from './newimpl/positional';
 import { string, boolean, number } from '../test/newimpl/test-types';
 import { run } from './newimpl/runner';
 import { From } from './newimpl/from';
+import { extend } from './newimpl/type';
 import { multiflag } from './newimpl/multiflag';
 import { subcommands } from './newimpl/subcommands';
 import { binary } from './newimpl/binary';
+import { restPositionals } from './newimpl/restPositionals';
 
 const loglevel: From<boolean[], number> = {
   from(booleans) {
@@ -17,13 +19,21 @@ const loglevel: From<boolean[], number> = {
   },
 };
 
+const capitalizedString = extend(string, {
+  from: s => ({
+    result: 'ok',
+    value: s.charAt(0).toUpperCase() + s.slice(1).toLowerCase(),
+  }),
+  description: 'string. will be capitalized',
+});
+
 const greet = command({
   name: 'greet',
   failOnUnknownArguments: true,
   description: 'Greet someone',
 
   args: {
-    name: positional({ decoder: string, displayName: 'name' }),
+    greeter: positional({ decoder: string, displayName: 'greeter' }),
     times: option({
       decoder: number,
       description: 'amount of times to print',
@@ -32,12 +42,15 @@ const greet = command({
     }),
     greeting: option({ decoder: string, long: 'greeting' }),
     exclaim: flag({ decoder: boolean, long: 'exclaim', short: 'e' }),
+    names: restPositionals({ decoder: capitalizedString, displayName: 'name' }),
   },
 
   handler(args) {
     for (let i = 0; i < args.times; i++) {
       console.log(
-        `${i + 1}. ${args.greeting}, ${args.name}${args.exclaim ? '!' : ''}`
+        `${i + 1}. ${args.greeter} says: ${args.greeting}, ${args.names.join(
+          ' & '
+        )}${args.exclaim ? '!' : ''}`
       );
     }
   },

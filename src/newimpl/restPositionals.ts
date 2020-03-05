@@ -11,6 +11,7 @@ import { ProvidesHelp } from './helpdoc';
 
 type RestPositionalsConfig<Decoder extends Type<string, any>> = {
   decoder: Decoder;
+  displayName?: string;
 };
 
 export function restPositionals<Decoder extends Type<string, any>>(
@@ -18,7 +19,8 @@ export function restPositionals<Decoder extends Type<string, any>>(
 ): ArgParser<OutputOf<Decoder>[]> & ProvidesHelp {
   return {
     helpTopics() {
-      const displayName = config.decoder.displayName ?? 'arg';
+      const displayName =
+        config.displayName ?? config.decoder.displayName ?? 'arg';
       return [
         {
           usage: `[...${displayName}]`,

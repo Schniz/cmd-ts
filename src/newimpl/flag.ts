@@ -1,8 +1,7 @@
 import { ArgParser, ParsingResult, ParseContext } from './argparser';
-import { OutputOf, extend } from './from';
 import { findOption } from '../newparser/findOption';
 import { ProvidesHelp, Descriptive } from './helpdoc';
-import { Type } from './type';
+import { Type, extend, OutputOf } from './type';
 
 type FlagConfig<Decoder extends Type<boolean, any>> = {
   decoder: Decoder;
@@ -61,6 +60,7 @@ export function flag<Decoder extends Type<boolean, any>>(
         longNames: [config.long],
         shortNames: config.short ? [config.short] : [],
       }).filter(x => !visitedNodes.has(x));
+      options.forEach(opt => visitedNodes.add(opt));
 
       if (options.length > 1) {
         return {
