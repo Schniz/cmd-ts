@@ -4,17 +4,30 @@ import {
   ParseContext,
   ParsingError,
 } from './argparser';
-import { From, OutputOf } from './from';
+import { OutputOf } from './from';
 import { PositionalArgument } from '../newparser/parser';
+import { Type } from './type';
+import { ProvidesHelp } from './helpdoc';
 
-type RestPositionalsConfig<Decoder extends From<string, any>> = {
+type RestPositionalsConfig<Decoder extends Type<string, any>> = {
   decoder: Decoder;
 };
 
-export function restPositionals<Decoder extends From<string, any>>(
+export function restPositionals<Decoder extends Type<string, any>>(
   config: RestPositionalsConfig<Decoder>
-): ArgParser<OutputOf<Decoder>[]> {
+): ArgParser<OutputOf<Decoder>[]> & ProvidesHelp {
   return {
+    helpTopics() {
+      const displayName = config.decoder.displayName ?? 'arg';
+      return [
+        {
+          usage: `[...${displayName}]`,
+          category: 'arguments',
+          defaults: [],
+          description: config.decoder.description ?? '',
+        },
+      ];
+    },
     register(_opts) {},
     parse({
       nodes,

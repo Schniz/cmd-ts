@@ -24,8 +24,9 @@ export function from<F extends From<any, any>>(f: F): F {
 export function extend<F extends From<any, any>, B>(
   f1: F,
   f2: From<OutputOf<F>, B>
-): From<InputOf<F>, B> {
+): Omit<F, 'from'> & From<InputOf<F>, B> {
   return {
+    ...f1,
     from: a => {
       const f1Result = f1.from(a);
       switch (f1Result.result) {

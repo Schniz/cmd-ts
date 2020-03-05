@@ -1,22 +1,20 @@
 import { ArgParser, ParsingResult, ParseContext } from './argparser';
-import { From, OutputOf } from './from';
+import { OutputOf } from './from';
 import { PositionalArgument } from '../newparser/parser';
 import { ProvidesHelp, Descriptive } from './helpdoc';
+import { Type } from './type';
 
-type PositionalConfig<
-  Decoder extends From<string, any> & Partial<Descriptive>
-> = {
+type PositionalConfig<Decoder extends Type<string, any>> = {
   decoder: Decoder;
   displayName: string;
   description?: string;
 };
 
-export function positional<
-  Decoder extends From<string, any> & Partial<Descriptive>
->(
+export function positional<Decoder extends Type<string, any>>(
   config: PositionalConfig<Decoder>
-): ArgParser<OutputOf<Decoder>> & ProvidesHelp {
+): ArgParser<OutputOf<Decoder>> & ProvidesHelp & Partial<Descriptive> {
   return {
+    description: config.description ?? config.decoder.description,
     helpTopics() {
       return [
         {

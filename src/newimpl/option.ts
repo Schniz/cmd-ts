@@ -4,21 +4,23 @@ import {
   ParsingResult,
   ParseContext,
 } from './argparser';
-import { From, OutputOf } from './from';
+import { OutputOf } from './from';
 import { findOption } from '../newparser/findOption';
-import { ProvidesHelp, Descriptive, Displayed } from './helpdoc';
+import { ProvidesHelp, Descriptive } from './helpdoc';
+import { Type } from './type';
 
-type OptionConfig<Decoder extends From<string, any>> = {
+type OptionConfig<Decoder extends Type<string, any>> = {
   decoder: Decoder;
   long: string;
   short?: string;
   description?: string;
 };
 
-export function option<
-  Decoder extends From<string, any> & Partial<Descriptive & Displayed>
->(config: OptionConfig<Decoder>): ArgParser<OutputOf<Decoder>> & ProvidesHelp {
+export function option<Decoder extends Type<string, any>>(
+  config: OptionConfig<Decoder>
+): ArgParser<OutputOf<Decoder>> & ProvidesHelp & Partial<Descriptive> {
   return {
+    description: config.description ?? config.decoder.description,
     helpTopics() {
       const displayName = config.decoder.displayName ?? 'value';
       let usage = `--${config.long} <${displayName}>`;

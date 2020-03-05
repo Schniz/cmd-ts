@@ -1,6 +1,7 @@
 import { ParseContext } from './argparser';
 
 export type Descriptive = {
+  /** A long description */
   description: string;
 };
 
@@ -13,6 +14,7 @@ export type Named = {
 };
 
 export type Displayed = {
+  /** A short display name that summarizes it */
   displayName: string;
 };
 

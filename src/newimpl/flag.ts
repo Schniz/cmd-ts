@@ -1,16 +1,17 @@
 import { ArgParser, ParsingResult, ParseContext } from './argparser';
-import { From, OutputOf, extend } from './from';
+import { OutputOf, extend } from './from';
 import { findOption } from '../newparser/findOption';
-import { ProvidesHelp } from './helpdoc';
+import { ProvidesHelp, Descriptive } from './helpdoc';
+import { Type } from './type';
 
-type FlagConfig<Decoder extends From<boolean, any>> = {
+type FlagConfig<Decoder extends Type<boolean, any>> = {
   decoder: Decoder;
   long: string;
   short?: string;
   description?: string;
 };
 
-export const boolean: From<string, boolean> = {
+export const boolean: Type<string, boolean> = {
   from(str) {
     if (str === 'true') return { result: 'ok', value: true };
     if (str === 'false') return { result: 'ok', value: false };
@@ -19,14 +20,16 @@ export const boolean: From<string, boolean> = {
       message: `expected value to be either "true" or "false". got: "${str}"`,
     };
   },
+  displayName: 'true/false',
 };
 
-export function flag<Decoder extends From<boolean, any>>(
+export function flag<Decoder extends Type<boolean, any>>(
   config: FlagConfig<Decoder>
-): ArgParser<OutputOf<Decoder>> & ProvidesHelp {
+): ArgParser<OutputOf<Decoder>> & ProvidesHelp & Partial<Descriptive> {
   const decoder = extend(boolean, config.decoder);
 
   return {
+    description: config.description ?? config.decoder.description,
     helpTopics() {
       let usage = `--${config.long}`;
       if (config.short) {
@@ -37,7 +40,10 @@ export function flag<Decoder extends From<boolean, any>>(
           category: 'flags',
           usage,
           defaults: [],
-          description: config.description ?? 'self explanatory',
+          description:
+            config.description ??
+            config.decoder.description ??
+            'self explanatory',
         },
       ];
     },

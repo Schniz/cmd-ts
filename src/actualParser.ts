@@ -64,7 +64,7 @@ const cmd = command({
 const cli = binary(
   subcommands({
     name: 'some-cli',
-    cmds: { cmd, greet },
+    cmds: { test: cmd, greet },
   })
 );
 
