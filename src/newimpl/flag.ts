@@ -20,6 +20,7 @@ export const boolean: Type<string, boolean> = {
     };
   },
   displayName: 'true/false',
+  defaultValue: () => false,
 };
 
 export function flag<Decoder extends Type<boolean, any>>(
@@ -74,13 +75,21 @@ export function flag<Decoder extends Type<boolean, any>>(
         };
       }
 
-      if (options[0]) {
-        visitedNodes.add(options[0]);
+      if (
+        options.length === 0 &&
+        typeof config.decoder.defaultValue === 'function'
+      ) {
+        return { outcome: 'success', value: config.decoder.defaultValue() };
+      } else if (options.length === 0) {
+        return {
+          outcome: 'failure',
+          errors: [
+            { nodes: [], message: `No value provided for --${config.long}` },
+          ],
+        };
       }
 
-      const value = options[0]
-        ? options[0]?.value?.node?.raw ?? 'true'
-        : 'false';
+      const value = options[0]?.value?.node?.raw ?? 'true';
       const decoded = decoder.from(value);
 
       if (decoded.result === 'error') {

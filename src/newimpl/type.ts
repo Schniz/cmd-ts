@@ -1,9 +1,11 @@
 import { From, OutputOf, InputOf } from './from';
 import { Descriptive, Displayed } from './helpdoc';
+import { Default } from './default';
+
 export { OutputOf, InputOf } from './from';
 
 export type Type<From_, To> = From<From_, To> &
-  Partial<Descriptive & Displayed>;
+  Partial<Descriptive & Displayed & Default<To>>;
 
 export function extend<
   T1 extends Type<any, any>,
@@ -11,9 +13,13 @@ export function extend<
 >(
   t1: T1,
   t2: T2
-): Omit<T1, 'from'> & Omit<T2, 'from'> & From<InputOf<T1>, OutputOf<T2>> {
+): Omit<T1, 'from' | 'defaultValue'> &
+  Omit<T2, 'from'> &
+  From<InputOf<T1>, OutputOf<T2>> {
+  const { defaultValue: _defaultValue, from: _from, ...t1WithoutDefault } = t1;
+
   return {
-    ...t1,
+    ...t1WithoutDefault,
     ...t2,
     from(a) {
       const f1Result = t1.from(a);

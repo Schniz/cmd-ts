@@ -64,7 +64,15 @@ export function option<Decoder extends Type<string, any>>(
         };
       }
 
-      if (options.length === 0) {
+      if (
+        options.length === 0 &&
+        typeof config.decoder.defaultValue === 'function'
+      ) {
+        return {
+          outcome: 'success',
+          value: config.decoder.defaultValue(),
+        };
+      } else if (options.length === 0) {
         return {
           outcome: 'failure',
           errors: [

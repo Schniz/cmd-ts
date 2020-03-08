@@ -48,7 +48,21 @@ export const boolean: Type<boolean, boolean> = {
   ...identity(),
   description: 'a boolean',
   displayName: 'true/false',
+  defaultValue() {
+    return false;
+  },
 };
+
+export function optional<T extends Type<any, any>>(
+  t: T
+): Type<InputOf<T>, OutputOf<T> | undefined> {
+  return {
+    ...t,
+    defaultValue(): OutputOf<T> | undefined {
+      return undefined;
+    },
+  };
+}
 
 export function arrayOf<T extends Type<any, any>>(
   t: T

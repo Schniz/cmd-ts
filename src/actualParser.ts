@@ -35,12 +35,19 @@ const greet = command({
   args: {
     greeter: positional({ decoder: string, displayName: 'greeter' }),
     times: option({
-      decoder: number,
+      decoder: { ...number, defaultValue: () => 1 },
       description: 'amount of times to print',
       long: 'times',
       short: 't',
     }),
-    greeting: option({ decoder: string, long: 'greeting' }),
+    greeting: option({
+      decoder: {
+        ...string,
+        defaultValue: () => 'Hello',
+      },
+      short: 'g',
+      long: 'greeting',
+    }),
     exclaim: flag({ decoder: boolean, long: 'exclaim', short: 'e' }),
     names: restPositionals({ decoder: capitalizedString, displayName: 'name' }),
   },
