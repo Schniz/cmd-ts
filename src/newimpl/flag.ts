@@ -2,12 +2,14 @@ import { ArgParser, ParsingResult, ParseContext } from './argparser';
 import { findOption } from '../newparser/findOption';
 import { ProvidesHelp, Descriptive } from './helpdoc';
 import { Type, extend, OutputOf } from './type';
+import chalk from 'chalk';
 
 type FlagConfig<Decoder extends Type<boolean, any>> = {
   decoder: Decoder;
   long: string;
   short?: string;
   description?: string;
+  env?: string;
 };
 
 export const boolean: Type<string, boolean> = {
@@ -35,11 +37,26 @@ export function flag<Decoder extends Type<boolean, any>>(
       if (config.short) {
         usage += `, -${config.short}`;
       }
+      const defaults: string[] = [];
+
+      if (config.env) {
+        const env =
+          process.env[config.env] === undefined
+            ? ''
+            : `=${chalk.italic(process.env[config.env])}`;
+        defaults.push(`env: ${config.env}${env}`);
+      }
+
+      if (typeof config.decoder.defaultValueAsString === 'function') {
+        const defaultAsString = config.decoder.defaultValueAsString();
+        defaults.push('default: ' + chalk.italic(defaultAsString));
+      }
+
       return [
         {
           category: 'flags',
           usage,
-          defaults: [],
+          defaults,
           description:
             config.description ??
             config.decoder.description ??
@@ -75,12 +92,21 @@ export function flag<Decoder extends Type<boolean, any>>(
         };
       }
 
-      if (
+      const valueFromEnv = config.env ? process.env[config.env] : undefined;
+      let rawValue: string;
+      let envPrefix = '';
+
+      if (options.length === 0 && valueFromEnv !== undefined) {
+        rawValue = valueFromEnv;
+        envPrefix = `env[${chalk.italic(config.env)}]: `;
+      } else if (
         options.length === 0 &&
         typeof config.decoder.defaultValue === 'function'
       ) {
         return { outcome: 'success', value: config.decoder.defaultValue() };
-      } else if (options.length === 0) {
+      } else if (options.length === 1) {
+        rawValue = options[0].value?.node.raw ?? 'true';
+      } else {
         return {
           outcome: 'failure',
           errors: [
@@ -89,8 +115,7 @@ export function flag<Decoder extends Type<boolean, any>>(
         };
       }
 
-      const value = options[0]?.value?.node?.raw ?? 'true';
-      const decoded = decoder.from(value);
+      const decoded = decoder.from(rawValue);
 
       if (decoded.result === 'error') {
         return {
@@ -98,7 +123,7 @@ export function flag<Decoder extends Type<boolean, any>>(
           errors: [
             {
               nodes: options,
-              message: decoded.message,
+              message: envPrefix + decoded.message,
             },
           ],
         };

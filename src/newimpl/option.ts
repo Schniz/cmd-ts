@@ -8,12 +8,14 @@ import { OutputOf } from './from';
 import { findOption } from '../newparser/findOption';
 import { ProvidesHelp, Descriptive } from './helpdoc';
 import { Type } from './type';
+import chalk from 'chalk';
 
 type OptionConfig<Decoder extends Type<string, any>> = {
   decoder: Decoder;
   long: string;
   short?: string;
   description?: string;
+  env?: string;
 };
 
 export function option<Decoder extends Type<string, any>>(
@@ -28,11 +30,30 @@ export function option<Decoder extends Type<string, any>>(
         usage += `, -${config.short}=<${displayName}>`;
       }
 
+      const defaults: string[] = [];
+
+      if (config.env) {
+        const env =
+          process.env[config.env] === undefined
+            ? ''
+            : `=${chalk.italic(process.env[config.env])}`;
+        defaults.push(`env: ${config.env}${env}`);
+      }
+
+      if (typeof config.decoder.defaultValue === 'function') {
+        const defaultAsString = config.decoder.defaultValueAsString?.();
+        if (defaultAsString) {
+          defaults.push('default: ' + chalk.italic(defaultAsString));
+        } else {
+          defaults.push('optional');
+        }
+      }
+
       return [
         {
           category: 'options',
           usage,
-          defaults: [],
+          defaults,
           description:
             config.description ??
             config.decoder.description ??
@@ -64,44 +85,43 @@ export function option<Decoder extends Type<string, any>>(
         };
       }
 
-      if (
-        options.length === 0 &&
-        typeof config.decoder.defaultValue === 'function'
-      ) {
+      const valueFromEnv = config.env ? process.env[config.env] : undefined;
+
+      const option = options[0];
+      let rawValue: string;
+      let envPrefix = '';
+
+      if (option?.value) {
+        rawValue = option.value.node.raw;
+      } else if (valueFromEnv !== undefined) {
+        rawValue = valueFromEnv;
+        envPrefix = `env[${chalk.italic(config.env)}]: `;
+      } else if (!option && typeof config.decoder.defaultValue === 'function') {
         return {
           outcome: 'success',
           value: config.decoder.defaultValue(),
         };
-      } else if (options.length === 0) {
-        return {
-          outcome: 'failure',
-          errors: [
-            { nodes: [], message: `No value provided for --${config.long}` },
-          ],
-        };
-      }
-
-      const option = options[0];
-
-      if (!option.value) {
+      } else {
         const raw =
-          option.type === 'shortOption' ? `-${option.key}` : `--${option.key}`;
+          option?.type === 'shortOption'
+            ? `-${option?.key}`
+            : `--${option?.key ?? config.long}`;
         return {
           outcome: 'failure',
           errors: [
             {
-              nodes: [option],
+              nodes: options,
               message: `No value provided for ${raw}`,
             },
           ],
         };
       }
 
-      const decoded = config.decoder.from(option.value.node.raw);
+      const decoded = config.decoder.from(rawValue);
       if (decoded.result === 'error') {
         return {
           outcome: 'failure',
-          errors: [{ nodes: [option], message: decoded.message }],
+          errors: [{ nodes: options, message: envPrefix + decoded.message }],
         };
       }
 

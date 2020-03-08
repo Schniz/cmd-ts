@@ -1,5 +1,5 @@
 import { ArgParser } from './argparser';
-import { identity } from './from';
+import { boolean } from '../types';
 import { flag } from './flag';
 import { ProvidesHelp } from './helpdoc';
 
@@ -8,14 +8,14 @@ type CircuitBreaker = 'help' | 'version';
 export const helpFlag = flag({
   long: 'help',
   short: 'h',
-  decoder: identity<boolean>(),
+  decoder: boolean,
   description: 'show help',
 });
 
 export const versionFlag = flag({
   long: 'version',
   short: 'v',
-  decoder: identity<boolean>(),
+  decoder: boolean,
   description: 'print the version',
 });
 

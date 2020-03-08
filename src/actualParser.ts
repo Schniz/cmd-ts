@@ -44,11 +44,18 @@ const greet = command({
       decoder: {
         ...string,
         defaultValue: () => 'Hello',
+        defaultValueAsString: () => 'Hello',
       },
+      env: 'MY_GREETING',
       short: 'g',
       long: 'greeting',
     }),
-    exclaim: flag({ decoder: boolean, long: 'exclaim', short: 'e' }),
+    exclaim: flag({
+      decoder: boolean,
+      long: 'exclaim',
+      short: 'e',
+      env: 'SERIOUS_BUSINESS',
+    }),
     names: restPositionals({ decoder: capitalizedString, displayName: 'name' }),
   },
 
