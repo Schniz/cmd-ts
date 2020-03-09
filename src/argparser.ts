@@ -1,4 +1,4 @@
-import { AstNode } from '../newparser/parser';
+import { AstNode } from './newparser/parser';
 
 export type Nodes = AstNode[];
 

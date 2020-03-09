@@ -1,357 +1,184 @@
-import { tupleWithOneElement } from './tupleWithOneElement';
-import { Either, either } from 'fp-ts/lib/Either';
 import chalk from 'chalk';
-import { contextToString } from './utils';
-import * as t from 'io-ts';
 import {
-  argparse,
-  ArgParserResult,
-  ArgParserNamedArguments,
-  ParseItem,
-} from './argparse';
-import kebabCase from 'lodash.kebabcase';
+  ParsingInto,
+  ArgParser,
+  ParsingError,
+  ParsingResult,
+  ParseContext,
+} from './argparser';
+import { AstNode } from './newparser/parser';
 import {
-  composedType,
-  ComposedType,
-  TypeRecord,
-  TROutput,
-} from './composedType';
-import { Parser, ParseError } from './Parser';
-import { BooleanFromString } from './BooleanFromString';
+  PrintHelp,
+  ProvidesHelp,
+  Versioned,
+  Named,
+  Descriptive,
+} from './helpdoc';
+import { padNoAnsi, entries, groupBy } from './utils';
+import { Runner } from './runner';
+import { circuitbreaker } from './circuitbreaker';
 
-/**
- * A boolean argument, parses a string into a boolean:
- *
- * * `'true'` => true
- * * `'false'` => false
- * * otherwise => fails
- */
-export const bool = BooleanFromString;
+type ArgTypes = Record<string, ArgParser<any> & Partial<ProvidesHelp>>;
+type HandlerFunc<Args extends ArgTypes> = (args: Output<Args>) => any;
 
-/**
- * An optional argument type.
- *
- * @param decoder an `io-ts` decoder to make undefinedable.
- * @example
- *  ```ts
- *  const optionalString = optional(t.string);
- *  ```
- */
-export function optional<T extends t.Any>(decoder: T) {
-  return t.union([t.undefined, decoder]);
-}
-
-/**
- * A named argument (`--long {value}` for the long names or `-s {value}` as short)
- */
-export type NamedArgument = {
-  kind: 'named';
-  /**
-   * An `io-ts` decoder to be used for parsing the values.
-   *
-   * By default, the type expected to be able to parse from a list of strings,
-   * so users will be able to write command line applications with multiple
-   * named arguments with the same name: `--value=hello --value=world`.
-   *
-   * To allow only one value, use the [[single]] combinator that turns a decoder from string
-   * to a decoder of a list of strings.
-   */
-  type: t.Type<any, string[]>;
-  /**
-   * A short (one-letter) name to be used. For instance, providing `s` would result in
-   * allowing the user to pass `-s value`
-   */
-  short?: string;
-  /**
-   * A long name to be used. For instance, providing `long-name` would result in
-   * allowing the user to pass `--long-name value`
-   */
-  long?: string;
-  /**
-   * A display name for the value, when showing help. For instance, when providing "hello",
-   * it would result as `--long-name <hello>`
-   */
-  argumentName?: string;
-  /**
-   * An environment variable name to take as default, if given
-   */
-  env?: string;
-  /**
-   * A description to be provided when showing help
-   */
+type CommandConfig<
+  Arguments extends ArgTypes,
+  Handler extends HandlerFunc<Arguments>
+> = {
+  args: Arguments;
+  version?: string;
+  name: string;
   description?: string;
-  /**
-   * A default value, when no value is given
-   */
-  defaultValue?: string;
+  handler: Handler;
+  aliases?: string[];
 };
 
-/**
- * A boolean argument (`--long` for long booleans, `-s` for short booleans)
- */
-export type BooleanArgument = {
-  kind: 'boolean';
-  /**
-   * An `io-ts` decoder to be used for parsing the values.
-   *
-   * By default, the type expected to be able to parse from a list of strings,
-   * so users will be able to write command line applications with multiple
-   * named arguments with the same name: `--value=hello --value=world`.
-   *
-   * To allow only one value, use the [[single]] combinator that turns a decoder from string
-   * to a decoder of a list of strings.
-   */
-  type: t.Type<any, string[]>;
-  /**
-   * A short (one-letter) name to be used. For instance, providing `s` would result in
-   * allowing the user to pass `-s`
-   */
-  short?: string;
-  /**
-   * A long name to be used. For instance, providing `long-name` would result in
-   * allowing the user to pass `--long-name`
-   */
-  long?: string;
-  /**
-   * A description to be provided when showing help
-   */
-  description?: string;
-  /**
-   * A default value, when missing
-   */
-  defaultValue?: boolean;
+type Output<Args extends ArgTypes> = {
+  [key in keyof Args]: ParsingInto<Args[key]>;
 };
 
-/**
- * A positional argument
- */
-export type PositionalArgument = {
-  kind: 'positional';
-  /**
-   * A type to parse from the string
-   */
-  type: t.Type<any, string>;
-  /**
-   * A display name for the argument. If missing, inferred from the given type
-   */
-  displayName?: string;
-  /**
-   * A description to be provided when showing help
-   */
-  description?: string;
-};
+export function command<
+  Arguments extends ArgTypes,
+  Handler extends HandlerFunc<Arguments>
+>(
+  config: CommandConfig<Arguments, Handler>
+): ArgParser<Output<Arguments>> &
+  PrintHelp &
+  ProvidesHelp &
+  Named &
+  Runner<Output<Arguments>, ReturnType<Handler>> &
+  Partial<Versioned & Descriptive> {
+  const argEntries = entries(config.args);
 
-/**
- * An argument configuration
- */
-export type Argument = PositionalArgument | NamedArgument | BooleanArgument;
-
-/**
- * A command configurations. An object where the keys are the results of a successful parse
- * and the values are a parsable [[Argument]]
- */
-type CommandConfig = Record<string, Argument>;
-
-function getTypes<T extends CommandConfig>(
-  t: T
-): { [key in keyof T]: T[key]['type'] } {
-  const x = {} as {
-    [key in keyof T]: T[key]['type'] extends t.Type<infer Output, string>
-      ? t.Type<Output, [string]>
-      : T[key]['type'];
-  };
-
-  for (const [key, value] of Object.entries(t)) {
-    if (value.kind === 'positional') {
-      x[key as keyof T] = tupleWithOneElement(value.type) as any;
-    } else {
-      x[key as keyof T] = value.type as any;
-    }
-  }
-
-  return x;
-}
-
-function argparseArguments<Config extends CommandConfig>(
-  config: Config
-): ArgParserNamedArguments {
-  const long: Record<string, string> = {};
-  const short: Record<string, string> = {};
-  const forceBoolean: Set<string> = new Set();
-  const positional: string[] = [];
-
-  for (const [argName, arg] of Object.entries(config)) {
-    if (arg.kind === 'positional') {
-      positional.push(argName);
-    } else {
-      const longName = arg.long ? arg.long : kebabCase(argName);
-      long[longName] = argName;
-      if (arg.short) {
-        short[arg.short] = argName;
+  return {
+    name: config.name,
+    handler: config.handler,
+    description: config.description,
+    version: config.version,
+    helpTopics() {
+      return Object.values(config.args)
+        .concat([circuitbreaker])
+        .flatMap(x => x.helpTopics?.() ?? []);
+    },
+    printHelp(context) {
+      let name = context.hotPath?.join(' ') ?? '';
+      if (!name) {
+        name = config.name;
       }
-      if (arg.kind === 'boolean') {
-        forceBoolean.add(argName);
+
+      if (config.version) {
+        name += ' ' + chalk.dim(config.version);
       }
-    }
-  }
 
-  return { long, short, forceBoolean, positional };
-}
+      console.log(name);
 
-/**
- * Creates a command line argument parser
- *
- * @param args the command arguments: an object where the keys are the names in your code
- * and the values are an [[Argument]]
- * @example
- * ```ts
- * const cmd = command({
- *   positional: { kind: 'positional', type: t.string },
- *   named: { kind: 'named', long: 'username', type: single(t.string), env: 'MY_APP_USER' },
- *   someBoolean: { kind: 'boolean', long: 'authenticate', short: 'a', type: bool }
- * });
- *
- * const { positional, named, someBoolean } = parse(cmd, process.argv.slice(2));
- * ```
- * @returns [[Parser]] which parses into an object where its keys are the same
- * as the keys provided into the `args` argument, and the values are the result of the types for each key.
- */
-export function command<Config extends CommandConfig>(
-  args: Config,
-  description?: string
-): Parser<TROutput<{ [key in keyof Config]: Config[key]['type'] }>> {
-  const types = getTypes(args);
-  const type = composedType(types);
-  const argparseOptions = argparseArguments(args);
-  const defaultValues: Record<string, string[]> = {};
-
-  for (const [argName, argValue] of Object.entries(args)) {
-    switch (argValue.kind) {
-      case 'boolean': {
-        defaultValues[argName] = [argValue.defaultValue?.toString() ?? 'false'];
-        break;
+      if (config.description) {
+        console.log();
+        console.log('  ' + config.description);
       }
-      case 'named': {
-        const env = argValue.env ? process.env[argValue.env] : undefined;
-        const defaultValue = env ?? argValue.defaultValue;
-        if (defaultValue) {
-          defaultValues[argName] = [defaultValue];
+
+      const usageBreakdown = groupBy(this.helpTopics(), x => x.category);
+
+      for (const [category, helpTopics] of entries(usageBreakdown)) {
+        console.log();
+        console.log(category.toUpperCase() + ':');
+        const widestUsage = helpTopics.reduce((len, curr) => {
+          return Math.max(len, curr.usage.length);
+        }, 0);
+        for (const helpTopic of helpTopics) {
+          let line = '';
+          line += '  ' + padNoAnsi(helpTopic.usage, widestUsage, 'end');
+          line += ' - ';
+          line += helpTopic.description;
+          for (const defaultValue of helpTopic.defaults) {
+            line += chalk.dim(` [${defaultValue}]`);
+          }
+          console.log(line);
+        }
+      }
+    },
+    register(opts) {
+      for (const [, arg] of argEntries) {
+        arg.register(opts);
+      }
+    },
+    parse(context: ParseContext): ParsingResult<Output<Arguments>> {
+      const resultObject = {} as Output<Arguments>;
+      const errors: ParsingError[] = [];
+
+      for (const [argName, arg] of argEntries) {
+        const result = arg.parse(context);
+        if (result.outcome === 'failure') {
+          errors.push(...result.errors);
         } else {
-          defaultValues[argName] = [];
-        }
-        break;
-      }
-    }
-  }
-
-  type Types = typeof types;
-
-  function showHelp(context: ParseItem[]): never {
-    const argsSoFar = contextToString(context);
-
-    console.log(`\`${argsSoFar}\``);
-    console.log();
-
-    if (description) {
-      console.log(description);
-      console.log();
-    }
-
-    if (Object.keys(args).length > 0) {
-      console.log('Use the following arguments:');
-      console.log();
-    }
-
-    for (const [argName, argValue] of Object.entries(args)) {
-      const description = argValue.description
-        ? ` - ${argValue.description}`
-        : '';
-      switch (argValue.kind) {
-        case 'positional': {
-          const explain = chalk.dim('(positional)');
-          const displayName = argValue.displayName ?? argValue.type.name;
-          console.log(`  <${displayName}>${description} ${explain}`.trimEnd());
-          break;
-        }
-        case 'boolean': {
-          const explain = chalk.dim('(takes no args)');
-          console.log(
-            `  --${argValue.long ??
-              kebabCase(argName)}${description} ${explain}`.trimEnd()
-          );
-          break;
-        }
-        case 'named': {
-          const env = argValue.env
-            ? chalk.dim(`[env: ${argValue.env}=${process.env[argValue.env]}]`)
-            : '';
-          const defaultValue = argValue.defaultValue
-            ? chalk.dim(`[default: ${argValue.defaultValue}]`)
-            : '';
-          const valueDisplayName = argValue.argumentName ?? argValue.type.name;
-          const argDisplayName = argValue.long ?? kebabCase(argName);
-          const trailing = [description, defaultValue, env]
-            .filter(Boolean)
-            .join(' ');
-          console.log(
-            `  --${argDisplayName} <${valueDisplayName}> ${trailing}`.trimEnd()
-          );
+          resultObject[argName] = result.value;
         }
       }
-    }
 
-    console.log();
+      const unknownArguments: AstNode[] = [];
+      for (const node of context.nodes) {
+        if (context.visitedNodes.has(node)) {
+          continue;
+        }
 
-    process.exit(1);
-  }
+        if (node.type === 'shortOptions') {
+          for (const option of node.options) {
+            if (context.visitedNodes.has(option)) {
+              continue;
+            }
+            unknownArguments.push(option);
+          }
+        } else {
+          unknownArguments.push(node);
+        }
+      }
 
-  type CommandOutput<TR extends TypeRecord> = TROutput<TR> & { _: string[] };
+      if (unknownArguments.length > 0) {
+        errors.push({
+          message: 'Unknown arguments',
+          nodes: unknownArguments,
+        });
+      }
 
-  function decodeArgParse<TR extends TypeRecord>(
-    argParseResult: ArgParserResult,
-    namedArgDecoder: ComposedType<TR>
-  ): Either<ParseError<TR>, CommandOutput<TR>> {
-    const result = either.map(namedArgDecoder(argParseResult.named), named => ({
-      ...named,
-      _: argParseResult.positional,
-    }));
-    return either.mapLeft(result, errors => {
-      return { parsed: argParseResult, errors, commandConfig: args };
-    });
-  }
+      if (errors.length > 0) {
+        return {
+          outcome: 'failure',
+          errors: errors,
+          partialValue: resultObject,
+        };
+      } else {
+        return {
+          outcome: 'success',
+          value: resultObject,
+        };
+      }
+    },
+    run(context) {
+      const parsed = this.parse(context);
 
-  function parse(
-    argv: string[],
-    context: ParseItem[] = []
-  ): Either<ParseError<Types>, CommandOutput<Types>> {
-    const parsedArguments = argparse(argv, argparseOptions);
-    parsedArguments.named = Object.assign(
-      {},
-      defaultValues,
-      parsedArguments.named
-    );
-    if (parsedArguments.named['h'] || parsedArguments.named['help']) {
-      showHelp(context);
-    }
+      const breaker = circuitbreaker.parse(context);
+      const shouldShowHelp =
+        breaker.outcome === 'success' && breaker.value === 'help';
+      const shouldShowVersion =
+        breaker.outcome === 'success' && breaker.value === 'version';
 
-    return either.mapLeft(decodeArgParse(parsedArguments, type), errors => {
-      return {
-        ...errors,
-        parsed: {
-          ...errors.parsed,
-          context: [...context, ...errors.parsed.context],
-        },
-      };
-    });
-  }
+      if (shouldShowHelp) {
+        this.printHelp(context);
+        process.exit(1);
+      } else if (shouldShowVersion) {
+        console.log(config.version || '0.0.0');
+        process.exit(0);
+      }
 
-  return { parse, description };
+      if (parsed.outcome === 'failure') {
+        return {
+          outcome: 'failure',
+          errors: parsed.errors,
+          partialValue: { ...parsed.partialValue },
+        };
+      }
+
+      return { outcome: 'success', value: this.handler(parsed.value) };
+    },
+  };
 }
-
-/**
- * Ensures that there's only one value provided for the argument.
- *
- * Takes an `io-ts` decoder that parses `A => B` and returns a decoder that parses `A[] => B`
- * and fails if there are more or less than one item.
- */
-export const single = tupleWithOneElement;

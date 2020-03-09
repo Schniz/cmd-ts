@@ -5,7 +5,7 @@ import {
   ParsingError,
 } from './argparser';
 import { From, OutputOf } from './from';
-import { findOption } from '../newparser/findOption';
+import { findOption } from './newparser/findOption';
 import { ProvidesHelp } from './helpdoc';
 import { boolean } from './flag';
 

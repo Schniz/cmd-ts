@@ -6,11 +6,15 @@
  * @packageDocumentation
  */
 
-import * as t from 'io-ts';
-export { t };
-export { unimplemented } from './utils';
 export { subcommands } from './subcommands';
-export { fromStr } from './fromStr';
-export { binaryParser } from './binaryParser';
-export * from './command';
-export { parse } from './parse';
+export { Type, extendType } from './type';
+export * from './types';
+export { binary } from './binary';
+export { command } from './command';
+export { flag } from './flag';
+export { option } from './option';
+export { positional } from './positional';
+export { run, Runner } from './runner';
+export { restPositionals } from './restPositionals';
+export { multiflag } from './multiflag';
+export { multioption } from './multioption';

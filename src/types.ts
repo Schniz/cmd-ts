@@ -1,4 +1,4 @@
-import { Type, identity, InputOf, OutputOf } from './newimpl/type';
+import { Type, identity, InputOf, OutputOf } from './type';
 
 export const number: Type<string, number> = {
   from(str) {

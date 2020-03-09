@@ -1,17 +1,17 @@
 #!/usr/bin/env YARN_SILENT=1 yarn ts-node --
 
-import { command } from './newimpl/command';
-import { option } from './newimpl/option';
-import { flag } from './newimpl/flag';
-import { positional } from './newimpl/positional';
-import { string, boolean, number } from '../test/newimpl/test-types';
-import { run } from './newimpl/runner';
-import { From } from './newimpl/from';
-import { extend } from './newimpl/type';
-import { multiflag } from './newimpl/multiflag';
-import { subcommands } from './newimpl/subcommands';
-import { binary } from './newimpl/binary';
-import { restPositionals } from './newimpl/restPositionals';
+import { command } from './command';
+import { option } from './option';
+import { flag } from './flag';
+import { positional } from './positional';
+import { string, boolean, number } from '../test/test-types';
+import { run } from './runner';
+import { From } from './from';
+import { extendType } from './type';
+import { multiflag } from './multiflag';
+import { subcommands } from './subcommands';
+import { binary } from './binary';
+import { restPositionals } from './restPositionals';
 
 const loglevel: From<boolean[], number> = {
   from(booleans) {
@@ -19,7 +19,7 @@ const loglevel: From<boolean[], number> = {
   },
 };
 
-const capitalizedString = extend(string, {
+const capitalizedString = extendType(string, {
   from: s => ({
     result: 'ok',
     value: s.charAt(0).toUpperCase() + s.slice(1).toLowerCase(),
@@ -29,7 +29,6 @@ const capitalizedString = extend(string, {
 
 const greet = command({
   name: 'greet',
-  failOnUnknownArguments: true,
   description: 'Greet someone',
 
   args: {
@@ -58,7 +57,6 @@ const greet = command({
     }),
     names: restPositionals({ decoder: capitalizedString, displayName: 'name' }),
   },
-
   handler(args) {
     for (let i = 0; i < args.times; i++) {
       console.log(
@@ -72,7 +70,6 @@ const greet = command({
 
 const cmd = command({
   name: 'cmd',
-  failOnUnknownArguments: true,
   version: '1.0.0-cmd',
   args: {
     pos1: positional({ decoder: string, displayName: 'pos1' }),

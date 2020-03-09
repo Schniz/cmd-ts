@@ -1,16 +1,15 @@
-import { flag } from '../../src/newimpl/flag';
-import { option } from '../../src/newimpl/option';
-import { positional } from '../../src/newimpl/positional';
-import { tokenize } from '../../src/newparser/tokenizer';
-import { parse } from '../../src/newparser/parser';
-import { command } from '../../src/newimpl/command';
-import { subcommands } from '../../src/newimpl/subcommands';
+import { flag } from '../src/flag';
+import { option } from '../src/option';
+import { positional } from '../src/positional';
+import { tokenize } from '../src/newparser/tokenizer';
+import { parse } from '../src/newparser/parser';
+import { command } from '../src/command';
+import { subcommands } from '../src/subcommands';
 import { string, boolean } from './test-types';
 
 const logMock = jest.fn();
 
 const greeter = command({
-  failOnUnknownArguments: true,
   name: 'greeter',
   args: {
     name: positional({ decoder: string, displayName: 'name' }),
@@ -23,7 +22,6 @@ const greeter = command({
 });
 
 const howdyPrinter = command({
-  failOnUnknownArguments: true,
   name: 'howdy',
   args: {
     name: positional({ decoder: string, displayName: 'name' }),

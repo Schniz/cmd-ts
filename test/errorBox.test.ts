@@ -1,8 +1,8 @@
 import chalk from 'chalk';
-import { tokenize } from '../../src/newparser/tokenizer';
-import { parse } from '../../src/newparser/parser';
-import { errorBox } from '../../src/newimpl/errorBox';
-import { option } from '../../src/newimpl/option';
+import { tokenize } from '../src/newparser/tokenizer';
+import { parse } from '../src/newparser/parser';
+import { errorBox } from '../src/errorBox';
+import { option } from '../src/option';
 import { number } from './test-types';
 
 test('works for multiple nodes', () => {

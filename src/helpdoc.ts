@@ -32,3 +32,7 @@ export type ProvidesHelp = {
 export type PrintHelp = {
   printHelp(context: ParseContext): void;
 };
+
+export type Aliased = {
+  aliases: string[];
+};

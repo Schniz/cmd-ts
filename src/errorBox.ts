@@ -1,7 +1,7 @@
 import { ParsingError } from './argparser';
 import chalk from 'chalk';
-import { AstNode } from '../newparser/parser';
-import { padNoAnsi } from '../utils';
+import { AstNode } from './newparser/parser';
+import { padNoAnsi } from './utils';
 import stripAnsi from 'strip-ansi';
 
 type HighlightResult = { colorized: string; errorIndex: number };

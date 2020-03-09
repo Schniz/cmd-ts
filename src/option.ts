@@ -5,7 +5,7 @@ import {
   ParseContext,
 } from './argparser';
 import { OutputOf } from './from';
-import { findOption } from '../newparser/findOption';
+import { findOption } from './newparser/findOption';
 import { ProvidesHelp, Descriptive } from './helpdoc';
 import { Type } from './type';
 import chalk from 'chalk';
@@ -25,10 +25,11 @@ export function option<Decoder extends Type<string, any>>(
     description: config.description ?? config.decoder.description,
     helpTopics() {
       const displayName = config.decoder.displayName ?? 'value';
-      let usage = `--${config.long} <${displayName}>`;
+      let usage = `--${config.long}`;
       if (config.short) {
-        usage += `, -${config.short}=<${displayName}>`;
+        usage += `, -${config.short}`;
       }
+      usage += ` <${displayName}>`;
 
       const defaults: string[] = [];
 

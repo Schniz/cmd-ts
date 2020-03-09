@@ -1,5 +1,5 @@
 import { ArgParser } from './argparser';
-import { boolean } from '../types';
+import { boolean } from './types';
 import { flag } from './flag';
 import { ProvidesHelp } from './helpdoc';
 

@@ -189,13 +189,12 @@ export function parse(tokens: Token[], forceFlag: ForceFlag): AstNode[] {
       let keys: Token[] = [];
       let nextToken = getToken();
 
-      if (nextToken?.type === 'argumentDivider') {
+      if (nextToken?.type === 'argumentDivider' || !nextToken) {
         nodes.push({
           type: 'positionalArgument',
           index: currentToken.index,
           raw: '-',
         });
-        index--; // go back after peeking
         continue;
       }
 

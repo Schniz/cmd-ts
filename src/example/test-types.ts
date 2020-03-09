@@ -1,66 +1,52 @@
 /* istanbul ignore file */
 
-import * as t from 'io-ts';
 import { Stream } from 'stream';
 import { existsSync, createReadStream } from 'fs';
 import request from 'request';
 import URL from 'url';
-import { fromStr } from '..';
-import { Either, either, Right } from 'fp-ts/lib/Either';
-import { withMessage } from 'io-ts-types/lib/withMessage';
-import { NumberFromString } from 'io-ts-types/lib/NumberFromString';
-import { unimplemented } from '../utils';
+import { Type, extendType, number } from '..';
 
-const NumOfStr = withMessage(
-  NumberFromString,
-  () => `Provided value is not a number`
-);
-
-export const Integer = fromStr<number>(
-  (obj, ctx) => {
-    return either.chain(NumOfStr.validate(obj, ctx), n => {
-      if (n !== Math.round(n)) {
-        return t.failure(obj, ctx, `This is a float, not an integer`);
-      }
-      return t.success(n);
-    });
+export const Integer: Type<string, number> = extendType(number, {
+  from(n) {
+    if (Math.round(n) !== n) {
+      return { result: 'error', message: 'This is a floating-point number' };
+    }
+    return { result: 'ok', value: n };
   },
-  {
-    name: 'integer',
-  }
-);
+});
 
 function stdin() {
   return (global as any).mockStdin || process.stdin;
 }
 
-export const ReadStream = fromStr<Stream>((obj, ctx) => {
-  if (typeof obj !== 'string') {
-    return t.failure(obj, ctx, `Something other than string provided`);
-  }
+export const ReadStream: Type<string, Stream> = {
+  description: 'A file path or a URL to make a GET request to',
+  displayName: 'file',
+  from(obj) {
+    if (typeof obj !== 'string') {
+      return {
+        result: 'error',
+        message: `Something other than string provided`,
+      };
+    }
 
-  const parsedUrl = URL.parse(obj);
+    const parsedUrl = URL.parse(obj);
 
-  if (parsedUrl.protocol?.startsWith('http')) {
-    return t.success(request(obj));
-  }
+    if (parsedUrl.protocol?.startsWith('http')) {
+      return { result: 'ok', value: request(obj) };
+    }
 
-  if (obj === '-') {
-    return t.success(stdin());
-  }
+    if (obj === '-') {
+      return { result: 'ok', value: stdin() };
+    }
 
-  if (!existsSync(obj)) {
-    return t.failure(obj, ctx, `Can't find file in path ${obj}`);
-  }
+    if (!existsSync(obj)) {
+      return { result: 'error', message: `Can't find file in path ${obj}` };
+    }
 
-  return t.success(createReadStream(obj));
-});
-
-export function ensureRight<T>(e: Either<any, T>): asserts e is Right<T> {
-  if (e._tag === 'Left') {
-    throw new Error(e.left);
-  }
-}
+    return { result: 'ok', value: createReadStream(obj) };
+  },
+};
 
 export function readStreamToString(s: Stream): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -71,41 +57,9 @@ export function readStreamToString(s: Stream): Promise<string> {
   });
 }
 
-export const CommaSeparatedString = fromStr<string[]>((obj, ctx) => {
-  if (typeof obj !== 'string') {
-    return t.failure(obj, ctx, 'provided value is not a string');
-  }
-  return t.success(obj.split(','));
-});
-
-export function commaSeparated<T extends t.Type<any, string, unknown>>(
-  decoder: T
-): t.Type<t.TypeOf<T>[], string, unknown> {
-  const decoderArray = t.array(decoder);
-  return new t.Type<T[], string, unknown>(
-    `comma separated ${decoder.name}`,
-    (x): x is T[] => decoderArray.is(x),
-    (obj, ctx) => {
-      if (typeof obj !== 'string') {
-        return t.failure(obj, ctx, 'provided value is not a string');
-      }
-      const splitted = obj.split(',');
-      return decoderArray.validate(splitted, ctx);
-      // return array.traverse(either)(splitted, x => decoder.validate(x, ctx));
-    },
-    x => x.join(',')
-  );
-}
-
-export function flattened<T extends t.Type<any[], string, unknown>>(
-  decoder: T
-): t.Type<t.TypeOf<T>, string[], unknown> {
-  return new t.Type<t.TypeOf<T>, string[], unknown>(
-    `array(${decoder.name})`,
-    (x): x is t.TypeOf<T> => decoder.is(x),
-    (obj, ctx) => {
-      return either.map(t.array(decoder).validate(obj, ctx), x => x.flat());
-    },
-    _ => unimplemented()
-  );
-}
+export const CommaSeparatedString: Type<string, string[]> = {
+  description: 'comma seperated string',
+  from(s) {
+    return { result: 'ok', value: s.split(/, ?/) };
+  },
+};

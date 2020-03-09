@@ -1,6 +1,6 @@
-import { restPositionals } from '../../src/newimpl/restPositionals';
-import { tokenize } from '../../src/newparser/tokenizer';
-import { parse, AstNode } from '../../src/newparser/parser';
+import { restPositionals } from '../src/restPositionals';
+import { tokenize } from '../src/newparser/tokenizer';
+import { parse, AstNode } from '../src/newparser/parser';
 import { number } from './test-types';
 
 test('fails on specific positional', () => {

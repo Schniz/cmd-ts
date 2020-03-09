@@ -1,7 +1,7 @@
-import { flag } from '../../src/newimpl/flag';
-import { tokenize } from '../../src/newparser/tokenizer';
-import { parse } from '../../src/newparser/parser';
-import { identity } from '../../src/newimpl/from';
+import { flag } from '../src/flag';
+import { tokenize } from '../src/newparser/tokenizer';
+import { parse } from '../src/newparser/parser';
+import { boolean } from '../src/types';
 
 test('fails on incompatible value', () => {
   const argv = `--hello=world`;
@@ -9,7 +9,7 @@ test('fails on incompatible value', () => {
   const shortOptionKeys = new Set<string>();
   const longOptionKeys = new Set<string>();
   const argparser = flag({
-    decoder: identity(),
+    decoder: boolean,
     long: 'hello',
     description: 'description',
   });
@@ -44,7 +44,7 @@ test('defaults to false', () => {
   const shortOptionKeys = new Set<string>();
   const longOptionKeys = new Set<string>();
   const argparser = flag({
-    decoder: identity(),
+    decoder: boolean,
     long: 'hello',
     description: 'description',
   });
@@ -74,7 +74,7 @@ test('allows short arguments', () => {
   const shortOptionKeys = new Set<string>();
   const longOptionKeys = new Set<string>();
   const argparser = flag({
-    decoder: identity(),
+    decoder: boolean,
     long: 'hello',
     short: 'b',
     description: 'description',

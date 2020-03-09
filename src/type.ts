@@ -7,7 +7,7 @@ export { identity, OutputOf, InputOf } from './from';
 export type Type<From_, To> = From<From_, To> &
   Partial<Descriptive & Displayed & Default<To>>;
 
-export function extend<
+export function extendType<
   T1 extends Type<any, any>,
   T2 extends Type<OutputOf<T1>, any>
 >(

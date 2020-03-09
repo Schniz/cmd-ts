@@ -1,7 +1,7 @@
 import { ArgParser, ParsingResult, ParseContext } from './argparser';
-import { findOption } from '../newparser/findOption';
+import { findOption } from './newparser/findOption';
 import { ProvidesHelp, Descriptive } from './helpdoc';
-import { Type, extend, OutputOf } from './type';
+import { Type, extendType, OutputOf } from './type';
 import chalk from 'chalk';
 
 type FlagConfig<Decoder extends Type<boolean, any>> = {
@@ -28,7 +28,7 @@ export const boolean: Type<string, boolean> = {
 export function flag<Decoder extends Type<boolean, any>>(
   config: FlagConfig<Decoder>
 ): ArgParser<OutputOf<Decoder>> & ProvidesHelp & Partial<Descriptive> {
-  const decoder = extend(boolean, config.decoder);
+  const decoder = extendType(boolean, config.decoder);
 
   return {
     description: config.description ?? config.decoder.description,

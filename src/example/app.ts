@@ -2,106 +2,133 @@
 
 /* istanbul ignore file */
 
-import * as t from 'io-ts';
 import { Integer, ReadStream } from './test-types';
-import { command, subcommands, parse, binaryParser, single, bool } from '..';
+import {
+  command,
+  subcommands,
+  run,
+  binary,
+  string,
+  boolean,
+  flag,
+  option,
+  positional,
+} from '..';
 
-const y = command(
-  {
-    pos1: {
-      kind: 'positional',
+const y = command({
+  args: {
+    pos1: positional({
       displayName: 'pos1',
-      type: Integer,
-      description: 'some integer number',
-    },
-    named1: {
-      kind: 'named',
-      type: single(Integer),
+      decoder: Integer,
+    }),
+    named1: option({
+      decoder: Integer,
       short: 'n',
       long: 'number',
-    },
-    bool: {
-      kind: 'boolean',
-      type: t.array(bool),
+    }),
+    bool: flag({
+      decoder: boolean,
       long: 'boolean',
-    },
+    }),
   },
-  'Just prints the arguments'
-);
+  name: 'printer',
+  description: 'Just prints the arguments',
+  handler: args => console.log(`I got`, args),
+});
 
-const withStream = command(
-  {
-    stream: {
-      kind: 'positional',
+const withStream = command({
+  args: {
+    stream: positional({
       displayName: 'stream',
-      type: ReadStream,
-      description: 'A file/url to read',
-    },
+      decoder: ReadStream,
+    }),
   },
-  'A simple `cat` clone'
-);
+  description: 'A simple `cat` clone',
+  name: 'cat',
+  handler: result => {
+    /** @export cat -> stream */
+    const stream = result.stream;
+    stream.pipe(process.stdout);
+  },
+});
 
-const withSubcommands = subcommands(
-  {
+const composed = subcommands({
+  name: 'another-command',
+  cmds: {
+    cat: withStream,
+  },
+  description: 'a nested subcommand',
+  // aliases: ['cmp'],
+});
+
+const withSubcommands = subcommands({
+  cmds: {
     hello: y,
     cat: withStream,
     greet: command({
-      name: {
-        kind: 'positional',
-        type: t.string,
+      name: 'greet',
+      description: 'greet a person',
+      args: {
+        name: positional({
+          displayName: 'name',
+          decoder: string,
+        }),
+        noExclaim: flag({
+          decoder: boolean,
+          long: 'no-exclaim',
+        }),
+        greeting: option({
+          long: 'greeting',
+          decoder: string,
+          description: 'the greeting to say',
+          env: 'GREETING_NAME',
+        }),
       },
-      noExclaim: {
-        kind: 'named',
-        type: single(bool),
-        long: 'no-exclaim',
-      },
-      greeting: {
-        kind: 'named',
-        type: single(t.string),
-        description: 'the greeting to say',
-        env: 'GREETING_NAME',
-        defaultValue: 'hello',
+      handler: result => {
+        const args = result;
+        /** @export greet -> greeting */
+        const greeting = args.greeting;
+        /** @export greet -> noExclaim */
+        const noExclaim = args.noExclaim;
+        /** @export greet -> name */
+        const name = args.name;
+        const exclaim = noExclaim ? '' : '!';
+        console.log(`${greeting}, ${name}${exclaim}`);
       },
     }),
-    composed: {
-      description: 'Another subcommand!',
-      cmd: subcommands({
-        cat: withStream,
-      }),
-      aliases: ['cmp'],
-    },
+    composed,
   },
-  `my wonderful multicommand app`
-);
+  name: 'subcmds',
+});
 
-const cli = binaryParser(withSubcommands, 'app');
+const cli = binary(withSubcommands);
 
 async function main() {
-  const result = parse(cli, process.argv);
+  run(cli, process.argv);
 
-  if (result.command === 'cat') {
-    /** @export cat -> stream */
-    const stream = result.args.stream;
-    stream.pipe(process.stdout);
-  } else if (result.command === 'greet') {
-    const args = result.args;
-    /** @export greet -> greeting */
-    const greeting = args.greeting;
-    /** @export greet -> noExclaim */
-    const noExclaim = args.noExclaim;
-    /** @export greet -> name */
-    const name = args.name;
-    const exclaim = noExclaim ? '' : '!';
-    console.log(`${greeting}, ${name}${exclaim}`);
-  } else if (result.command === 'hello') {
-    console.log(result.args.bool);
-  } else if (result.command === 'composed' && result.args.command === 'cat') {
-    /** @export composed -> cat -> stream */
-    const stream = result.args.args.stream;
-    stream.pipe(process.stdout);
-  } else {
-    console.log(result);
-  }
+  //   if (result.command === 'cat') {
+  //     /** @export cat -> stream */
+  //     const stream = result.args.stream;
+  //     stream.pipe(process.stdout);
+  //   } else if (result.command === 'greet') {
+  //     const args = result.args;
+  //     /** @export greet -> greeting */
+  //     const greeting = args.greeting;
+  //     /** @export greet -> noExclaim */
+  //     const noExclaim = args.noExclaim;
+  //     /** @export greet -> name */
+  //     const name = args.name;
+  //     const exclaim = noExclaim ? '' : '!';
+  //     console.log(`${greeting}, ${name}${exclaim}`);
+  //   } else if (result.command === 'hello') {
+  //     console.log(result.args.bool);
+  //   } else if (result.command === 'composed' && result.args.command === 'cat') {
+  //     /** @export composed -> cat -> stream */
+  //     const stream = result.args.args.stream;
+  //     stream.pipe(process.stdout);
+  //   } else {
+  //     console.log(result);
+  //   }
 }
 
 main();

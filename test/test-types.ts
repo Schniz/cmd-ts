@@ -1,6 +1,6 @@
-import { identity, DecodeResult } from '../../src/newimpl/from';
-import { Type } from '../../src/newimpl/type';
-import { InputOf, OutputOf } from '../../src/newimpl/from';
+import { identity, DecodeResult } from '../src/from';
+import { Type } from '../src/type';
+import { InputOf, OutputOf } from '../src/from';
 
 export const number: Type<string, number> = {
   from(str) {

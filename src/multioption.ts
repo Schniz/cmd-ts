@@ -5,10 +5,10 @@ import {
   ParsingError,
 } from './argparser';
 import { OutputOf } from './from';
-import { findOption } from '../newparser/findOption';
+import { findOption } from './newparser/findOption';
 import { ProvidesHelp } from './helpdoc';
 import { Type } from './type';
-import { AstNode } from '../newparser/parser';
+import { AstNode } from './newparser/parser';
 
 type MultiOptionConfig<Decoder extends Type<string[], any>> = {
   decoder: Decoder;

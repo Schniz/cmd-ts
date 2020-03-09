@@ -68,3 +68,32 @@ export function contextToString(ctx: ParseItem[]): string {
   }
   return parts.map(x => getColor()(x)).join(' ');
 }
+
+/**
+ * Group an array by a function that returns the key
+ *
+ * @ignore
+ */
+export function groupBy<A, B extends string>(
+  objs: A[],
+  f: (a: A) => B
+): Record<B, A[]> {
+  const result = {} as Record<B, A[]>;
+  for (const obj of objs) {
+    const key = f(obj);
+    result[key] = result[key] ?? [];
+    result[key].push(obj);
+  }
+  return result;
+}
+
+/**
+ * A better typed version of `Object.entries`
+ *
+ * @ignore
+ */
+export function entries<Obj extends Record<string, any>>(
+  obj: Obj
+): { [key in keyof Obj]: [key, Obj[key]] }[keyof Obj][] {
+  return Object.entries(obj);
+}

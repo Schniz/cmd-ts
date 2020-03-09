@@ -5,7 +5,7 @@ import {
   ParsingError,
 } from './argparser';
 import { OutputOf } from './from';
-import { PositionalArgument } from '../newparser/parser';
+import { PositionalArgument } from './newparser/parser';
 import { Type } from './type';
 import { ProvidesHelp } from './helpdoc';
 

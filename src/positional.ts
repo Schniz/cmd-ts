@@ -1,6 +1,6 @@
 import { ArgParser, ParsingResult, ParseContext } from './argparser';
 import { OutputOf } from './from';
-import { PositionalArgument } from '../newparser/parser';
+import { PositionalArgument } from './newparser/parser';
 import { ProvidesHelp, Descriptive } from './helpdoc';
 import { Type } from './type';
 
