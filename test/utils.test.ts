@@ -1,4 +1,4 @@
-import { unimplemented, padNoAnsi } from '../src/utils';
+import { padNoAnsi } from '../src/utils';
 import stripAnsi from 'strip-ansi';
 import chalk from 'chalk';
 
@@ -26,8 +26,4 @@ describe('padNoAnsi', () => {
     const actual = padNoAnsi(str, 2, 'end');
     expect(actual).toEqual(str);
   });
-});
-
-test('unimplemented throws an error', () => {
-  expect(unimplemented).toThrow('unimplemented');
 });

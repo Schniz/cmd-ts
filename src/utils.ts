@@ -3,13 +3,6 @@ import stripAnsi from 'strip-ansi';
 import { ParseItem } from './argparse';
 
 /**
- * Throws an error with an `unimplemented` message
- */
-export function unimplemented(): never {
-  throw new Error('unimplemented');
-}
-
-/**
  * @ignore
  */
 export function padNoAnsi(str: string, length: number, place: 'end' | 'start') {
@@ -96,4 +89,15 @@ export function entries<Obj extends Record<string, any>>(
   obj: Obj
 ): { [key in keyof Obj]: [key, Obj[key]] }[keyof Obj][] {
   return Object.entries(obj);
+}
+
+/**
+ * Enumerate over a list, to get a pair of [index, value]
+ *
+ * @ignore
+ */
+export function* enumerate<T>(arr: T[]): Generator<[number, T]> {
+  for (let i = 0; i < arr.length; i++) {
+    yield [i, arr[i]];
+  }
 }

@@ -1,4 +1,4 @@
-import { enumerate } from './enumerate';
+import { enumerate } from '../utils';
 
 export type Token =
   | { index: number; type: 'argumentDivider'; raw: ' ' }
