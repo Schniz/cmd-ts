@@ -96,7 +96,7 @@ exports[`invalid subcommand 1`] = `
 exports[`too many arguments 1`] = `
 "[31m[1merror: [22m[39mfound [33m1[39m error
 
-  [2msubcmds[22m [31m--this=will-be-an-error[39m [2mcat[22m [2m/dev/null[22m [31malso this[39m [31m--and-also-this[39m
+  [2msubcmds[22m [31m--this=will-be-an-error[39m [2mcat[22m [2mpackage.json[22m [31malso this[39m [31m--and-also-this[39m
           [31m[1m^[22m Unknown arguments[39m
 
 

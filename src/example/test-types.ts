@@ -1,7 +1,7 @@
 /* istanbul ignore file */
 
 import { Stream } from 'stream';
-import { existsSync, createReadStream } from 'fs';
+import { stat, pathExists, createReadStream } from 'fs-extra';
 import fetch from 'node-fetch';
 import URL from 'url';
 import { Type, extendType, number } from '..';
@@ -48,8 +48,13 @@ export const ReadStream: Type<string, Stream> = {
       return { result: 'ok', value: stdin() };
     }
 
-    if (!existsSync(obj)) {
+    if (!(await pathExists(obj))) {
       return { result: 'error', message: `Can't find file in path ${obj}` };
+    }
+
+    const fileStat = await stat(obj);
+    if (!fileStat.isFile()) {
+      return { result: 'error', message: `Path is not a file.` };
     }
 
     return { result: 'ok', value: createReadStream(obj) };

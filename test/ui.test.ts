@@ -23,7 +23,7 @@ test('too many arguments', async () => {
   const result = await runApp([
     '--this=will-be-an-error',
     'cat',
-    '/dev/null',
+    path.relative(process.cwd(), path.join(__dirname, '../package.json')),
     'also this',
     '--and-also-this',
   ]);
