@@ -99,8 +99,8 @@ export function subcommands<
           const aliases = cmd.aliases.join(', ');
           description += chalk.dim(`[${aliasTxt}: ${aliases}]`);
         }
-        description.trimEnd();
-        console.log(chalk.dim('- ') + key + description);
+        const row = chalk.dim('- ') + key + description;
+        console.log(row.trim());
       }
 
       const helpCommand = chalk.yellow(`${argsSoFar} <subcommand> --help`);

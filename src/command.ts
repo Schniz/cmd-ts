@@ -15,7 +15,7 @@ import {
   Descriptive,
   Aliased,
 } from './helpdoc';
-import { padNoAnsi, entries, groupBy } from './utils';
+import { padNoAnsi, entries, groupBy, flatMap } from './utils';
 import { Runner } from './runner';
 import { circuitbreaker } from './circuitbreaker';
 
@@ -58,9 +58,10 @@ export function command<
     description: config.description,
     version: config.version,
     helpTopics() {
-      return Object.values(config.args)
-        .concat([circuitbreaker])
-        .flatMap(x => x.helpTopics?.() ?? []);
+      return flatMap(
+        Object.values(config.args).concat([circuitbreaker]),
+        x => x.helpTopics?.() ?? []
+      );
     },
     printHelp(context) {
       let name = context.hotPath?.join(' ') ?? '';

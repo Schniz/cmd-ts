@@ -1,9 +1,9 @@
 {
   "include": ["src", "types", "test", "example"],
   "compilerOptions": {
-    "target": "es2019",
+    "target": "es2018",
     "module": "esnext",
-    "lib": ["esnext"],
+    "lib": ["ES2018"],
     "downlevelIteration": true,
     "importHelpers": true,
     "declaration": true,

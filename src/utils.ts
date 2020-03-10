@@ -72,3 +72,16 @@ export function* enumerate<T>(arr: T[]): Generator<[number, T]> {
     yield [i, arr[i]];
   }
 }
+
+/**
+ * Array#flatMap polyfill
+ *
+ * @ignore
+ */
+export function flatMap<A, B>(xs: A[], fn: (a: A) => B[]): B[] {
+  const results: B[] = [];
+  for (const x of xs) {
+    results.push(...fn(x));
+  }
+  return results;
+}

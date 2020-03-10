@@ -2,6 +2,7 @@ import { ArgParser } from './argparser';
 import { boolean } from './types';
 import { flag } from './flag';
 import { ProvidesHelp } from './helpdoc';
+import { flatMap } from './utils';
 
 type CircuitBreaker = 'help' | 'version';
 
@@ -25,7 +26,7 @@ export const circuitbreaker: ArgParser<CircuitBreaker> & ProvidesHelp = {
     versionFlag.register(opts);
   },
   helpTopics() {
-    return [helpFlag, versionFlag].flatMap(x => x.helpTopics());
+    return flatMap([helpFlag, versionFlag], x => x.helpTopics());
   },
   async parse(context) {
     const help = await helpFlag.parse(context);
