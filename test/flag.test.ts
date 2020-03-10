@@ -9,7 +9,7 @@ test('fails on incompatible value', async () => {
   const shortOptionKeys = new Set<string>();
   const longOptionKeys = new Set<string>();
   const argparser = flag({
-    decoder: boolean,
+    type: boolean,
     long: 'hello',
     description: 'description',
   });
@@ -44,7 +44,7 @@ test('defaults to false', async () => {
   const shortOptionKeys = new Set<string>();
   const longOptionKeys = new Set<string>();
   const argparser = flag({
-    decoder: boolean,
+    type: boolean,
     long: 'hello',
     description: 'description',
   });
@@ -74,7 +74,7 @@ test('allows short arguments', async () => {
   const shortOptionKeys = new Set<string>();
   const longOptionKeys = new Set<string>();
   const argparser = flag({
-    decoder: boolean,
+    type: boolean,
     long: 'hello',
     short: 'b',
     description: 'description',

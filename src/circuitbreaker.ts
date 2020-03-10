@@ -9,14 +9,14 @@ type CircuitBreaker = 'help' | 'version';
 export const helpFlag = flag({
   long: 'help',
   short: 'h',
-  decoder: boolean,
+  type: boolean,
   description: 'show help',
 });
 
 export const versionFlag = flag({
   long: 'version',
   short: 'v',
-  decoder: boolean,
+  type: boolean,
   description: 'print the version',
 });
 

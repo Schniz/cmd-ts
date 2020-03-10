@@ -22,32 +22,32 @@ const complex = command({
   args: {
     pos1: positional({
       displayName: 'pos1',
-      decoder: Integer,
+      type: Integer,
     }),
     named1: option({
-      decoder: Integer,
+      type: Integer,
       short: 'n',
       long: 'number',
     }),
     optionalOption: option({
-      decoder: optional(string),
+      type: optional(string),
       long: 'optional-option',
     }),
     optionWithDefault: option({
       long: 'optional-with-default',
       env: 'SOME_ENV_VAR',
-      decoder: {
+      type: {
         ...string,
         defaultValue: () => 'Hello',
         defaultValueAsString: () => 'Hello',
       },
     }),
     bool: flag({
-      decoder: boolean,
+      type: boolean,
       long: 'boolean',
     }),
     rest: restPositionals({
-      decoder: string,
+      type: string,
     }),
   },
   name: 'printer',
@@ -59,7 +59,7 @@ const withStream = command({
   args: {
     stream: positional({
       displayName: 'stream',
-      decoder: ReadStream,
+      type: ReadStream,
     }),
   },
   description: 'A simple `cat` clone',
@@ -102,20 +102,20 @@ const withSubcommands = subcommands({
       description: 'greet a person',
       args: {
         times: option({
-          decoder: { ...Integer, defaultValue: () => 1 },
+          type: { ...Integer, defaultValue: () => 1 },
           long: 'times',
         }),
         name: positional({
           displayName: 'name',
-          decoder: Name,
+          type: Name,
         }),
         noExclaim: flag({
-          decoder: boolean,
+          type: boolean,
           long: 'no-exclaim',
         }),
         greeting: option({
           long: 'greeting',
-          decoder: string,
+          type: string,
           description: 'the greeting to say',
           env: 'GREETING_NAME',
         }),

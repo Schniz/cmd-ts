@@ -9,13 +9,13 @@ import { number, string, boolean } from './test-types';
 const cmd = command({
   name: 'My command',
   args: {
-    positionals: restPositionals({ decoder: string }),
-    option: option({ decoder: number, long: 'option' }),
+    positionals: restPositionals({ type: string }),
+    option: option({ type: number, long: 'option' }),
     secondOption: option({
-      decoder: string,
+      type: string,
       long: 'second-option',
     }),
-    flag: flag({ decoder: boolean, long: 'flag' }),
+    flag: flag({ type: boolean, long: 'flag' }),
   },
   handler: _ => {},
 });
@@ -90,7 +90,7 @@ test('fails if providing unknown arguments', async () => {
   const cmd = command({
     name: 'my command',
     args: {
-      positionals: restPositionals({ decoder: string }),
+      positionals: restPositionals({ type: string }),
     },
     handler: _ => {},
   });

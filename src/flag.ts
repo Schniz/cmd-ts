@@ -5,7 +5,7 @@ import { Type, extendType, OutputOf } from './type';
 import chalk from 'chalk';
 
 type FlagConfig<Decoder extends Type<boolean, any>> = {
-  decoder: Decoder;
+  type: Decoder;
   long: string;
   short?: string;
   description?: string;
@@ -28,10 +28,10 @@ export const boolean: Type<string, boolean> = {
 export function flag<Decoder extends Type<boolean, any>>(
   config: FlagConfig<Decoder>
 ): ArgParser<OutputOf<Decoder>> & ProvidesHelp & Partial<Descriptive> {
-  const decoder = extendType(boolean, config.decoder);
+  const decoder = extendType(boolean, config.type);
 
   return {
-    description: config.description ?? config.decoder.description,
+    description: config.description ?? config.type.description,
     helpTopics() {
       let usage = `--${config.long}`;
       if (config.short) {
@@ -47,8 +47,8 @@ export function flag<Decoder extends Type<boolean, any>>(
         defaults.push(`env: ${config.env}${env}`);
       }
 
-      if (typeof config.decoder.defaultValueAsString === 'function') {
-        const defaultAsString = config.decoder.defaultValueAsString();
+      if (typeof config.type.defaultValueAsString === 'function') {
+        const defaultAsString = config.type.defaultValueAsString();
         defaults.push('default: ' + chalk.italic(defaultAsString));
       }
 
@@ -58,9 +58,7 @@ export function flag<Decoder extends Type<boolean, any>>(
           usage,
           defaults,
           description:
-            config.description ??
-            config.decoder.description ??
-            'self explanatory',
+            config.description ?? config.type.description ?? 'self explanatory',
         },
       ];
     },
@@ -101,9 +99,9 @@ export function flag<Decoder extends Type<boolean, any>>(
         envPrefix = `env[${chalk.italic(config.env)}]: `;
       } else if (
         options.length === 0 &&
-        typeof config.decoder.defaultValue === 'function'
+        typeof config.type.defaultValue === 'function'
       ) {
-        return { outcome: 'success', value: config.decoder.defaultValue() };
+        return { outcome: 'success', value: config.type.defaultValue() };
       } else if (options.length === 1) {
         rawValue = options[0].value?.node.raw ?? 'true';
       } else {

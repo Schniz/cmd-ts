@@ -12,9 +12,9 @@ const logMock = jest.fn();
 const greeter = command({
   name: 'greeter',
   args: {
-    name: positional({ decoder: string, displayName: 'name' }),
-    exclaim: flag({ decoder: boolean, long: 'exclaim', short: 'e' }),
-    greeting: option({ decoder: string, long: 'greeting', short: 'g' }),
+    name: positional({ type: string, displayName: 'name' }),
+    exclaim: flag({ type: boolean, long: 'exclaim', short: 'e' }),
+    greeting: option({ type: string, long: 'greeting', short: 'g' }),
   },
   handler: x => {
     logMock('greeter', x);
@@ -24,7 +24,7 @@ const greeter = command({
 const howdyPrinter = command({
   name: 'howdy',
   args: {
-    name: positional({ decoder: string, displayName: 'name' }),
+    name: positional({ type: string, displayName: 'name' }),
   },
   handler: x => {
     logMock('howdy', x);

@@ -5,7 +5,7 @@ import { ProvidesHelp, Descriptive } from './helpdoc';
 import { Type } from './type';
 
 type PositionalConfig<Decoder extends Type<string, any>> = {
-  decoder: Decoder;
+  type: Decoder;
   displayName: string;
   description?: string;
 };
@@ -14,16 +14,14 @@ export function positional<Decoder extends Type<string, any>>(
   config: PositionalConfig<Decoder>
 ): ArgParser<OutputOf<Decoder>> & ProvidesHelp & Partial<Descriptive> {
   return {
-    description: config.description ?? config.decoder.description,
+    description: config.description ?? config.type.description,
     helpTopics() {
       return [
         {
           category: 'arguments',
           usage: `<${config.displayName}>`,
           description:
-            config.description ??
-            config.decoder.description ??
-            'self explanatory',
+            config.description ?? config.type.description ?? 'self explanatory',
           defaults: [],
         },
       ];
@@ -53,7 +51,7 @@ export function positional<Decoder extends Type<string, any>>(
       }
 
       visitedNodes.add(positional);
-      const decoded = await config.decoder.from(positional.raw);
+      const decoded = await config.type.from(positional.raw);
 
       if (decoded.result === 'error') {
         return {

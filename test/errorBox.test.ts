@@ -15,7 +15,7 @@ test('works for multiple nodes', async () => {
   });
 
   const opt = option({
-    decoder: number,
+    type: number,
     long: 'some',
   });
 
@@ -42,7 +42,7 @@ test('works for a short flag', async () => {
   });
 
   const opt = option({
-    decoder: number,
+    type: number,
     long: 'some',
     short: 'n',
   });
@@ -70,7 +70,7 @@ test('works for a single node', async () => {
   });
 
   const opt = option({
-    decoder: number,
+    type: number,
     long: 'some',
   });
 
@@ -97,7 +97,7 @@ test('works when no nodes', async () => {
   });
 
   const opt = option({
-    decoder: number,
+    type: number,
     long: 'some',
   });
 

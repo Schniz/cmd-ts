@@ -10,7 +10,7 @@ import { Type } from './type';
 import { ProvidesHelp } from './helpdoc';
 
 type RestPositionalsConfig<Decoder extends Type<string, any>> = {
-  decoder: Decoder;
+  type: Decoder;
   displayName?: string;
 };
 
@@ -20,13 +20,13 @@ export function restPositionals<Decoder extends Type<string, any>>(
   return {
     helpTopics() {
       const displayName =
-        config.displayName ?? config.decoder.displayName ?? 'arg';
+        config.displayName ?? config.type.displayName ?? 'arg';
       return [
         {
           usage: `[...${displayName}]`,
           category: 'arguments',
           defaults: [],
-          description: config.decoder.description ?? '',
+          description: config.type.description ?? '',
         },
       ];
     },
@@ -45,7 +45,7 @@ export function restPositionals<Decoder extends Type<string, any>>(
 
       for (const positional of positionals) {
         visitedNodes.add(positional);
-        const decoded = await config.decoder.from(positional.raw);
+        const decoded = await config.type.from(positional.raw);
         if (decoded.result === 'ok') {
           results.push(decoded.value);
         } else {

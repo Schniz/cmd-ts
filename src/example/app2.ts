@@ -41,30 +41,30 @@ const app = command({
   name: 'build',
   args: {
     user: option({
-      decoder: string,
+      type: string,
       env: 'APP_USER',
       long: 'user',
       short: 'u',
     }),
     password: option({
-      decoder: string,
+      type: string,
       env: 'APP_PASS',
       long: 'password',
       short: 'p',
     }),
     repo: option({
-      decoder: Repo,
+      type: Repo,
       long: 'repo',
       short: 'r',
     }),
     prNumber: option({
-      decoder: PrNumber,
+      type: PrNumber,
       short: 'b',
       long: 'pr-number',
       env: 'APP_BRANCH',
     }),
     dev: flag({
-      decoder: boolean,
+      type: boolean,
       long: 'dev',
       short: 'D',
     }),

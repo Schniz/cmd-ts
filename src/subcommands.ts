@@ -41,7 +41,7 @@ export function subcommands<
   Named &
   Partial<Descriptive> &
   Runner<Output<Commands>, RunnerOutput<Commands>> {
-  const decoder: From<string, keyof Commands> = {
+  const type: From<string, keyof Commands> = {
     async from(str) {
       const cmd = Object.entries(config.cmds)
         .map(([name, cmd]) => {
@@ -61,7 +61,7 @@ export function subcommands<
   const subcommand = positional({
     displayName: 'subcommand',
     description: 'one of ' + Object.keys(config.cmds).join(', '),
-    decoder,
+    type,
   });
 
   return {

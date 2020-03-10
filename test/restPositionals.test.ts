@@ -11,7 +11,7 @@ test('fails on specific positional', async () => {
     longOptionKeys: new Set(),
   });
   const argparser = restPositionals({
-    decoder: number,
+    type: number,
   });
 
   const result = argparser.parse({ nodes, visitedNodes: new Set() });
@@ -35,7 +35,7 @@ test('succeeds when all unused positional decode successfuly', async () => {
     longOptionKeys: new Set(),
   });
   const argparser = restPositionals({
-    decoder: number,
+    type: number,
   });
 
   const visitedNodes = new Set<AstNode>();

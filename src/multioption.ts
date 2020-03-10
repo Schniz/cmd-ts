@@ -11,7 +11,7 @@ import { Type } from './type';
 import { AstNode } from './newparser/parser';
 
 type MultiOptionConfig<Decoder extends Type<string[], any>> = {
-  decoder: Decoder;
+  type: Decoder;
   long: string;
   short?: string;
   description?: string;
@@ -22,7 +22,7 @@ export function multioption<Decoder extends Type<string[], any>>(
 ): ArgParser<OutputOf<Decoder>> & ProvidesHelp {
   return {
     helpTopics() {
-      const displayName = config.decoder.displayName ?? 'value';
+      const displayName = config.type.displayName ?? 'value';
       let usage = `--${config.long} <${displayName}>`;
       if (config.short) {
         usage += `, -${config.short}=<${displayName}>`;
@@ -77,7 +77,7 @@ export function multioption<Decoder extends Type<string[], any>>(
         };
       }
 
-      const multiDecoded = await config.decoder.from(optionValues);
+      const multiDecoded = await config.type.from(optionValues);
 
       if (multiDecoded.result === 'error') {
         return {

@@ -10,7 +10,7 @@ import { ProvidesHelp } from './helpdoc';
 import { boolean } from './flag';
 
 type MultiFlagConfig<Decoder extends From<boolean[], any>> = {
-  decoder: Decoder;
+  type: Decoder;
   long: string;
   short?: string;
   description?: string;
@@ -72,7 +72,7 @@ export function multiflag<Decoder extends From<boolean[], any>>(
         };
       }
 
-      const multiDecoded = await config.decoder.from(optionValues);
+      const multiDecoded = await config.type.from(optionValues);
 
       if (multiDecoded.result === 'error') {
         return {

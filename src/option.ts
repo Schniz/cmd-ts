@@ -11,20 +11,27 @@ import { Type } from './type';
 import chalk from 'chalk';
 
 type OptionConfig<Decoder extends Type<string, any>> = {
-  decoder: Decoder;
+  type: Decoder;
   long: string;
   short?: string;
   description?: string;
   env?: string;
 };
 
+/**
+ * Decodes an argument in the following forms:
+ * - `--long=value` where `long` is the provided `long`
+ * - `--long value` where `long` is the provided `long`
+ * - `-s=value` where `s` is the provided `short`
+ * - `-s value` where `s` is the provided `short`
+ */
 export function option<Decoder extends Type<string, any>>(
   config: OptionConfig<Decoder>
 ): ArgParser<OutputOf<Decoder>> & ProvidesHelp & Partial<Descriptive> {
   return {
-    description: config.description ?? config.decoder.description,
+    description: config.description ?? config.type.description,
     helpTopics() {
-      const displayName = config.decoder.displayName ?? 'value';
+      const displayName = config.type.displayName ?? 'value';
       let usage = `--${config.long}`;
       if (config.short) {
         usage += `, -${config.short}`;
@@ -41,8 +48,8 @@ export function option<Decoder extends Type<string, any>>(
         defaults.push(`env: ${config.env}${env}`);
       }
 
-      if (typeof config.decoder.defaultValue === 'function') {
-        const defaultAsString = config.decoder.defaultValueAsString?.();
+      if (typeof config.type.defaultValue === 'function') {
+        const defaultAsString = config.type.defaultValueAsString?.();
         if (defaultAsString) {
           defaults.push('default: ' + chalk.italic(defaultAsString));
         } else {
@@ -56,9 +63,7 @@ export function option<Decoder extends Type<string, any>>(
           usage,
           defaults,
           description:
-            config.description ??
-            config.decoder.description ??
-            'self explanatory',
+            config.description ?? config.type.description ?? 'self explanatory',
         },
       ];
     },
@@ -97,10 +102,10 @@ export function option<Decoder extends Type<string, any>>(
       } else if (valueFromEnv !== undefined) {
         rawValue = valueFromEnv;
         envPrefix = `env[${chalk.italic(config.env)}]: `;
-      } else if (!option && typeof config.decoder.defaultValue === 'function') {
+      } else if (!option && typeof config.type.defaultValue === 'function') {
         return {
           outcome: 'success',
-          value: config.decoder.defaultValue(),
+          value: config.type.defaultValue(),
         };
       } else {
         const raw =
@@ -118,7 +123,7 @@ export function option<Decoder extends Type<string, any>>(
         };
       }
 
-      const decoded = await config.decoder.from(rawValue);
+      const decoded = await config.type.from(rawValue);
       if (decoded.result === 'error') {
         return {
           outcome: 'failure',
