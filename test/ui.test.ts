@@ -3,20 +3,20 @@ import path from 'path';
 
 test('help for subcommands', async () => {
   const result = await runApp(['--help']);
-  expect(result.exitCode).toBe(1);
   expect(result.all).toMatchSnapshot();
+  expect(result.exitCode).toBe(1);
 });
 
 test('invalid subcommand', async () => {
   const result = await runApp(['subcommand-that-doesnt-exist']);
-  expect(result.exitCode).toBe(1);
   expect(result.all).toMatchSnapshot();
+  expect(result.exitCode).toBe(1);
 });
 
 test('help for complex command', async () => {
   const result = await runApp(['complex', '--help']);
-  expect(result.exitCode).toBe(1);
   expect(result.all).toMatchSnapshot();
+  expect(result.exitCode).toBe(1);
 });
 
 test('too many arguments', async () => {
@@ -27,8 +27,8 @@ test('too many arguments', async () => {
     'also this',
     '--and-also-this',
   ]);
-  expect(result.exitCode).toBe(1);
   expect(result.all).toMatchSnapshot();
+  expect(result.exitCode).toBe(1);
 });
 
 test('composes errors', async () => {
@@ -37,32 +37,32 @@ test('composes errors', async () => {
     '--times=not-a-number',
     'not-capitalized',
   ]);
-  expect(result.exitCode).toBe(1);
   expect(result.all).toMatchSnapshot();
+  expect(result.exitCode).toBe(1);
 });
 
 test('help for composed subcommands', async () => {
   const result = await runApp(['composed', '--help']);
-  expect(result.exitCode).toBe(1);
   expect(result.all).toMatchSnapshot();
+  expect(result.exitCode).toBe(1);
 });
 
 test('help for composed subcommand', async () => {
   const result = await runApp(['composed', 'cat', '--help']);
-  expect(result.exitCode).toBe(1);
   expect(result.all).toMatchSnapshot();
+  expect(result.exitCode).toBe(1);
 });
 
 test('asynchronous type conversion works', async () => {
   const result = await runApp(['composed', 'cat', 'https://httpstat.us/404']);
-  expect(result.exitCode).toBe(1);
   expect(result.all).toMatchSnapshot();
+  expect(result.exitCode).toBe(1);
 });
 
 test('asynchronous type conversion works, when it passes', async () => {
   const result = await runApp(['composed', 'cat', 'https://httpstat.us/200']);
-  expect(result.exitCode).toBe(0);
   expect(result.all).toMatchSnapshot();
+  expect(result.exitCode).toBe(0);
 });
 
 async function runApp(args: string[]) {
