@@ -66,6 +66,7 @@ test('asynchronous type conversion works for success', async () => {
 });
 
 async function runApp(args: string[]) {
+  jest.setTimeout(10000);
   const scriptPath = path.join(__dirname, '../src/example/app.ts');
   const result = await execa(
     path.join(__dirname, '../scripts/ts-node'),
