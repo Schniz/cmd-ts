@@ -70,7 +70,13 @@ async function runApp(args: string[]) {
   const result = await execa(
     path.join(__dirname, '../scripts/ts-node'),
     [scriptPath, ...args],
-    { all: true, reject: false }
+    {
+      all: true,
+      reject: false,
+      env: {
+        FORCE_COLOR: 'true',
+      },
+    }
   );
   return result;
 }
