@@ -1,15 +1,21 @@
 import { ArgParser, ParsingResult, ParseContext } from './argparser';
 import { OutputOf } from './from';
 import { PositionalArgument } from './newparser/parser';
-import { ProvidesHelp, Descriptive } from './helpdoc';
-import { Type } from './type';
+import { ProvidesHelp, Descriptive, Displayed } from './helpdoc';
+import { Type, HasType } from './type';
 
-type PositionalConfig<Decoder extends Type<string, any>> = {
-  type: Decoder;
-  displayName: string;
-  description?: string;
-};
+type PositionalConfig<Decoder extends Type<string, any>> = HasType<Decoder> &
+  Displayed &
+  Partial<Descriptive>;
 
+/**
+ * A positional command line argument.
+ *
+ * Decodes one argument that is not a flag or an option:
+ * In `hello --key value world` we have 2 positional arguments — `hello` and `world`.
+ *
+ * @param config positional argument config
+ */
 export function positional<Decoder extends Type<string, any>>(
   config: PositionalConfig<Decoder>
 ): ArgParser<OutputOf<Decoder>> & ProvidesHelp & Partial<Descriptive> {

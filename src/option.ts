@@ -6,24 +6,31 @@ import {
 } from './argparser';
 import { OutputOf } from './from';
 import { findOption } from './newparser/findOption';
-import { ProvidesHelp, Descriptive } from './helpdoc';
-import { Type } from './type';
+import {
+  ProvidesHelp,
+  Descriptive,
+  LongDoc,
+  EnvDoc,
+  ShortDoc,
+} from './helpdoc';
+import { Type, HasType } from './type';
 import chalk from 'chalk';
+import { Default } from './default';
+import { AllOrNothing } from './utils';
 
-type OptionConfig<Decoder extends Type<string, any>> = {
-  type: Decoder;
-  long: string;
-  short?: string;
-  description?: string;
-  env?: string;
-};
+type OptionConfig<Decoder extends Type<string, any>> = LongDoc &
+  HasType<Decoder> &
+  Partial<Descriptive & EnvDoc & ShortDoc> &
+  AllOrNothing<Default<OutputOf<Decoder>>>;
 
 /**
- * Decodes an argument in the following forms:
+ * Decodes an argument which is in the form of a key and a value, and allows parsing the following ways:
+ *
  * - `--long=value` where `long` is the provided `long`
  * - `--long value` where `long` is the provided `long`
  * - `-s=value` where `s` is the provided `short`
  * - `-s value` where `s` is the provided `short`
+ * @param config flag configurations
  */
 export function option<Decoder extends Type<string, any>>(
   config: OptionConfig<Decoder>
@@ -48,10 +55,15 @@ export function option<Decoder extends Type<string, any>>(
         defaults.push(`env: ${config.env}${env}`);
       }
 
-      if (typeof config.type.defaultValue === 'function') {
-        const defaultAsString = config.type.defaultValueAsString?.();
-        if (defaultAsString) {
-          defaults.push('default: ' + chalk.italic(defaultAsString));
+      const defaultValueFn = config.defaultValue ?? config.type.defaultValue;
+
+      if (defaultValueFn) {
+        const defaultValue = defaultValueFn();
+        if (
+          config.defaultValueIsSerializable ??
+          config.type.defaultValueIsSerializable
+        ) {
+          defaults.push('default: ' + chalk.italic(defaultValue));
         } else {
           defaults.push('optional');
         }
@@ -96,16 +108,17 @@ export function option<Decoder extends Type<string, any>>(
       const option = options[0];
       let rawValue: string;
       let envPrefix = '';
+      const defaultValueFn = config.defaultValue ?? config.type.defaultValue;
 
       if (option?.value) {
         rawValue = option.value.node.raw;
       } else if (valueFromEnv !== undefined) {
         rawValue = valueFromEnv;
         envPrefix = `env[${chalk.italic(config.env)}]: `;
-      } else if (!option && typeof config.type.defaultValue === 'function') {
+      } else if (!option && typeof defaultValueFn === 'function') {
         return {
           outcome: 'success',
-          value: config.type.defaultValue(),
+          value: defaultValueFn(),
         };
       } else {
         const raw =

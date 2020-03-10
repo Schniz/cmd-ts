@@ -4,8 +4,8 @@ import { parse } from '../../src/newparser/parser';
 test('dash in the middle of a word', () => {
   const tokens = tokenize(['hello', 'world', 'you-know', 'my', 'friend']);
   const tree = parse(tokens, {
-    longOptionKeys: new Set(),
-    shortOptionKeys: new Set(),
+    longFlagKeys: new Set(),
+    shortFlagKeys: new Set(),
   });
   expect(tree).toMatchInlineSnapshot(`
     Array [
@@ -44,8 +44,8 @@ test('welp', () => {
   );
   const tokens = tokenize(argv);
   const tree = parse(tokens, {
-    longOptionKeys: new Set(),
-    shortOptionKeys: new Set(),
+    longFlagKeys: new Set(),
+    shortFlagKeys: new Set(),
   });
   expect(tree).toMatchInlineSnapshot(`
     Array [

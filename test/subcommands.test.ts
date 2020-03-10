@@ -48,7 +48,10 @@ test('chooses one subcommand', async () => {
     forceFlagLongNames: longOptionKeys,
     forceFlagShortNames: shortOptionKeys,
   });
-  const nodes = parse(tokens, { longOptionKeys, shortOptionKeys });
+  const nodes = parse(tokens, {
+    longFlagKeys: longOptionKeys,
+    shortFlagKeys: shortOptionKeys,
+  });
   const result = await subcmds.parse({ nodes, visitedNodes: new Set() });
   const expected: typeof result = {
     outcome: 'success',
@@ -74,7 +77,10 @@ test('chooses the other subcommand', async () => {
     forceFlagLongNames: longOptionKeys,
     forceFlagShortNames: shortOptionKeys,
   });
-  const nodes = parse(tokens, { longOptionKeys, shortOptionKeys });
+  const nodes = parse(tokens, {
+    longFlagKeys: longOptionKeys,
+    shortFlagKeys: shortOptionKeys,
+  });
   const result = await subcmds.parse({ nodes, visitedNodes: new Set() });
   const expected: typeof result = {
     outcome: 'success',
@@ -98,7 +104,10 @@ test('fails when using unknown subcommand', async () => {
     forceFlagLongNames: longOptionKeys,
     forceFlagShortNames: shortOptionKeys,
   });
-  const nodes = parse(tokens, { longOptionKeys, shortOptionKeys });
+  const nodes = parse(tokens, {
+    longFlagKeys: longOptionKeys,
+    shortFlagKeys: shortOptionKeys,
+  });
   const result = await subcmds.parse({ nodes, visitedNodes: new Set() });
   const expected: typeof result = {
     outcome: 'failure',
@@ -123,7 +132,10 @@ test('fails for a subcommand argument parsing issue', async () => {
     forceFlagLongNames: longOptionKeys,
     forceFlagShortNames: shortOptionKeys,
   });
-  const nodes = parse(tokens, { longOptionKeys, shortOptionKeys });
+  const nodes = parse(tokens, {
+    longFlagKeys: longOptionKeys,
+    shortFlagKeys: shortOptionKeys,
+  });
   const result = await subcmds.parse({ nodes, visitedNodes: new Set() });
   const expected = {
     outcome: 'failure',

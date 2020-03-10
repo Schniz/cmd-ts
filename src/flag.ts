@@ -1,17 +1,26 @@
 import { ArgParser, ParsingResult, ParseContext } from './argparser';
 import { findOption } from './newparser/findOption';
-import { ProvidesHelp, Descriptive } from './helpdoc';
-import { Type, extendType, OutputOf } from './type';
+import {
+  ProvidesHelp,
+  Descriptive,
+  ShortDoc,
+  LongDoc,
+  EnvDoc,
+} from './helpdoc';
+import { Type, extendType, OutputOf, HasType } from './type';
 import chalk from 'chalk';
+import { Default } from './default';
+import { AllOrNothing } from './utils';
 
-type FlagConfig<Decoder extends Type<boolean, any>> = {
-  type: Decoder;
-  long: string;
-  short?: string;
-  description?: string;
-  env?: string;
-};
+type FlagConfig<Decoder extends Type<boolean, any>> = LongDoc &
+  HasType<Decoder> &
+  Partial<ShortDoc & Descriptive & EnvDoc> &
+  AllOrNothing<Default<OutputOf<Decoder>>>;
 
+/**
+ * A decoder from `string` to `boolean`
+ * works for `true` and `false` only.
+ */
 export const boolean: Type<string, boolean> = {
   async from(str) {
     if (str === 'true') return { result: 'ok', value: true };
@@ -25,6 +34,15 @@ export const boolean: Type<string, boolean> = {
   defaultValue: () => false,
 };
 
+/**
+ * Decodes an argument which is in the form of a key and a boolean value, and allows parsing the following ways:
+ *
+ * - `--long` where `long` is the provided `long`
+ * - `-s=value` where `s` is the provided `short`
+ * Shorthand forms can be combined:
+ * - `-abcd` will call all flags for the short forms of `a`, `b`, `c` and `d`.
+ * @param config flag configurations
+ */
 export function flag<Decoder extends Type<boolean, any>>(
   config: FlagConfig<Decoder>
 ): ArgParser<OutputOf<Decoder>> & ProvidesHelp & Partial<Descriptive> {
@@ -47,9 +65,14 @@ export function flag<Decoder extends Type<boolean, any>>(
         defaults.push(`env: ${config.env}${env}`);
       }
 
-      if (typeof config.type.defaultValueAsString === 'function') {
-        const defaultAsString = config.type.defaultValueAsString();
-        defaults.push('default: ' + chalk.italic(defaultAsString));
+      const defaultValueFn = config.defaultValue ?? config.type.defaultValue;
+      const defaultValueIsSerializable =
+        config.defaultValueIsSerializable ??
+        config.type.defaultValueIsSerializable;
+
+      if (defaultValueFn && defaultValueIsSerializable) {
+        const defaultValue = defaultValueFn();
+        defaults.push('default: ' + chalk.italic(defaultValue));
       }
 
       return [

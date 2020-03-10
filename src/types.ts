@@ -1,5 +1,10 @@
 import { Type, identity, InputOf, OutputOf } from './type';
 
+/**
+ * A number type to be used with `option`
+ *
+ * Throws an error when the provided string is not a number
+ */
 export const number: Type<string, number> = {
   async from(str) {
     const decoded = parseInt(str, 10);
@@ -14,12 +19,18 @@ export const number: Type<string, number> = {
   description: 'a number',
 };
 
+/**
+ * A string type to be used with `option`.
+ */
 export const string: Type<string, string> = {
   ...identity(),
   description: 'a string',
   displayName: 'str',
 };
 
+/**
+ * A boolean type to be used with `flag`.
+ */
 export const boolean: Type<boolean, boolean> = {
   ...identity(),
   description: 'a boolean',
@@ -30,7 +41,7 @@ export const boolean: Type<boolean, boolean> = {
 };
 
 /**
- * Makes any Type optional, by defaulting to `undefined`.
+ * Makes any type optional, by defaulting to `undefined`.
  */
 export function optional<T extends Type<any, any>>(
   t: T

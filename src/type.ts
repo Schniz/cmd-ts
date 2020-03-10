@@ -34,3 +34,8 @@ export function extendType<
     },
   };
 }
+
+export type HasType<T extends Type<any, any>> = {
+  /** The value decoding strategy for this item */
+  type: T;
+};

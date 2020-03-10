@@ -39,7 +39,7 @@ const complex = command({
       type: {
         ...string,
         defaultValue: () => 'Hello',
-        defaultValueAsString: () => 'Hello',
+        defaultValueIsSerializable: true,
       },
     }),
     bool: flag({

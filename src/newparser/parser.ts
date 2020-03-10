@@ -43,50 +43,36 @@ interface ForcePositional extends BaseAstNode<'forcePositional'> {
   type: 'forcePositional';
 }
 
+/**
+ * A weird thing about command line interfaces is that they are not consistent without some context.
+ * Consider the following argument list: `my-app --server start`
+ *
+ * Should we parse it as `[positional my-app] [option --server start]`
+ * or should we parse it as `[positional my-app] [flag --server] [positional start]`?
+ *
+ * The answer is — it depends. A good command line utility has the context to know which key is a flag
+ * and which is an option that can take a value. We aim to be a good command line utility library, so
+ * we need to have the ability to provide this context.
+ *
+ * This is the small object that has this context.
+ */
 type ForceFlag = {
-  shortOptionKeys: Set<string>;
-  longOptionKeys: Set<string>;
+  /**
+   * Short keys that we will force to read as flags
+   */
+  shortFlagKeys: Set<string>;
+  /**
+   * Long keys that we will force to read as flags
+   */
+  longFlagKeys: Set<string>;
 };
 
-function parseOptionValue(opts: {
-  delimiterToken?: Token;
-  getToken(): Token | undefined;
-  peekToken(): Token | undefined;
-  key: string;
-  forceFlag: Set<string>;
-}): OptionValue | undefined {
-  let { getToken, delimiterToken, forceFlag, key } = opts;
-  const shouldReadKeyAsFlag =
-    forceFlag.has(key) || opts.peekToken()?.type !== 'char';
-
-  if (!delimiterToken || (delimiterToken.raw !== '=' && shouldReadKeyAsFlag)) {
-    return;
-  }
-
-  const delimiter = delimiterToken.raw === '=' ? '=' : ' ';
-  const delimiterIndex = delimiterToken.index;
-
-  let nextToken = getToken();
-  if (!nextToken) {
-    return;
-  }
-
-  let value = '';
-  const valueIndex = nextToken.index;
-  while (nextToken && nextToken?.type !== 'argumentDivider') {
-    value += nextToken.raw;
-    nextToken = getToken();
-  }
-
-  return {
-    type: 'optionValue',
-    index: delimiterToken.index,
-    delimiter: { type: 'delimiter', raw: delimiter, index: delimiterIndex },
-    node: { type: 'value', raw: value, index: valueIndex },
-    raw: `${delimiter}${value}`,
-  };
-}
-
+/**
+ * Create an AST from a token list
+ *
+ * @param tokens A token list, coming from `tokenizer.ts`
+ * @param forceFlag Keys to force as flag. {@see ForceFlag} to read more about it.
+ */
 export function parse(tokens: Token[], forceFlag: ForceFlag): AstNode[] {
   const nodes: AstNode[] = [];
   let index = 0;
@@ -165,7 +151,7 @@ export function parse(tokens: Token[], forceFlag: ForceFlag): AstNode[] {
       const parsedValue = parseOptionValue({
         key,
         delimiterToken: nextToken,
-        forceFlag: forceFlag.longOptionKeys,
+        forceFlag: forceFlag.longFlagKeys,
         getToken,
         peekToken,
       });
@@ -211,7 +197,7 @@ export function parse(tokens: Token[], forceFlag: ForceFlag): AstNode[] {
       const parsedValue = parseOptionValue({
         key: lastKey.raw,
         delimiterToken: nextToken,
-        forceFlag: forceFlag.shortOptionKeys,
+        forceFlag: forceFlag.shortFlagKeys,
         getToken,
         peekToken,
       });
@@ -261,4 +247,43 @@ export function parse(tokens: Token[], forceFlag: ForceFlag): AstNode[] {
     continue;
   }
   return nodes;
+}
+
+function parseOptionValue(opts: {
+  delimiterToken?: Token;
+  getToken(): Token | undefined;
+  peekToken(): Token | undefined;
+  key: string;
+  forceFlag: Set<string>;
+}): OptionValue | undefined {
+  let { getToken, delimiterToken, forceFlag, key } = opts;
+  const shouldReadKeyAsFlag =
+    forceFlag.has(key) || opts.peekToken()?.type !== 'char';
+
+  if (!delimiterToken || (delimiterToken.raw !== '=' && shouldReadKeyAsFlag)) {
+    return;
+  }
+
+  const delimiter = delimiterToken.raw === '=' ? '=' : ' ';
+  const delimiterIndex = delimiterToken.index;
+
+  let nextToken = getToken();
+  if (!nextToken) {
+    return;
+  }
+
+  let value = '';
+  const valueIndex = nextToken.index;
+  while (nextToken && nextToken?.type !== 'argumentDivider') {
+    value += nextToken.raw;
+    nextToken = getToken();
+  }
+
+  return {
+    type: 'optionValue',
+    index: delimiterToken.index,
+    delimiter: { type: 'delimiter', raw: delimiter, index: delimiterIndex },
+    node: { type: 'value', raw: value, index: valueIndex },
+    raw: `${delimiter}${value}`,
+  };
 }

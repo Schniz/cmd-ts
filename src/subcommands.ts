@@ -27,6 +27,9 @@ type RunnerOutput<
   };
 }[keyof Commands];
 
+/**
+ * Combine multiple `command`s into one
+ */
 export function subcommands<
   Commands extends Record<
     string,

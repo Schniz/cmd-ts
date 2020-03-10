@@ -18,8 +18,8 @@ test('fails on incompatible value', async () => {
     forceFlagLongNames: longOptionKeys,
   });
   const nodes = parse(tokens, {
-    shortOptionKeys,
-    longOptionKeys,
+    shortFlagKeys: shortOptionKeys,
+    longFlagKeys: longOptionKeys,
   });
 
   const result = argparser.parse({
@@ -53,8 +53,8 @@ test('defaults to false', async () => {
     forceFlagLongNames: longOptionKeys,
   });
   const nodes = parse(tokens, {
-    shortOptionKeys,
-    longOptionKeys,
+    shortFlagKeys: shortOptionKeys,
+    longFlagKeys: longOptionKeys,
   });
 
   const result = argparser.parse({
@@ -84,8 +84,8 @@ test('allows short arguments', async () => {
     forceFlagLongNames: longOptionKeys,
   });
   const nodes = parse(tokens, {
-    shortOptionKeys,
-    longOptionKeys,
+    shortFlagKeys: shortOptionKeys,
+    longFlagKeys: longOptionKeys,
   });
 
   const result = argparser.parse({

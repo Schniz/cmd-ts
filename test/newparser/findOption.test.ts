@@ -6,8 +6,8 @@ test('finds options', () => {
   const argv = `hello world --some arg --flag --this-is=option -abcde=f -abcde`;
   const tokens = tokenize(argv.split(' '));
   const nodes = parse(tokens, {
-    longOptionKeys: new Set(),
-    shortOptionKeys: new Set(),
+    longFlagKeys: new Set(),
+    shortFlagKeys: new Set(),
   });
 
   const options = findOption(nodes, { longNames: ['some'], shortNames: ['c'] });

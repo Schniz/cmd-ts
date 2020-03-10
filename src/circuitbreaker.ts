@@ -20,6 +20,14 @@ export const versionFlag = flag({
   description: 'print the version',
 });
 
+/**
+ * Helper flags that are being used in `command` and `subcommands`:
+ * `--help, -h` to show help
+ * `--version, -v` to show the current version
+ *
+ * It is called circuitbreaker because if you have `--help` or `--version`
+ * anywhere in your argument list, you'll see the version and the help for the closest command
+ */
 export const circuitbreaker: ArgParser<CircuitBreaker> & ProvidesHelp = {
   register(opts) {
     helpFlag.register(opts);

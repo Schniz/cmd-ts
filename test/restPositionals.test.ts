@@ -7,8 +7,8 @@ test('fails on specific positional', async () => {
   const argv = `10 20 --mamma mia hello 40`;
   const tokens = tokenize(argv.split(' '));
   const nodes = parse(tokens, {
-    shortOptionKeys: new Set(),
-    longOptionKeys: new Set(),
+    shortFlagKeys: new Set(),
+    longFlagKeys: new Set(),
   });
   const argparser = restPositionals({
     type: number,
@@ -31,8 +31,8 @@ test('succeeds when all unused positional decode successfuly', async () => {
   const argv = `10 20 --mamma mia hello 40`;
   const tokens = tokenize(argv.split(' '));
   const nodes = parse(tokens, {
-    shortOptionKeys: new Set(),
-    longOptionKeys: new Set(),
+    shortFlagKeys: new Set(),
+    longFlagKeys: new Set(),
   });
   const argparser = restPositionals({
     type: number,

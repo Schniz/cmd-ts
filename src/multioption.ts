@@ -6,17 +6,18 @@ import {
 } from './argparser';
 import { OutputOf } from './from';
 import { findOption } from './newparser/findOption';
-import { ProvidesHelp } from './helpdoc';
-import { Type } from './type';
+import { ProvidesHelp, LongDoc, ShortDoc, Descriptive } from './helpdoc';
+import { Type, HasType } from './type';
 import { AstNode } from './newparser/parser';
 
-type MultiOptionConfig<Decoder extends Type<string[], any>> = {
-  type: Decoder;
-  long: string;
-  short?: string;
-  description?: string;
-};
+type MultiOptionConfig<Decoder extends Type<string[], any>> = HasType<Decoder> &
+  LongDoc &
+  Partial<ShortDoc & Descriptive>;
 
+/**
+ * Like `option`, but can accept multiple options, and expects a decoder from a list of strings.
+ * An error will highlight all option occurences.
+ */
 export function multioption<Decoder extends Type<string[], any>>(
   config: MultiOptionConfig<Decoder>
 ): ArgParser<OutputOf<Decoder>> & ProvidesHelp {

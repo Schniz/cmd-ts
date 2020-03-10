@@ -85,3 +85,36 @@ export function flatMap<A, B>(xs: A[], fn: (a: A) => B[]): B[] {
   }
   return results;
 }
+
+export type AllOrNothing<T> = T | { [key in keyof T]?: never };
+
+// lots of ts hackery to unit test a type hehe
+// @ts-ignore
+namespace Tests {
+  // @ts-ignore
+  type Eq<A, B> = B extends A ? 'true' : 'false';
+  // @ts-ignore
+  type AssertTrue<A extends 'true'> = 'okay';
+  // @ts-ignore
+  type AssertFalse<A extends 'false'> = 'okay';
+  type _test_AllOrNothing = AssertTrue<
+    Eq<
+      'okay'[],
+      [
+        AssertTrue<
+          Eq<
+            AllOrNothing<{ hello: 'world'; yes: 'no' }>,
+            { hello: 'world'; yes: 'no' }
+          >
+        >,
+        AssertFalse<
+          Eq<AllOrNothing<{ hello: 'world'; yes: 'no' }>, { hello: 'world' }>
+        >,
+        AssertTrue<Eq<AllOrNothing<{ hello: 'world'; yes: 'no' }>, {}>>
+      ]
+    >
+  >;
+
+  // @ts-ignore
+  type _all_tests = [_test_AllOrNothing];
+}

@@ -10,8 +10,8 @@ test('works for multiple nodes', async () => {
 
   const tokens = tokenize(argv.split(' '));
   const tree = parse(tokens, {
-    longOptionKeys: new Set(),
-    shortOptionKeys: new Set(),
+    longFlagKeys: new Set(),
+    shortFlagKeys: new Set(),
   });
 
   const opt = option({
@@ -37,8 +37,8 @@ test('works for a short flag', async () => {
 
   const tokens = tokenize(argv.split(' '));
   const tree = parse(tokens, {
-    longOptionKeys: new Set(),
-    shortOptionKeys: new Set(),
+    longFlagKeys: new Set(),
+    shortFlagKeys: new Set(),
   });
 
   const opt = option({
@@ -65,8 +65,8 @@ test('works for a single node', async () => {
 
   const tokens = tokenize(argv.split(' '));
   const tree = parse(tokens, {
-    longOptionKeys: new Set(),
-    shortOptionKeys: new Set(),
+    longFlagKeys: new Set(),
+    shortFlagKeys: new Set(),
   });
 
   const opt = option({
@@ -92,8 +92,8 @@ test('works when no nodes', async () => {
 
   const tokens = tokenize(argv.split(' '));
   const tree = parse(tokens, {
-    longOptionKeys: new Set(),
-    shortOptionKeys: new Set(),
+    longFlagKeys: new Set(),
+    shortFlagKeys: new Set(),
   });
 
   const opt = option({

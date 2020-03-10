@@ -33,7 +33,10 @@ test('merges options, positionals and flags', async () => {
     forceFlagShortNames: shortOptionKeys,
   });
 
-  const nodes = parse(tokens, { longOptionKeys, shortOptionKeys });
+  const nodes = parse(tokens, {
+    longFlagKeys: longOptionKeys,
+    shortFlagKeys: shortOptionKeys,
+  });
   const result = await cmd.parse({ nodes, visitedNodes: new Set() });
   const expected: typeof result = {
     outcome: 'success',
@@ -61,7 +64,10 @@ test('fails if an argument fail to parse', async () => {
     forceFlagShortNames: shortOptionKeys,
   });
 
-  const nodes = parse(tokens, { longOptionKeys, shortOptionKeys });
+  const nodes = parse(tokens, {
+    longFlagKeys: longOptionKeys,
+    shortFlagKeys: shortOptionKeys,
+  });
   const result = cmd.parse({
     nodes,
     visitedNodes: new Set(),
@@ -104,7 +110,10 @@ test('fails if providing unknown arguments', async () => {
     forceFlagShortNames: shortOptionKeys,
   });
 
-  const nodes = parse(tokens, { longOptionKeys, shortOptionKeys });
+  const nodes = parse(tokens, {
+    longFlagKeys: longOptionKeys,
+    shortFlagKeys: shortOptionKeys,
+  });
   const result = await cmd.parse({
     nodes,
     visitedNodes: new Set(),

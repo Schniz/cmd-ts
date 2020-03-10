@@ -14,6 +14,11 @@ type RestPositionalsConfig<Decoder extends Type<string, any>> = {
   displayName?: string;
 };
 
+/**
+ * Read all the positionals and decode them using the type provided.
+ * Works best when it is the last item on the `command` construct, to be
+ * used like the `...rest` operator in JS and TypeScript.
+ */
 export function restPositionals<Decoder extends Type<string, any>>(
   config: RestPositionalsConfig<Decoder>
 ): ArgParser<OutputOf<Decoder>[]> & ProvidesHelp {

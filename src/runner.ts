@@ -30,7 +30,10 @@ export async function run<R extends Runner<any, any>>(
   });
 
   const tokens = tokenize(strings);
-  const nodes = parse(tokens, { longOptionKeys, shortOptionKeys });
+  const nodes = parse(tokens, {
+    longFlagKeys: longOptionKeys,
+    shortFlagKeys: shortOptionKeys,
+  });
   const result = await ap.run({ nodes, visitedNodes: new Set(), hotPath });
 
   if (result.outcome === 'failure') {

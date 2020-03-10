@@ -38,6 +38,12 @@ type Output<Args extends ArgTypes> = {
   [key in keyof Args]: ParsingInto<Args[key]>;
 };
 
+/**
+ * A command line utility.
+ *
+ * A combination of multiple flags, options and arguments
+ * with a common name and a handler that expects them as input.
+ */
 export function command<
   Arguments extends ArgTypes,
   Handler extends HandlerFunc<Arguments>

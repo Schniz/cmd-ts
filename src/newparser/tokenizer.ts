@@ -18,6 +18,11 @@ export type Token =
       raw: string;
     };
 
+/**
+ * Tokenize a list of arguments
+ *
+ * @param strings arguments, based on `process.argv`
+ */
 export function tokenize(strings: string[]): Token[] {
   let tokens: Token[] = [];
   let overallIndex = 0;

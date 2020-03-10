@@ -6,6 +6,13 @@ import stripAnsi from 'strip-ansi';
 
 type HighlightResult = { colorized: string; errorIndex: number };
 
+/**
+ * Get the input as highlighted keywords to show to the user
+ * with the error that was generated from parsing the input.
+ *
+ * @param nodes AST nodes
+ * @param error A parsing error
+ */
 function highlight(
   nodes: AstNode[],
   error: ParsingError
@@ -50,10 +57,15 @@ function highlight(
   return { colorized: strings.join(' '), errorIndex: errorIndex ?? 0 };
 }
 
+/**
+ * An error UI
+ *
+ * @param breadcrumbs The command breadcrumbs to print with the error
+ */
 export function errorBox(
   nodes: AstNode[],
   errors: ParsingError[],
-  hotPath: string[]
+  breadcrumbs: string[]
 ): string {
   let withHighlight: { message: string; highlighted?: HighlightResult }[] = [];
 
@@ -109,7 +121,7 @@ export function errorBox(
     number++;
   });
 
-  const helpCmd = chalk.yellow(hotPath.join(' ') + ' --help');
+  const helpCmd = chalk.yellow(breadcrumbs.join(' ') + ' --help');
 
   errorMessages.push('');
   errorMessages.push(
