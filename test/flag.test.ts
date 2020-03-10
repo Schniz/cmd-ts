@@ -3,7 +3,7 @@ import { tokenize } from '../src/newparser/tokenizer';
 import { parse } from '../src/newparser/parser';
 import { boolean } from '../src/types';
 
-test('fails on incompatible value', () => {
+test('fails on incompatible value', async () => {
   const argv = `--hello=world`;
   const tokens = tokenize(argv.split(' '));
   const shortOptionKeys = new Set<string>();
@@ -27,7 +27,7 @@ test('fails on incompatible value', () => {
     visitedNodes: new Set(),
   });
 
-  expect(result).toEqual({
+  await expect(result).resolves.toEqual({
     outcome: 'failure',
     errors: [
       {
@@ -38,7 +38,7 @@ test('fails on incompatible value', () => {
   });
 });
 
-test('defaults to false', () => {
+test('defaults to false', async () => {
   const argv = ``;
   const tokens = tokenize(argv.split(' '));
   const shortOptionKeys = new Set<string>();
@@ -62,13 +62,13 @@ test('defaults to false', () => {
     visitedNodes: new Set(),
   });
 
-  expect(result).toEqual({
+  await expect(result).resolves.toEqual({
     outcome: 'success',
     value: false,
   });
 });
 
-test('allows short arguments', () => {
+test('allows short arguments', async () => {
   const argv = `-abc`;
   const tokens = tokenize(argv.split(' '));
   const shortOptionKeys = new Set<string>();
@@ -93,7 +93,7 @@ test('allows short arguments', () => {
     visitedNodes: new Set(),
   });
 
-  expect(result).toEqual({
+  await expect(result).resolves.toEqual({
     outcome: 'success',
     value: true,
   });

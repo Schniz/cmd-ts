@@ -1,7 +1,7 @@
 import { Type, identity, InputOf, OutputOf } from './type';
 
 export const number: Type<string, number> = {
-  from(str) {
+  async from(str) {
     const decoded = parseInt(str, 10);
 
     if (Number.isNaN(decoded)) {

@@ -2,12 +2,12 @@
 
 import { Stream } from 'stream';
 import { existsSync, createReadStream } from 'fs';
-import request from 'request';
+import fetch from 'node-fetch';
 import URL from 'url';
 import { Type, extendType, number } from '..';
 
 export const Integer: Type<string, number> = extendType(number, {
-  from(n) {
+  async from(n) {
     if (Math.round(n) !== n) {
       return { result: 'error', message: 'This is a floating-point number' };
     }
@@ -22,7 +22,7 @@ function stdin() {
 export const ReadStream: Type<string, Stream> = {
   description: 'A file path or a URL to make a GET request to',
   displayName: 'file',
-  from(obj) {
+  async from(obj) {
     if (typeof obj !== 'string') {
       return {
         result: 'error',
@@ -33,7 +33,15 @@ export const ReadStream: Type<string, Stream> = {
     const parsedUrl = URL.parse(obj);
 
     if (parsedUrl.protocol?.startsWith('http')) {
-      return { result: 'ok', value: request(obj) };
+      const response = await fetch(obj);
+      const statusGroup = Math.floor(response.status / 100);
+      if (statusGroup !== 2) {
+        return {
+          result: 'error',
+          message: `Got status ${response.statusText} ${response.status} reading URL`,
+        };
+      }
+      return { result: 'ok', value: response.body };
     }
 
     if (obj === '-') {
@@ -59,7 +67,7 @@ export function readStreamToString(s: Stream): Promise<string> {
 
 export const CommaSeparatedString: Type<string, string[]> = {
   description: 'comma seperated string',
-  from(s) {
+  async from(s) {
     return { result: 'ok', value: s.split(/, ?/) };
   },
 };

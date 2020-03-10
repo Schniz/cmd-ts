@@ -19,6 +19,28 @@ test('help for complex command', async () => {
   expect(result.all).toMatchSnapshot();
 });
 
+test('too many arguments', async () => {
+  const result = await runApp([
+    '--this=will-be-an-error',
+    'cat',
+    '/dev/null',
+    'also this',
+    '--and-also-this',
+  ]);
+  expect(result.exitCode).toBe(1);
+  expect(result.all).toMatchSnapshot();
+});
+
+test('composes errors', async () => {
+  const result = await runApp([
+    'greet',
+    '--times=not-a-number',
+    'not-capitalized',
+  ]);
+  expect(result.exitCode).toBe(1);
+  expect(result.all).toMatchSnapshot();
+});
+
 test('help for composed subcommands', async () => {
   const result = await runApp(['composed', '--help']);
   expect(result.exitCode).toBe(1);
@@ -28,6 +50,18 @@ test('help for composed subcommands', async () => {
 test('help for composed subcommand', async () => {
   const result = await runApp(['composed', 'cat', '--help']);
   expect(result.exitCode).toBe(1);
+  expect(result.all).toMatchSnapshot();
+});
+
+test('asynchronous type conversion works', async () => {
+  const result = await runApp(['composed', 'cat', 'https://httpstat.us/404']);
+  expect(result.exitCode).toBe(1);
+  expect(result.all).toMatchSnapshot();
+});
+
+test('asynchronous type conversion works, when it passes', async () => {
+  const result = await runApp(['composed', 'cat', 'https://httpstat.us/200']);
+  expect(result.exitCode).toBe(0);
   expect(result.all).toMatchSnapshot();
 });
 

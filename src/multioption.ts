@@ -37,10 +37,10 @@ export function multioption<Decoder extends Type<string[], any>>(
       ];
     },
     register(_opts) {},
-    parse({
+    async parse({
       nodes,
       visitedNodes,
-    }: ParseContext): ParsingResult<OutputOf<Decoder>> {
+    }: ParseContext): Promise<ParsingResult<OutputOf<Decoder>>> {
       const options = findOption(nodes, {
         longNames: [config.long],
         shortNames: config.short ? [config.short] : [],
@@ -77,7 +77,7 @@ export function multioption<Decoder extends Type<string[], any>>(
         };
       }
 
-      const multiDecoded = config.decoder.from(optionValues);
+      const multiDecoded = await config.decoder.from(optionValues);
 
       if (multiDecoded.result === 'error') {
         return {

@@ -1,5 +1,32 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`asynchronous type conversion works 1`] = `
+"[31m[1merror: [22m[39mfound [33m1[39m error
+
+  [2msubcmds[22m [2mcomposed[22m [2mcat[22m [31mhttps://httpstat.us/404[39m
+                       [31m[1m^[22m Got status Not Found 404 reading URL[39m
+
+
+[31m[1mhint: [22m[39mfor more information, try '[33msubcmds composed cat --help[39m'"
+`;
+
+exports[`asynchronous type conversion works, when it passes 1`] = `"200 OK"`;
+
+exports[`composes errors 1`] = `
+"[31m[1merror: [22m[39mfound [33m3[39m errors
+
+  [2msubcmds[22m [2mgreet[22m [31m--times=not-a-number[39m [2mnot-capitalized[22m
+                [31m[1m^[22m Not a number[39m
+
+  [2msubcmds[22m [2mgreet[22m [2m--times=not-a-number[22m [31mnot-capitalized[39m
+                                     [31m[1m^[22m name must be capitalized[39m
+
+Along the following error:
+  [31m[1m3.[22m[39m [31mNo value provided for --greeting[39m
+
+[31m[1mhint: [22m[39mfor more information, try '[33msubcmds greet --help[39m'"
+`;
+
 exports[`help for complex command 1`] = `
 "[1msubcmds complex[22m
 [2m> [22mJust prints the arguments
@@ -59,9 +86,19 @@ where [3m<subcommand>[23m can be one of:
 exports[`invalid subcommand 1`] = `
 "[31m[1merror: [22m[39mfound [33m1[39m error
 
-  [2msubcmds[22m [31msubcommand[39m [2mthat[22m [2mdoesnt[22m [2mexist[22m
+  [2msubcmds[22m [31msubcommand-that-doesnt-exist[39m
           [31m[1m^[22m Not a valid subcommand name[39m
 
 
 [31m[1mhint: [22m[39mfor more information, try '[33msubcmds --help[39m'"
+`;
+
+exports[`too many arguments 1`] = `
+"[31m[1merror: [22m[39mfound [33m1[39m error
+
+  [2msubcmds[22m [31m--this=will-be-an-error[39m [2mcat[22m [2m/dev/null[22m [31malso this[39m [31m--and-also-this[39m
+          [31m[1m^[22m Unknown arguments[39m
+
+
+[31m[1mhint: [22m[39mfor more information, try '[33msubcmds cat --help[39m'"
 `;

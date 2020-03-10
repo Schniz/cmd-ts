@@ -3,7 +3,7 @@ import { tokenize } from '../src/newparser/tokenizer';
 import { parse, AstNode } from '../src/newparser/parser';
 import { number } from './test-types';
 
-test('fails on specific positional', () => {
+test('fails on specific positional', async () => {
   const argv = `10 20 --mamma mia hello 40`;
   const tokens = tokenize(argv.split(' '));
   const nodes = parse(tokens, {
@@ -16,7 +16,7 @@ test('fails on specific positional', () => {
 
   const result = argparser.parse({ nodes, visitedNodes: new Set() });
 
-  expect(result).toEqual({
+  await expect(result).resolves.toEqual({
     outcome: 'failure',
     errors: [
       {
@@ -27,7 +27,7 @@ test('fails on specific positional', () => {
   });
 });
 
-test('succeeds when all unused positional decode successfuly', () => {
+test('succeeds when all unused positional decode successfuly', async () => {
   const argv = `10 20 --mamma mia hello 40`;
   const tokens = tokenize(argv.split(' '));
   const nodes = parse(tokens, {
@@ -47,7 +47,7 @@ test('succeeds when all unused positional decode successfuly', () => {
 
   const result = argparser.parse({ nodes, visitedNodes });
 
-  expect(result).toEqual({
+  await expect(result).resolves.toEqual({
     outcome: 'success',
     value: [10, 20, 40],
   });

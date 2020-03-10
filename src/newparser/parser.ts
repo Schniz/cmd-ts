@@ -126,7 +126,7 @@ export function parse(tokens: Token[], forceFlag: ForceFlag): AstNode[] {
     if (currentToken.type === 'char') {
       let str = currentToken.raw;
       let nextToken = getToken();
-      while (nextToken?.type === 'char') {
+      while (nextToken && nextToken?.type !== 'argumentDivider') {
         str += nextToken.raw;
         nextToken = getToken();
       }

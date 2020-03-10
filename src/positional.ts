@@ -29,10 +29,10 @@ export function positional<Decoder extends Type<string, any>>(
       ];
     },
     register(_opts) {},
-    parse({
+    async parse({
       nodes,
       visitedNodes,
-    }: ParseContext): ParsingResult<OutputOf<Decoder>> {
+    }: ParseContext): Promise<ParsingResult<OutputOf<Decoder>>> {
       const positionals = nodes.filter(
         (node): node is PositionalArgument =>
           node.type === 'positionalArgument' && !visitedNodes.has(node)
@@ -53,7 +53,7 @@ export function positional<Decoder extends Type<string, any>>(
       }
 
       visitedNodes.add(positional);
-      const decoded = config.decoder.from(positional.raw);
+      const decoded = await config.decoder.from(positional.raw);
 
       if (decoded.result === 'error') {
         return {

@@ -13,7 +13,7 @@ type FlagConfig<Decoder extends Type<boolean, any>> = {
 };
 
 export const boolean: Type<string, boolean> = {
-  from(str) {
+  async from(str) {
     if (str === 'true') return { result: 'ok', value: true };
     if (str === 'false') return { result: 'ok', value: false };
     return {
@@ -70,10 +70,10 @@ export function flag<Decoder extends Type<boolean, any>>(
         opts.forceFlagShortNames.add(config.short);
       }
     },
-    parse({
+    async parse({
       nodes,
       visitedNodes,
-    }: ParseContext): ParsingResult<OutputOf<Decoder>> {
+    }: ParseContext): Promise<ParsingResult<OutputOf<Decoder>>> {
       const options = findOption(nodes, {
         longNames: [config.long],
         shortNames: config.short ? [config.short] : [],
@@ -115,7 +115,7 @@ export function flag<Decoder extends Type<boolean, any>>(
         };
       }
 
-      const decoded = decoder.from(rawValue);
+      const decoded = await decoder.from(rawValue);
 
       if (decoded.result === 'error') {
         return {

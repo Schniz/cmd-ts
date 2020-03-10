@@ -42,7 +42,7 @@ export function subcommands<
   Partial<Descriptive> &
   Runner<Output<Commands>, RunnerOutput<Commands>> {
   const decoder: From<string, keyof Commands> = {
-    from(str) {
+    async from(str) {
       const cmd = Object.entries(config.cmds)
         .map(([name, cmd]) => {
           return {
@@ -110,8 +110,10 @@ export function subcommands<
 
       process.exit(1);
     },
-    parse(context: ParseContext): ParsingResult<Output<Commands>> {
-      const parsed = subcommand.parse(context);
+    async parse(
+      context: ParseContext
+    ): Promise<ParsingResult<Output<Commands>>> {
+      const parsed = await subcommand.parse(context);
 
       if (parsed.outcome === 'failure') {
         return {
@@ -123,7 +125,7 @@ export function subcommands<
       context.hotPath?.push(parsed.value as string);
 
       const cmd = config.cmds[parsed.value];
-      const parsedCommand = cmd.parse(context);
+      const parsedCommand = await cmd.parse(context);
       if (parsedCommand.outcome === 'failure') {
         return {
           outcome: 'failure',
@@ -139,11 +141,11 @@ export function subcommands<
         value: { args: parsedCommand.value, command: parsed.value },
       };
     },
-    run(context): ParsingResult<RunnerOutput<Commands>> {
-      const parsedSubcommand = subcommand.parse(context);
+    async run(context): Promise<ParsingResult<RunnerOutput<Commands>>> {
+      const parsedSubcommand = await subcommand.parse(context);
 
       if (parsedSubcommand.outcome === 'failure') {
-        const breaker = circuitbreaker.parse(context);
+        const breaker = await circuitbreaker.parse(context);
         if (breaker.outcome === 'success') {
           if (breaker.value === 'help') {
             this.printHelp(context);
@@ -162,7 +164,7 @@ export function subcommands<
       context.hotPath?.push(parsedSubcommand.value as string);
 
       const cmd = config.cmds[parsedSubcommand.value];
-      const commandRun = cmd.run(context);
+      const commandRun = await cmd.run(context);
 
       if (commandRun.outcome === 'success') {
         return {

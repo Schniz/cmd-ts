@@ -15,7 +15,7 @@ import {
 const getRepoUrl = () => 'my-repo-uri';
 
 const PrNumber = extendType(string, {
-  from(branchName) {
+  async from(branchName) {
     const prNumber = branchName === 'master' ? '10' : undefined;
 
     if (!prNumber) {

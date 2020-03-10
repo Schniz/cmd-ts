@@ -63,10 +63,10 @@ export function option<Decoder extends Type<string, any>>(
       ];
     },
     register(_opts) {},
-    parse({
+    async parse({
       nodes,
       visitedNodes,
-    }: ParseContext): ParsingResult<OutputOf<Decoder>> {
+    }: ParseContext): Promise<ParsingResult<OutputOf<Decoder>>> {
       const options = findOption(nodes, {
         longNames: [config.long],
         shortNames: config.short ? [config.short] : [],
@@ -118,7 +118,7 @@ export function option<Decoder extends Type<string, any>>(
         };
       }
 
-      const decoded = config.decoder.from(rawValue);
+      const decoded = await config.decoder.from(rawValue);
       if (decoded.result === 'error') {
         return {
           outcome: 'failure',

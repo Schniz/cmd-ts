@@ -39,7 +39,7 @@ const subcmds = subcommands({
   },
 });
 
-test('chooses one subcommand', () => {
+test('chooses one subcommand', async () => {
   const argv = `greeter Gal -eg Hello`.split(' ');
   const tokens = tokenize(argv);
   const longOptionKeys = new Set<string>();
@@ -49,7 +49,7 @@ test('chooses one subcommand', () => {
     forceFlagShortNames: shortOptionKeys,
   });
   const nodes = parse(tokens, { longOptionKeys, shortOptionKeys });
-  const result = subcmds.parse({ nodes, visitedNodes: new Set() });
+  const result = await subcmds.parse({ nodes, visitedNodes: new Set() });
   const expected: typeof result = {
     outcome: 'success',
     value: {
@@ -65,7 +65,7 @@ test('chooses one subcommand', () => {
   expect(result).toEqual(expected);
 });
 
-test('chooses the other subcommand', () => {
+test('chooses the other subcommand', async () => {
   const argv = `howdy joe`.split(' ');
   const tokens = tokenize(argv);
   const longOptionKeys = new Set<string>();
@@ -75,7 +75,7 @@ test('chooses the other subcommand', () => {
     forceFlagShortNames: shortOptionKeys,
   });
   const nodes = parse(tokens, { longOptionKeys, shortOptionKeys });
-  const result = subcmds.parse({ nodes, visitedNodes: new Set() });
+  const result = await subcmds.parse({ nodes, visitedNodes: new Set() });
   const expected: typeof result = {
     outcome: 'success',
     value: {
@@ -89,7 +89,7 @@ test('chooses the other subcommand', () => {
   expect(result).toEqual(expected);
 });
 
-test('fails when using unknown subcommand', () => {
+test('fails when using unknown subcommand', async () => {
   const argv = `--hello yes how are you joe`.split(' ');
   const tokens = tokenize(argv);
   const longOptionKeys = new Set<string>();
@@ -99,7 +99,7 @@ test('fails when using unknown subcommand', () => {
     forceFlagShortNames: shortOptionKeys,
   });
   const nodes = parse(tokens, { longOptionKeys, shortOptionKeys });
-  const result = subcmds.parse({ nodes, visitedNodes: new Set() });
+  const result = await subcmds.parse({ nodes, visitedNodes: new Set() });
   const expected: typeof result = {
     outcome: 'failure',
     errors: [
@@ -114,7 +114,7 @@ test('fails when using unknown subcommand', () => {
   expect(result).toEqual(expected);
 });
 
-test('fails for a subcommand argument parsing issue', () => {
+test('fails for a subcommand argument parsing issue', async () => {
   const argv = `greeter Gal -g Hello --exclaim=hell-no`.split(' ');
   const tokens = tokenize(argv);
   const longOptionKeys = new Set<string>();
@@ -124,7 +124,7 @@ test('fails for a subcommand argument parsing issue', () => {
     forceFlagShortNames: shortOptionKeys,
   });
   const nodes = parse(tokens, { longOptionKeys, shortOptionKeys });
-  const result = subcmds.parse({ nodes, visitedNodes: new Set() });
+  const result = await subcmds.parse({ nodes, visitedNodes: new Set() });
   const expected = {
     outcome: 'failure',
     errors: [

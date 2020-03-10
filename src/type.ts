@@ -7,9 +7,11 @@ export { identity, OutputOf, InputOf } from './from';
 export type Type<From_, To> = From<From_, To> &
   Partial<Descriptive & Displayed & Default<To>>;
 
+type PromiseValue<T> = T extends Promise<infer R> ? R : T;
+
 export function extendType<
   T1 extends Type<any, any>,
-  T2 extends Type<OutputOf<T1>, any>
+  T2 extends Type<PromiseValue<OutputOf<T1>>, any>
 >(
   t1: T1,
   t2: T2
@@ -21,14 +23,14 @@ export function extendType<
   return {
     ...t1WithoutDefault,
     ...t2,
-    from(a) {
-      const f1Result = t1.from(a);
-      switch (f1Result.result) {
-        case 'error':
-          return f1Result;
-        case 'ok':
-          return t2.from(f1Result.value);
+    async from(a) {
+      const f1Result = await t1.from(a);
+
+      if (f1Result.result === 'error') {
+        return f1Result;
       }
+
+      return t2.from(f1Result.value);
     },
   };
 }

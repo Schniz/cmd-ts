@@ -40,10 +40,10 @@ export function multiflag<Decoder extends From<boolean[], any>>(
         opts.forceFlagShortNames.add(config.short);
       }
     },
-    parse({
+    async parse({
       nodes,
       visitedNodes,
-    }: ParseContext): ParsingResult<OutputOf<Decoder>> {
+    }: ParseContext): Promise<ParsingResult<OutputOf<Decoder>>> {
       const options = findOption(nodes, {
         longNames: [config.long],
         shortNames: config.short ? [config.short] : [],
@@ -57,7 +57,7 @@ export function multiflag<Decoder extends From<boolean[], any>>(
       const errors: ParsingError[] = [];
 
       for (const option of options) {
-        const decoded = boolean.from(option.value?.node.raw ?? 'true');
+        const decoded = await boolean.from(option.value?.node.raw ?? 'true');
         if (decoded.result === 'error') {
           errors.push({ nodes: [option], message: decoded.message });
         } else {
@@ -72,7 +72,7 @@ export function multiflag<Decoder extends From<boolean[], any>>(
         };
       }
 
-      const multiDecoded = config.decoder.from(optionValues);
+      const multiDecoded = await config.decoder.from(optionValues);
 
       if (multiDecoded.result === 'error') {
         return {

@@ -16,6 +16,7 @@ import {
   optional,
 } from '..';
 import { restPositionals } from '../restPositionals';
+import { extendType } from '../type';
 
 const complex = command({
   args: {
@@ -79,6 +80,19 @@ const composed = subcommands({
   description: 'a nested subcommand',
 });
 
+const Name = extendType(string, {
+  async from(s) {
+    if (s.length === 0) {
+      return { result: 'error', message: 'name cannot be empty' };
+    } else if (s.charAt(0).toUpperCase() === s.charAt(0)) {
+      return { result: 'ok', value: s };
+    } else {
+      return { result: 'error', message: 'name must be capitalized' };
+    }
+  },
+  displayName: 'name',
+});
+
 const withSubcommands = subcommands({
   cmds: {
     complex,
@@ -87,9 +101,13 @@ const withSubcommands = subcommands({
       name: 'greet',
       description: 'greet a person',
       args: {
+        times: option({
+          decoder: { ...Integer, defaultValue: () => 1 },
+          long: 'times',
+        }),
         name: positional({
           displayName: 'name',
-          decoder: string,
+          decoder: Name,
         }),
         noExclaim: flag({
           decoder: boolean,

@@ -37,6 +37,7 @@
   },
   "devDependencies": {
     "@types/jest": "^25.1.0",
+    "@types/node-fetch": "^2.5.5",
     "@types/request": "^2.48.4",
     "docs-ts": "^0.3.4",
     "eslint-plugin-import": "^2.20.1",
@@ -45,6 +46,7 @@
     "husky": "^4.2.1",
     "infer-types": "^0.0.2",
     "jest-junit": "^10.0.0",
+    "node-fetch": "^2.6.0",
     "request": "^2.88.0",
     "tempy": "^0.3.0",
     "ts-node": "^8.6.2",

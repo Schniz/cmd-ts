@@ -10,17 +10,17 @@ export type Runner<HandlerArgs, HandlerResult> = PrintHelp &
   Partial<Versioned> &
   Register &
   Handling<HandlerArgs, HandlerResult> & {
-    run(context: ParseContext): ParsingResult<HandlerResult>;
+    run(context: ParseContext): Promise<ParsingResult<HandlerResult>>;
   };
 
 export type Into<R extends Runner<any, any>> = R extends Runner<any, infer X>
   ? X
   : never;
 
-export function run<R extends Runner<any, any>>(
+export async function run<R extends Runner<any, any>>(
   ap: R,
   strings: string[]
-): Into<R> {
+): Promise<Into<R>> {
   const longOptionKeys = new Set<string>();
   const shortOptionKeys = new Set<string>();
   const hotPath: string[] = [];
@@ -31,7 +31,7 @@ export function run<R extends Runner<any, any>>(
 
   const tokens = tokenize(strings);
   const nodes = parse(tokens, { longOptionKeys, shortOptionKeys });
-  const result = ap.run({ nodes, visitedNodes: new Set(), hotPath });
+  const result = await ap.run({ nodes, visitedNodes: new Set(), hotPath });
 
   if (result.outcome === 'failure') {
     console.error(errorBox(nodes, result.errors, hotPath));

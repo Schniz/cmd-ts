@@ -105,12 +105,14 @@ export function command<
         arg.register(opts);
       }
     },
-    parse(context: ParseContext): ParsingResult<Output<Arguments>> {
+    async parse(
+      context: ParseContext
+    ): Promise<ParsingResult<Output<Arguments>>> {
       const resultObject = {} as Output<Arguments>;
       const errors: ParsingError[] = [];
 
       for (const [argName, arg] of argEntries) {
-        const result = arg.parse(context);
+        const result = await arg.parse(context);
         if (result.outcome === 'failure') {
           errors.push(...result.errors);
         } else {
@@ -156,10 +158,10 @@ export function command<
         };
       }
     },
-    run(context) {
-      const parsed = this.parse(context);
+    async run(context) {
+      const parsed = await this.parse(context);
 
-      const breaker = circuitbreaker.parse(context);
+      const breaker = await circuitbreaker.parse(context);
       const shouldShowHelp =
         breaker.outcome === 'success' && breaker.value === 'help';
       const shouldShowVersion =

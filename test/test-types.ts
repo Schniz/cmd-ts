@@ -1,9 +1,9 @@
-import { identity, DecodeResult } from '../src/from';
+import { identity } from '../src/from';
 import { Type } from '../src/type';
 import { InputOf, OutputOf } from '../src/from';
 
 export const number: Type<string, number> = {
-  from(str) {
+  async from(str) {
     const decoded = parseInt(str, 10);
 
     if (Number.isNaN(decoded)) {
@@ -60,33 +60,6 @@ export function optional<T extends Type<any, any>>(
     ...t,
     defaultValue(): OutputOf<T> | undefined {
       return undefined;
-    },
-  };
-}
-
-export function arrayOf<T extends Type<any, any>>(
-  t: T
-): Omit<T, 'from'> & Type<InputOf<T>[], OutputOf<T>[]> {
-  return {
-    ...t,
-    from(ts) {
-      return ts.reduce<DecodeResult<OutputOf<T>[]>>(
-        (acc, curr) => {
-          if (acc.result === 'error') {
-            return acc;
-          } else {
-            const current = t.from(curr);
-            if (current.result === 'ok') {
-              return {
-                result: 'ok',
-                value: [...acc.value, current.value],
-              } as DecodeResult<OutputOf<T>[]>;
-            }
-            return acc;
-          }
-        },
-        { result: 'ok', value: [] }
-      );
     },
   };
 }

@@ -31,10 +31,10 @@ export function restPositionals<Decoder extends Type<string, any>>(
       ];
     },
     register(_opts) {},
-    parse({
+    async parse({
       nodes,
       visitedNodes,
-    }: ParseContext): ParsingResult<OutputOf<Decoder>[]> {
+    }: ParseContext): Promise<ParsingResult<OutputOf<Decoder>[]>> {
       const positionals = nodes.filter(
         (node): node is PositionalArgument =>
           node.type === 'positionalArgument' && !visitedNodes.has(node)
@@ -45,7 +45,7 @@ export function restPositionals<Decoder extends Type<string, any>>(
 
       for (const positional of positionals) {
         visitedNodes.add(positional);
-        const decoded = config.decoder.from(positional.raw);
+        const decoded = await config.decoder.from(positional.raw);
         if (decoded.result === 'ok') {
           results.push(decoded.value);
         } else {

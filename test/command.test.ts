@@ -20,7 +20,7 @@ const cmd = command({
   handler: _ => {},
 });
 
-test('merges options, positionals and flags', () => {
+test('merges options, positionals and flags', async () => {
   const argv = `first --option=666 second --second-option works-too --flag third`.split(
     ' '
   );
@@ -34,7 +34,7 @@ test('merges options, positionals and flags', () => {
   });
 
   const nodes = parse(tokens, { longOptionKeys, shortOptionKeys });
-  const result = cmd.parse({ nodes, visitedNodes: new Set() });
+  const result = await cmd.parse({ nodes, visitedNodes: new Set() });
   const expected: typeof result = {
     outcome: 'success',
     value: {
@@ -48,7 +48,7 @@ test('merges options, positionals and flags', () => {
   expect(result).toEqual(expected);
 });
 
-test('fails if an argument fail to parse', () => {
+test('fails if an argument fail to parse', async () => {
   const argv = `first --option=hello second --second-option works-too --flag=fails-too third`.split(
     ' '
   );
@@ -67,7 +67,7 @@ test('fails if an argument fail to parse', () => {
     visitedNodes: new Set(),
   });
 
-  expect(result).toEqual({
+  await expect(result).resolves.toEqual({
     outcome: 'failure',
     errors: [
       {
@@ -86,7 +86,7 @@ test('fails if an argument fail to parse', () => {
   });
 });
 
-test('fails if providing unknown arguments', () => {
+test('fails if providing unknown arguments', async () => {
   const cmd = command({
     name: 'my command',
     args: {
@@ -105,7 +105,7 @@ test('fails if providing unknown arguments', () => {
   });
 
   const nodes = parse(tokens, { longOptionKeys, shortOptionKeys });
-  const result = cmd.parse({
+  const result = await cmd.parse({
     nodes,
     visitedNodes: new Set(),
   });

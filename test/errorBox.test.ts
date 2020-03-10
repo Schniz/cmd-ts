@@ -5,7 +5,7 @@ import { errorBox } from '../src/errorBox';
 import { option } from '../src/option';
 import { number } from './test-types';
 
-test('works for multiple nodes', () => {
+test('works for multiple nodes', async () => {
   const argv = `hello world --some arg --flag --some another --flag --this-is=option -abcde=f -abcde`;
 
   const tokens = tokenize(argv.split(' '));
@@ -19,7 +19,7 @@ test('works for multiple nodes', () => {
     long: 'some',
   });
 
-  const result = opt.parse({
+  const result = await opt.parse({
     nodes: tree,
     visitedNodes: new Set(),
   });
@@ -32,7 +32,7 @@ test('works for multiple nodes', () => {
   expect(errors).toMatch('Too many times provided');
 });
 
-test('works for a short flag', () => {
+test('works for a short flag', async () => {
   const argv = `hello world -fn not_a_number hey`;
 
   const tokens = tokenize(argv.split(' '));
@@ -47,7 +47,7 @@ test('works for a short flag', () => {
     short: 'n',
   });
 
-  const result = opt.parse({
+  const result = await opt.parse({
     nodes: tree,
     visitedNodes: new Set(),
   });
@@ -60,7 +60,7 @@ test('works for a short flag', () => {
   expect(errors).toMatch(chalk.red('n not_a_number'));
 });
 
-test('works for a single node', () => {
+test('works for a single node', async () => {
   const argv = `hello world --flag --some not_a_number --flag --this-is=option -abcde=f -abcde`;
 
   const tokens = tokenize(argv.split(' '));
@@ -74,7 +74,7 @@ test('works for a single node', () => {
     long: 'some',
   });
 
-  const result = opt.parse({
+  const result = await opt.parse({
     nodes: tree,
     visitedNodes: new Set(),
   });
@@ -87,7 +87,7 @@ test('works for a single node', () => {
   expect(errors).toMatch('Not a number');
 });
 
-test('works when no nodes', () => {
+test('works when no nodes', async () => {
   const argv = `hello world --flag --flag --this-is=option -abcde=f -abcde`;
 
   const tokens = tokenize(argv.split(' '));
@@ -101,7 +101,7 @@ test('works when no nodes', () => {
     long: 'some',
   });
 
-  const result = opt.parse({
+  const result = await opt.parse({
     nodes: tree,
     visitedNodes: new Set(),
   });

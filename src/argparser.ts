@@ -40,7 +40,7 @@ export type Register = {
 };
 
 export type ArgParser<Into> = Register & {
-  parse(context: ParseContext): ParsingResult<Into>;
+  parse(context: ParseContext): Promise<ParsingResult<Into>>;
 };
 
 export type ParsingInto<AP extends ArgParser<any>> = AP extends ArgParser<
