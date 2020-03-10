@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`asynchronous type conversion works 1`] = `
+exports[`asynchronous type conversion works for failures 1`] = `
 "[31m[1merror: [22m[39mfound [33m1[39m error
 
   [2msubcmds[22m [2mcomposed[22m [2mcat[22m [31mhttps://httpstat.us/404[39m
@@ -10,7 +10,7 @@ exports[`asynchronous type conversion works 1`] = `
 [31m[1mhint: [22m[39mfor more information, try '[33msubcmds composed cat --help[39m'"
 `;
 
-exports[`asynchronous type conversion works, when it passes 1`] = `"200 OK"`;
+exports[`asynchronous type conversion works for success 1`] = `"200 OK"`;
 
 exports[`composes errors 1`] = `
 "[31m[1merror: [22m[39mfound [33m3[39m errors
