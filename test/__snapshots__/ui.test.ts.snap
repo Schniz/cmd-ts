@@ -1,0 +1,67 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`help for complex command 1`] = `
+"[1msubcmds complex[22m
+[2m> [22mJust prints the arguments
+
+ARGUMENTS:
+  <pos1>   - a number
+  [...str] - a string
+
+OPTIONS:
+  --number, -n <number>         - a number
+  --optional-option <str>       - a string[2m [optional][22m
+  --optional-with-default <str> - a string[2m [env: SOME_ENV_VAR][22m[2m [default: [3mHello[23m][22m
+
+FLAGS:
+  --boolean     - a boolean
+  --help, -h    - show help
+  --version, -v - print the version"
+`;
+
+exports[`help for composed subcommand 1`] = `
+"[1msubcmds composed cat[22m
+[2m> [22mA simple \`cat\` clone
+
+ARGUMENTS:
+  <stream> - A file path or a URL to make a GET request to
+
+FLAGS:
+  --help, -h    - show help
+  --version, -v - print the version"
+`;
+
+exports[`help for composed subcommands 1`] = `
+"[1msubcmds composed[3m <subcommand>[23m[22m
+[2m> [22ma nested subcommand
+
+where [3m<subcommand>[23m can be one of:
+
+[2m- [22mcat - A simple \`cat\` clone [2m[alias: read][22m
+
+[2mFor more help, try running \`[33msubcmds composed <subcommand> --help[39m\`[22m"
+`;
+
+exports[`help for subcommands 1`] = `
+"[1msubcmds[3m <subcommand>[23m[22m
+[2m> [22mAn awesome subcommand app!
+
+where [3m<subcommand>[23m can be one of:
+
+[2m- [22mcomplex - Just prints the arguments 
+[2m- [22mcat - A simple \`cat\` clone [2m[alias: read][22m
+[2m- [22mgreet - greet a person 
+[2m- [22mcomposed - a nested subcommand 
+
+[2mFor more help, try running \`[33msubcmds <subcommand> --help[39m\`[22m"
+`;
+
+exports[`invalid subcommand 1`] = `
+"[31m[1merror: [22m[39mfound [33m1[39m error
+
+  [2msubcmds[22m [31msubcommand[39m [2mthat[22m [2mdoesnt[22m [2mexist[22m
+          [31m[1m^[22m Not a valid subcommand name[39m
+
+
+[31m[1mhint: [22m[39mfor more information, try '[33msubcmds --help[39m'"
+`;

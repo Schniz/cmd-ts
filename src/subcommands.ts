@@ -43,12 +43,21 @@ export function subcommands<
   Runner<Output<Commands>, RunnerOutput<Commands>> {
   const decoder: From<string, keyof Commands> = {
     from(str) {
-      if (config.cmds[str]) {
-        return { result: 'ok', value: str };
+      const cmd = Object.entries(config.cmds)
+        .map(([name, cmd]) => {
+          return {
+            cmdName: name as keyof Commands,
+            names: [name, ...(cmd.aliases ?? [])],
+          };
+        })
+        .find(x => x.names.includes(str));
+      if (cmd) {
+        return { result: 'ok', value: cmd.cmdName };
       }
       return { result: 'error', message: 'Not a valid subcommand name' };
     },
   };
+
   const subcommand = positional({
     displayName: 'subcommand',
     description: 'one of ' + Object.keys(config.cmds).join(', '),
@@ -69,23 +78,28 @@ export function subcommands<
       circuitbreaker.register(opts);
     },
     printHelp(context) {
-      const description = '';
       const argsSoFar = context.hotPath?.join(' ') ?? 'cli';
 
-      console.log(argsSoFar + chalk.italic(' <subcommand>'));
-      console.log();
+      console.log(chalk.bold(argsSoFar + chalk.italic(' <subcommand>')));
 
-      if (description) {
-        console.log(description);
-        console.log();
+      if (config.description) {
+        console.log(chalk.dim('> ') + config.description);
       }
 
-      console.log(`${chalk.italic('<subcommand>')} can be one of:`);
+      console.log();
+      console.log(`where ${chalk.italic('<subcommand>')} can be one of:`);
       console.log();
 
       for (const key of Object.keys(config.cmds)) {
-        let description = config.cmds[key].description ?? '';
-        description = description && ' - ' + description;
+        const cmd = config.cmds[key];
+        let description = cmd.description ?? '';
+        description = description && ' - ' + description + ' ';
+        if (cmd.aliases?.length) {
+          const aliasTxt = cmd.aliases.length === 1 ? 'alias' : 'aliases';
+          const aliases = cmd.aliases.join(', ');
+          description += chalk.dim(`[${aliasTxt}: ${aliases}]`);
+        }
+        description.trimEnd();
         console.log(chalk.dim('- ') + key + description);
       }
 

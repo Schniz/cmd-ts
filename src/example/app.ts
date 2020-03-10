@@ -13,9 +13,11 @@ import {
   flag,
   option,
   positional,
+  optional,
 } from '..';
+import { restPositionals } from '../restPositionals';
 
-const y = command({
+const complex = command({
   args: {
     pos1: positional({
       displayName: 'pos1',
@@ -26,9 +28,25 @@ const y = command({
       short: 'n',
       long: 'number',
     }),
+    optionalOption: option({
+      decoder: optional(string),
+      long: 'optional-option',
+    }),
+    optionWithDefault: option({
+      long: 'optional-with-default',
+      env: 'SOME_ENV_VAR',
+      decoder: {
+        ...string,
+        defaultValue: () => 'Hello',
+        defaultValueAsString: () => 'Hello',
+      },
+    }),
     bool: flag({
       decoder: boolean,
       long: 'boolean',
+    }),
+    rest: restPositionals({
+      decoder: string,
     }),
   },
   name: 'printer',
@@ -45,6 +63,7 @@ const withStream = command({
   },
   description: 'A simple `cat` clone',
   name: 'cat',
+  aliases: ['read'],
   handler: result => {
     /** @export cat -> stream */
     const stream = result.stream;
@@ -58,12 +77,11 @@ const composed = subcommands({
     cat: withStream,
   },
   description: 'a nested subcommand',
-  // aliases: ['cmp'],
 });
 
 const withSubcommands = subcommands({
   cmds: {
-    hello: y,
+    complex,
     cat: withStream,
     greet: command({
       name: 'greet',
@@ -99,6 +117,7 @@ const withSubcommands = subcommands({
     composed,
   },
   name: 'subcmds',
+  description: 'An awesome subcommand app!',
 });
 
 const cli = binary(withSubcommands);

@@ -41,6 +41,7 @@
     "docs-ts": "^0.3.4",
     "eslint-plugin-import": "^2.20.1",
     "esm": "^3.2.25",
+    "execa": "^4.0.0",
     "husky": "^4.2.1",
     "infer-types": "^0.0.2",
     "jest-junit": "^10.0.0",

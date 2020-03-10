@@ -13,6 +13,7 @@ import {
   Versioned,
   Named,
   Descriptive,
+  Aliased,
 } from './helpdoc';
 import { padNoAnsi, entries, groupBy } from './utils';
 import { Runner } from './runner';
@@ -47,11 +48,12 @@ export function command<
   ProvidesHelp &
   Named &
   Runner<Output<Arguments>, ReturnType<Handler>> &
-  Partial<Versioned & Descriptive> {
+  Partial<Versioned & Descriptive & Aliased> {
   const argEntries = entries(config.args);
 
   return {
     name: config.name,
+    aliases: config.aliases,
     handler: config.handler,
     description: config.description,
     version: config.version,
@@ -66,6 +68,8 @@ export function command<
         name = config.name;
       }
 
+      name = chalk.bold(name);
+
       if (config.version) {
         name += ' ' + chalk.dim(config.version);
       }
@@ -73,8 +77,7 @@ export function command<
       console.log(name);
 
       if (config.description) {
-        console.log();
-        console.log('  ' + config.description);
+        console.log(chalk.dim('> ') + config.description);
       }
 
       const usageBreakdown = groupBy(this.helpTopics(), x => x.category);
