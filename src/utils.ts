@@ -93,28 +93,35 @@ export type AllOrNothing<T> = T | { [key in keyof T]?: never };
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 namespace Tests {
   // @ts-ignore
-  type Eq<A, B> = B extends A ? 'true' : 'false';
-  type AssertTrue<A extends 'true'> = Eq<'true', A>;
-  type AssertFalse<A extends 'false'> = Eq<'false', A>;
-  type AllTrue<A extends 'true'[]> = Eq<'true'[], A>;
+  type Extends<A, B> = B extends A ? 'true' : 'false';
+  type AssertTrue<A extends 'true'> = Extends<'true', A>;
+  type AssertFalse<A extends 'false'> = Extends<'false', A>;
+  type AllTrue<A extends 'true'[]> = Extends<'true'[], A>;
 
-  type _test_AllOrNothing = AssertTrue<
+  type Person = { name: string; age: number };
+
+  type test_AllOrNothing_accepts_all = AssertTrue<
+    Extends<AllOrNothing<Person>, { name: 'Joe'; age: 100 }>
+  >;
+
+  type test_AllOrNothing_does_not_accept_partial = AssertFalse<
+    Extends<AllOrNothing<Person>, { name: 'joe' }>
+  >;
+
+  type test_AllOrNothing_accepts_nothing = AssertTrue<
+    Extends<AllOrNothing<Person>, {}>
+  >;
+
+  type test_AllOrNothing = AssertTrue<
     AllTrue<
       [
-        AssertTrue<
-          Eq<
-            AllOrNothing<{ hello: 'world'; yes: 'no' }>,
-            { hello: 'world'; yes: 'no' }
-          >
-        >,
-        AssertFalse<
-          Eq<AllOrNothing<{ hello: 'world'; yes: 'no' }>, { hello: 'world' }>
-        >,
-        AssertTrue<Eq<AllOrNothing<{ hello: 'world'; yes: 'no' }>, {}>>
+        test_AllOrNothing_accepts_all,
+        test_AllOrNothing_does_not_accept_partial,
+        test_AllOrNothing_accepts_nothing
       ]
     >
   >;
 
   // @ts-ignore
-  type _all_tests = [_test_AllOrNothing];
+  type all_tests = [test_AllOrNothing];
 }
