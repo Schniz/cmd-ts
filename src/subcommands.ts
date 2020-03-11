@@ -1,170 +1,188 @@
-import { fromStr } from './fromStr';
-import { either, Either } from 'fp-ts/lib/Either';
-import * as t from 'io-ts';
-import { ParseError, Parser, Into } from './Parser';
-import { TypeRecord } from './composedType';
-import { ParseItem } from './argparse';
-import stripAnsi from 'strip-ansi';
-import { withMessage } from 'io-ts-types/lib/withMessage';
+// import { Runner, Into } from './runner';
+import {
+  ArgParser,
+  ParsingInto,
+  ParsingResult,
+  ParseContext,
+} from './argparser';
+import { positional } from './positional';
+import { From } from './from';
+import { Runner } from './runner';
+import { Aliased, Named, Descriptive } from './helpdoc';
 import chalk from 'chalk';
-import { contextToString } from './utils';
+import { circuitbreaker } from './circuitbreaker';
 
-type SubcommandConfig = Parser<any> | SubcommandConfigMap<any>;
+type Output<
+  Commands extends Record<string, ArgParser<any> & Runner<any, any>>
+> = {
+  [key in keyof Commands]: { command: key; args: ParsingInto<Commands[key]> };
+}[keyof Commands];
 
-type SubcommandConfigMap<T> = {
-  cmd: Parser<T>;
-  description?: string;
-  aliases?: string[];
-};
-
-type SubcommandConfigCmd<T extends SubcommandConfig> = T extends Parser<infer R>
-  ? Parser<R>
-  : T extends SubcommandConfigMap<infer R>
-  ? Parser<R>
-  : never;
-
-type SubcommandResult<Config extends Record<string, SubcommandConfig>> = {
-  [key in keyof Config]: {
+type RunnerOutput<
+  Commands extends Record<string, Runner<any, any> & ArgParser<any>>
+> = {
+  [key in keyof Commands]: {
     command: key;
-    args: Into<SubcommandConfigCmd<Config[key]>>;
+    value: Commands[key] extends Runner<any, infer X> ? X : never;
   };
-} extends infer X
-  ? X[keyof X]
-  : never;
-
-function isSubcommandMap(x: SubcommandConfig): x is SubcommandConfigMap<any> {
-  return (x as any).cmd;
-}
-
-function expandSubcommandConfig<X extends Record<string, SubcommandConfig>>(
-  config: X
-): { [key in keyof X]: SubcommandConfigMap<any> } {
-  const newConfig = {} as { [key in keyof X]: SubcommandConfigMap<any> };
-  for (const [configName, configValue] of Object.entries(config)) {
-    newConfig[configName as keyof X] = isSubcommandMap(configValue)
-      ? configValue
-      : { cmd: configValue, description: configValue.description };
-  }
-  return newConfig;
-}
+}[keyof Commands];
 
 /**
- * Creates a subcommand selection in order to compose multiple commands into one
- *
- * @example
- * ```ts
- * const install = command({ ... });
- * const uninstall = command({ ... });
- * const cli = subcommands({ install, uninstall });
- * const { command, args } = parse(cli, process.argv.slice(2));
- * ```
+ * Combine multiple `command`s into one
  */
-export function subcommands<Config extends Record<string, SubcommandConfig>>(
-  config: Config,
-  description?: string
-): Parser<SubcommandResult<Config>> {
-  const expandedConfig = expandSubcommandConfig(config);
-  const cmdNames = Object.keys(config);
-  const literals = cmdNames.map(x =>
-    literalWithAliases(x, expandedConfig[x].aliases ?? [])
-  );
-  const type: t.Type<keyof Config | '--help' | '-h', string> = withMessage(
-    t.union([t.literal('--help'), t.literal('-h'), t.union(literals as any)]),
-    () => {
-      return `Not a valid command. Must be one of: ${cmdNames}`;
-    }
-  );
+export function subcommands<
+  Commands extends Record<
+    string,
+    ArgParser<any> & Runner<any, any> & Partial<Descriptive & Aliased>
+  >
+>(config: {
+  name: string;
+  version?: string;
+  cmds: Commands;
+  description?: string;
+}): ArgParser<Output<Commands>> &
+  Named &
+  Partial<Descriptive> &
+  Runner<Output<Commands>, RunnerOutput<Commands>> {
+  const type: From<string, keyof Commands> = {
+    async from(str) {
+      const cmd = Object.entries(config.cmds)
+        .map(([name, cmd]) => {
+          return {
+            cmdName: name as keyof Commands,
+            names: [name, ...(cmd.aliases ?? [])],
+          };
+        })
+        .find(x => x.names.includes(str));
+      if (cmd) {
+        return { result: 'ok', value: cmd.cmdName };
+      }
+      return { result: 'error', message: 'Not a valid subcommand name' };
+    },
+  };
 
-  function showHelp(context: ParseItem[]): never {
-    const argsSoFar = contextToString(context);
+  const subcommand = positional({
+    displayName: 'subcommand',
+    description: 'one of ' + Object.keys(config.cmds).join(', '),
+    type,
+  });
 
-    console.log(argsSoFar + chalk.italic(' <subcommand>'));
-    console.log();
+  return {
+    description: config.description,
+    name: config.name,
+    handler: value => {
+      const cmd = config.cmds[value.command];
+      return cmd.handler(value.args);
+    },
+    register(opts) {
+      for (const cmd of Object.values(config.cmds)) {
+        cmd.register(opts);
+      }
+      circuitbreaker.register(opts);
+    },
+    printHelp(context) {
+      const argsSoFar = context.hotPath?.join(' ') ?? 'cli';
 
-    if (description) {
-      console.log(description);
+      console.log(chalk.bold(argsSoFar + chalk.italic(' <subcommand>')));
+
+      if (config.description) {
+        console.log(chalk.dim('> ') + config.description);
+      }
+
       console.log();
-    }
+      console.log(`where ${chalk.italic('<subcommand>')} can be one of:`);
+      console.log();
 
-    console.log(`${chalk.italic('<subcommand>')} can be one of:`);
-    console.log();
+      for (const key of Object.keys(config.cmds)) {
+        const cmd = config.cmds[key];
+        let description = cmd.description ?? '';
+        description = description && ' - ' + description + ' ';
+        if (cmd.aliases?.length) {
+          const aliasTxt = cmd.aliases.length === 1 ? 'alias' : 'aliases';
+          const aliases = cmd.aliases.join(', ');
+          description += chalk.dim(`[${aliasTxt}: ${aliases}]`);
+        }
+        const row = chalk.dim('- ') + key + description;
+        console.log(row.trim());
+      }
 
-    for (const key of cmdNames) {
-      let description = expandedConfig[key].description ?? '';
-      description = description && ' - ' + description;
-      console.log(chalk.dim('- ') + key + description);
-    }
+      const helpCommand = chalk.yellow(`${argsSoFar} <subcommand> --help`);
 
-    const helpCommand = `${stripAnsi(argsSoFar)} <subcommand> --help`;
+      console.log();
+      console.log(chalk.dim(`For more help, try running \`${helpCommand}\``));
 
-    console.log();
-    console.log(chalk.dim(`For more help, try running \`${helpCommand}\``));
+      process.exit(1);
+    },
+    async parse(
+      context: ParseContext
+    ): Promise<ParsingResult<Output<Commands>>> {
+      const parsed = await subcommand.parse(context);
 
-    process.exit(1);
-  }
-
-  function parse(
-    argv: string[],
-    context: ParseItem[] = []
-  ): Either<ParseError<TypeRecord>, SubcommandResult<Config>> {
-    const [commandName, ...args] = argv;
-
-    if (commandName === '--help' || commandName === '-h' || !commandName) {
-      showHelp(context);
-    }
-
-    const position = context.map(x => x.type === 'positional').length;
-    const key = `subcommand${position}`;
-
-    const newContext: ParseItem[] = [
-      ...context,
-      {
-        type: 'positional',
-        hide: true,
-        name: key,
-        input: commandName,
-        position,
-        forced: false,
-      },
-    ];
-    const command = either.mapLeft(
-      type.decode(commandName),
-      (errors): ParseError<TypeRecord> => {
+      if (parsed.outcome === 'failure') {
         return {
-          errors: { [key]: errors },
-          parsed: {
-            positional: [],
-            named: {
-              [key]: [commandName],
-            },
-            context: newContext,
-          },
-          commandConfig: {},
+          ...parsed,
+          partialValue: {},
         };
       }
-    );
-    return either.chain(command, cmdName => {
-      return either.map(
-        expandedConfig[cmdName].cmd.parse(args, newContext),
-        result => {
-          return { command: cmdName, args: result } as SubcommandResult<Config>;
+
+      context.hotPath?.push(parsed.value as string);
+
+      const cmd = config.cmds[parsed.value];
+      const parsedCommand = await cmd.parse(context);
+      if (parsedCommand.outcome === 'failure') {
+        return {
+          outcome: 'failure',
+          errors: parsedCommand.errors,
+          partialValue: {
+            command: parsed.value as any,
+            args: { ...parsedCommand.partialValue } as any,
+          },
+        };
+      }
+      return {
+        outcome: 'success',
+        value: { args: parsedCommand.value, command: parsed.value },
+      };
+    },
+    async run(context): Promise<ParsingResult<RunnerOutput<Commands>>> {
+      const parsedSubcommand = await subcommand.parse(context);
+
+      if (parsedSubcommand.outcome === 'failure') {
+        const breaker = await circuitbreaker.parse(context);
+        if (breaker.outcome === 'success') {
+          if (breaker.value === 'help') {
+            this.printHelp(context);
+            process.exit(1);
+          }
+
+          if (breaker.value === 'version') {
+            console.log(this.version || '0.0.0');
+            process.exit(0);
+          }
         }
-      );
-    });
-  }
 
-  return { parse };
-}
+        return { ...parsedSubcommand, partialValue: {} };
+      }
 
-function literalWithAliases<L extends string>(
-  literal: L,
-  aliases: string[]
-): t.Type<L, string> {
-  const options = [literal, ...aliases];
-  return fromStr((obj, ctx) => {
-    if (options.includes(obj)) {
-      return t.success(literal);
-    }
-    return t.failure(obj, ctx, 'expected one of ' + options);
-  });
+      context.hotPath?.push(parsedSubcommand.value as string);
+
+      const cmd = config.cmds[parsedSubcommand.value];
+      const commandRun = await cmd.run(context);
+
+      if (commandRun.outcome === 'success') {
+        return {
+          outcome: 'success',
+          value: { command: parsedSubcommand.value, value: commandRun.value },
+        };
+      }
+
+      return {
+        ...commandRun,
+        partialValue: {
+          command: parsedSubcommand.value,
+          value: commandRun.partialValue,
+        },
+      };
+    },
+  };
 }

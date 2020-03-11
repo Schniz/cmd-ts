@@ -1,28 +1,26 @@
 {
   "name": "clio-ts",
-  "version": "0.2.5",
+  "version": "0.3.0-beta-2",
   "homepage": "https://clio-ts.now.sh",
   "license": "MIT",
   "author": "Gal Schlezinger",
   "main": "dist/index.js",
-  "module": "dist/clio-ts.esm.js",
   "typings": "dist/index.d.ts",
   "files": [
     "dist"
   ],
   "scripts": {
-    "build": "tsdx build",
-    "lint": "tsdx lint",
+    "build": "tsc --rootDir src",
+    "lint": "eslint src/**/*.ts test/**/*.ts",
     "now-build": "typedoc --out public",
-    "prepare": "tsdx build",
     "run-example": "yarn --silent ts-node src/example/app.ts",
-    "start": "tsdx watch",
-    "test": "tsdx test",
+    "start": "tsc -w",
+    "test": "jest",
     "ts-node": "TS_NODE_TRANSPILE_ONLY=true node -r esm -r ts-node/register"
   },
   "husky": {
     "hooks": {
-      "pre-commit": "tsdx lint"
+      "pre-commit": "yarn lint"
     }
   },
   "prettier": {
@@ -33,35 +31,36 @@
   },
   "dependencies": {
     "chalk": "^3.0.0",
-    "io-ts-types": "^0.5.5",
-    "lodash.camelcase": "^4.3.0",
-    "lodash.kebabcase": "^4.1.1",
+    "eslint-config-prettier": "^6.10.0",
     "strip-ansi": "^6.0.0"
   },
   "devDependencies": {
+    "@types/fs-extra": "^8.1.0",
     "@types/jest": "^25.1.0",
-    "@types/lodash.camelcase": "^4.3.6",
-    "@types/lodash.kebabcase": "^4.1.6",
-    "@types/minimist": "^1.2.0",
+    "@types/node-fetch": "^2.5.5",
     "@types/request": "^2.48.4",
+    "@typescript-eslint/eslint-plugin": "^2.23.0",
+    "@typescript-eslint/parser": "^2.23.0",
     "docs-ts": "^0.3.4",
+    "eslint": "^6.8.0",
     "eslint-plugin-import": "^2.20.1",
+    "eslint-plugin-prettier": "^3.1.2",
     "esm": "^3.2.25",
-    "fp-ts": "^2.4.2",
+    "execa": "^4.0.0",
+    "fs-extra": "^8.1.0",
     "husky": "^4.2.1",
     "infer-types": "^0.0.2",
-    "io-ts": "^2.0.6",
+    "jest": "^25.1.0",
     "jest-junit": "^10.0.0",
+    "node-fetch": "^2.6.0",
+    "prettier": "^1.19.1",
     "request": "^2.88.0",
     "tempy": "^0.3.0",
+    "ts-jest": "^25.2.1",
     "ts-node": "^8.6.2",
-    "tsdx": "^0.12.3",
     "tslib": "^1.10.0",
     "typedoc": "^0.16.10",
     "typescript": "^3.7.5"
   },
-  "peerDependencies": {
-    "fp-ts": "^2.4.2",
-    "io-ts": "^2.0.6"
-  }
+  "peerDependencies": {}
 }

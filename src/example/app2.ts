@@ -1,53 +1,76 @@
 #!/usr/bin/env YARN_SILENT=1 yarn ts-node
 
-import { fromStr, binaryParser, command, single, t, bool, parse } from '..';
+import {
+  run,
+  boolean,
+  option,
+  Type,
+  flag,
+  extendType,
+  command,
+  string,
+} from '..';
 
 const getRepoUrl = () => 'my-repo-uri';
 
-const PrNumber = fromStr((branchName, ctx) => {
-  const prNumber = branchName === 'master' ? '10' : undefined;
+const PrNumber = extendType(string, {
+  async from(branchName) {
+    const prNumber = branchName === 'master' ? '10' : undefined;
 
-  if (!prNumber) {
-    return t.failure(
-      branchName,
-      ctx,
-      `There is no PR associated with branch '${branchName}'`
-    );
-  }
+    if (!prNumber) {
+      return {
+        result: 'error',
+        message: `There is no PR associated with branch '${branchName}'`,
+      };
+    }
 
-  return t.success(prNumber);
+    return { result: 'ok', value: prNumber };
+  },
+  defaultValue: () => 'Hello',
 });
+
+const Repo: Type<string, string> = {
+  ...string,
+  defaultValue: getRepoUrl,
+  description: 'repository uri',
+  displayName: 'uri',
+};
 
 const app = command({
-  user: { type: single(t.string), env: 'APP_USER', kind: 'named', short: 'u' },
-  password: {
-    type: single(t.string),
-    env: 'APP_PASS',
-    kind: 'named',
-    short: 'p',
+  name: 'build',
+  args: {
+    user: option({
+      type: string,
+      env: 'APP_USER',
+      long: 'user',
+      short: 'u',
+    }),
+    password: option({
+      type: string,
+      env: 'APP_PASS',
+      long: 'password',
+      short: 'p',
+    }),
+    repo: option({
+      type: Repo,
+      long: 'repo',
+      short: 'r',
+    }),
+    prNumber: option({
+      type: PrNumber,
+      short: 'b',
+      long: 'pr-number',
+      env: 'APP_BRANCH',
+    }),
+    dev: flag({
+      type: boolean,
+      long: 'dev',
+      short: 'D',
+    }),
   },
-  repo: {
-    type: single(t.string),
-    kind: 'named',
-    short: 'r',
-    defaultValue: getRepoUrl(),
-  },
-  prNumber: {
-    type: single(PrNumber),
-    kind: 'named',
-    short: 'b',
-    long: 'pr-number',
-    defaultValue: 'hello',
-    env: 'APP_BRANCH',
-  },
-  dev: {
-    type: single(bool),
-    kind: 'boolean',
-    defaultValue: false,
+  handler: ({ repo, user, password, prNumber, dev }) => {
+    console.log({ repo, user, password, prNumber, dev });
   },
 });
-const { repo, user, password, prNumber, dev } = parse(
-  binaryParser(app, 'app'),
-  process.argv
-);
-console.log({ repo, user, password, prNumber, dev });
+
+run(app, process.argv.slice(2));

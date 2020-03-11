@@ -2,106 +2,151 @@
 
 /* istanbul ignore file */
 
-import * as t from 'io-ts';
 import { Integer, ReadStream } from './test-types';
-import { command, subcommands, parse, binaryParser, single, bool } from '..';
+import {
+  command,
+  subcommands,
+  run,
+  binary,
+  string,
+  boolean,
+  flag,
+  option,
+  positional,
+  optional,
+} from '..';
+import { restPositionals } from '../restPositionals';
+import { extendType } from '../type';
 
-const y = command(
-  {
-    pos1: {
-      kind: 'positional',
+const complex = command({
+  args: {
+    pos1: positional({
       displayName: 'pos1',
       type: Integer,
-      description: 'some integer number',
-    },
-    named1: {
-      kind: 'named',
-      type: single(Integer),
+    }),
+    named1: option({
+      type: Integer,
       short: 'n',
       long: 'number',
-    },
-    bool: {
-      kind: 'boolean',
-      type: t.array(bool),
-      long: 'boolean',
-    },
-  },
-  'Just prints the arguments'
-);
-
-const withStream = command(
-  {
-    stream: {
-      kind: 'positional',
-      displayName: 'stream',
-      type: ReadStream,
-      description: 'A file/url to read',
-    },
-  },
-  'A simple `cat` clone'
-);
-
-const withSubcommands = subcommands(
-  {
-    hello: y,
-    cat: withStream,
-    greet: command({
-      name: {
-        kind: 'positional',
-        type: t.string,
-      },
-      noExclaim: {
-        kind: 'named',
-        type: single(bool),
-        long: 'no-exclaim',
-      },
-      greeting: {
-        kind: 'named',
-        type: single(t.string),
-        description: 'the greeting to say',
-        env: 'GREETING_NAME',
-        defaultValue: 'hello',
+    }),
+    optionalOption: option({
+      type: optional(string),
+      long: 'optional-option',
+    }),
+    optionWithDefault: option({
+      long: 'optional-with-default',
+      env: 'SOME_ENV_VAR',
+      type: {
+        ...string,
+        defaultValue: () => 'Hello',
+        defaultValueIsSerializable: true,
       },
     }),
-    composed: {
-      description: 'Another subcommand!',
-      cmd: subcommands({
-        cat: withStream,
-      }),
-      aliases: ['cmp'],
-    },
+    bool: flag({
+      type: boolean,
+      long: 'boolean',
+    }),
+    rest: restPositionals({
+      type: string,
+    }),
   },
-  `my wonderful multicommand app`
-);
+  name: 'printer',
+  description: 'Just prints the arguments',
+  handler: args => console.log(`I got`, args),
+});
 
-const cli = binaryParser(withSubcommands, 'app');
+const withStream = command({
+  args: {
+    stream: positional({
+      displayName: 'stream',
+      type: ReadStream,
+    }),
+  },
+  description: 'A simple `cat` clone',
+  name: 'cat',
+  aliases: ['read'],
+  handler: result => {
+    /** @export cat -> stream */
+    const stream = result.stream;
+    stream.pipe(process.stdout);
+  },
+});
+
+const composed = subcommands({
+  name: 'another-command',
+  cmds: {
+    cat: withStream,
+  },
+  description: 'a nested subcommand',
+});
+
+const Name = extendType(string, {
+  async from(s) {
+    if (s.length === 0) {
+      return { result: 'error', message: 'name cannot be empty' };
+    } else if (s === 'Bon Jovi') {
+      return {
+        result: 'error',
+        message: `Woah, we're half way there\nWoah! living on a prayer!`,
+      };
+    } else if (s.charAt(0).toUpperCase() === s.charAt(0)) {
+      return { result: 'ok', value: s };
+    } else {
+      return { result: 'error', message: 'name must be capitalized' };
+    }
+  },
+  displayName: 'name',
+});
+
+const withSubcommands = subcommands({
+  cmds: {
+    complex,
+    cat: withStream,
+    greet: command({
+      name: 'greet',
+      description: 'greet a person',
+      args: {
+        times: option({
+          type: { ...Integer, defaultValue: () => 1 },
+          long: 'times',
+        }),
+        name: positional({
+          displayName: 'name',
+          type: Name,
+        }),
+        noExclaim: flag({
+          type: boolean,
+          long: 'no-exclaim',
+        }),
+        greeting: option({
+          long: 'greeting',
+          type: string,
+          description: 'the greeting to say',
+          env: 'GREETING_NAME',
+        }),
+      },
+      handler: result => {
+        const args = result;
+        /** @export greet -> greeting */
+        const greeting = args.greeting;
+        /** @export greet -> noExclaim */
+        const noExclaim = args.noExclaim;
+        /** @export greet -> name */
+        const name = args.name;
+        const exclaim = noExclaim ? '' : '!';
+        console.log(`${greeting}, ${name}${exclaim}`);
+      },
+    }),
+    composed,
+  },
+  name: 'subcmds',
+  description: 'An awesome subcommand app!',
+});
+
+const cli = binary(withSubcommands);
 
 async function main() {
-  const result = parse(cli, process.argv);
-
-  if (result.command === 'cat') {
-    /** @export cat -> stream */
-    const stream = result.args.stream;
-    stream.pipe(process.stdout);
-  } else if (result.command === 'greet') {
-    const args = result.args;
-    /** @export greet -> greeting */
-    const greeting = args.greeting;
-    /** @export greet -> noExclaim */
-    const noExclaim = args.noExclaim;
-    /** @export greet -> name */
-    const name = args.name;
-    const exclaim = noExclaim ? '' : '!';
-    console.log(`${greeting}, ${name}${exclaim}`);
-  } else if (result.command === 'hello') {
-    console.log(result.args.bool);
-  } else if (result.command === 'composed' && result.args.command === 'cat') {
-    /** @export composed -> cat -> stream */
-    const stream = result.args.args.stream;
-    stream.pipe(process.stdout);
-  } else {
-    console.log(result);
-  }
+  await run(cli, process.argv);
 }
 
 main();

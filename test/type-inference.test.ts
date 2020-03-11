@@ -9,6 +9,5 @@ test('types are inferred correctly', () => {
     'greet -> greeting': 'string',
     'greet -> name': 'string',
     'greet -> noExclaim': 'boolean',
-    'composed -> cat -> stream': 'Stream',
   });
 });
