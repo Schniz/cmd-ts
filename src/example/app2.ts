@@ -2,7 +2,6 @@
 
 import {
   run,
-  binary,
   boolean,
   option,
   Type,
@@ -74,4 +73,4 @@ const app = command({
   },
 });
 
-run(binary(app), process.argv);
+run(app, process.argv.slice(2));

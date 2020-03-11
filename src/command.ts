@@ -115,6 +115,10 @@ export function command<
     async parse(
       context: ParseContext
     ): Promise<ParsingResult<Output<Arguments>>> {
+      if (context.hotPath?.length === 0) {
+        context.hotPath.push(config.name);
+      }
+
       const resultObject = {} as Output<Arguments>;
       const errors: ParsingError[] = [];
 
