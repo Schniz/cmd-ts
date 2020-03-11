@@ -4,7 +4,11 @@ import stripAnsi from 'strip-ansi';
 /**
  * @ignore
  */
-export function padNoAnsi(str: string, length: number, place: 'end' | 'start') {
+export function padNoAnsi(
+  str: string,
+  length: number,
+  place: 'end' | 'start'
+): string {
   const noAnsiStr = stripAnsi(str);
   if (length < noAnsiStr.length) return str;
   const pad = Array(length - noAnsiStr.length + 1).join(' ');
