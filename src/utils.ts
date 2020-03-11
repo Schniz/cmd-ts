@@ -94,13 +94,12 @@ export type AllOrNothing<T> = T | { [key in keyof T]?: never };
 namespace Tests {
   // @ts-ignore
   type Eq<A, B> = B extends A ? 'true' : 'false';
-  // @ts-ignore
-  type AssertTrue<A extends 'true'> = 'okay';
-  // @ts-ignore
-  type AssertFalse<A extends 'false'> = 'okay';
+  type AssertTrue<A extends 'true'> = Eq<'true', A>;
+  type AssertFalse<A extends 'false'> = Eq<'false', A>;
+  type AllTrue<A extends 'true'[]> = Eq<'true'[], A>;
+
   type _test_AllOrNothing = AssertTrue<
-    Eq<
-      'okay'[],
+    AllTrue<
       [
         AssertTrue<
           Eq<
