@@ -90,6 +90,7 @@ export type AllOrNothing<T> = T | { [key in keyof T]?: never };
 
 // lots of ts hackery to unit test a type hehe
 // @ts-ignore
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 namespace Tests {
   // @ts-ignore
   type Eq<A, B> = B extends A ? 'true' : 'false';
