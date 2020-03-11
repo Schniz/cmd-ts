@@ -4,7 +4,7 @@ exports[`asynchronous type conversion works for failures 1`] = `
 "[31m[1merror: [22m[39mfound [33m1[39m error
 
   [2msubcmds[22m [2mcomposed[22m [2mcat[22m [31mhttps://httpstat.us/404[39m
-                       [31m[1m^[22m Got status Not Found 404 reading URL[39m
+[31m                       [1m^[22m Got status Not Found 404 reading URL[39m
 
 
 [31m[1mhint: [22m[39mfor more information, try '[33msubcmds composed cat --help[39m'"
@@ -16,10 +16,10 @@ exports[`composes errors 1`] = `
 "[31m[1merror: [22m[39mfound [33m3[39m errors
 
   [2msubcmds[22m [2mgreet[22m [31m--times=not-a-number[39m [2mnot-capitalized[22m
-                [31m[1m^[22m Not a number[39m
+[31m                [1m^[22m Not a number[39m
 
   [2msubcmds[22m [2mgreet[22m [2m--times=not-a-number[22m [31mnot-capitalized[39m
-                                     [31m[1m^[22m name must be capitalized[39m
+[31m                                     [1m^[22m name must be capitalized[39m
 
 Along the following error:
   [31m[1m3.[22m[39m [31mNo value provided for --greeting[39m
@@ -87,17 +87,30 @@ exports[`invalid subcommand 1`] = `
 "[31m[1merror: [22m[39mfound [33m1[39m error
 
   [2msubcmds[22m [31msubcommand-that-doesnt-exist[39m
-          [31m[1m^[22m Not a valid subcommand name[39m
+[31m          [1m^[22m Not a valid subcommand name[39m
 
 
 [31m[1mhint: [22m[39mfor more information, try '[33msubcmds --help[39m'"
+`;
+
+exports[`multiline error 1`] = `
+"[31m[1merror: [22m[39mfound [33m2[39m errors
+
+  [2msubcmds[22m [2mgreet[22m [31mBon Jovi[39m
+[31m                [1m^[22m Woah, we're half way there[39m
+[31m                  Woah! living on a prayer![39m
+
+Along the following error:
+  [31m[1m2.[22m[39m [31mNo value provided for --greeting[39m
+
+[31m[1mhint: [22m[39mfor more information, try '[33msubcmds greet --help[39m'"
 `;
 
 exports[`too many arguments 1`] = `
 "[31m[1merror: [22m[39mfound [33m1[39m error
 
   [2msubcmds[22m [31m--this=will-be-an-error[39m [2mcat[22m [2mpackage.json[22m [31malso this[39m [31m--and-also-this[39m
-          [31m[1m^[22m Unknown arguments[39m
+[31m          [1m^[22m Unknown arguments[39m
 
 
 [31m[1mhint: [22m[39mfor more information, try '[33msubcmds cat --help[39m'"

@@ -84,6 +84,11 @@ const Name = extendType(string, {
   async from(s) {
     if (s.length === 0) {
       return { result: 'error', message: 'name cannot be empty' };
+    } else if (s === 'Bon Jovi') {
+      return {
+        result: 'error',
+        message: `Woah, we're half way there\nWoah! living on a prayer!`,
+      };
     } else if (s.charAt(0).toUpperCase() === s.charAt(0)) {
       return { result: 'ok', value: s };
     } else {

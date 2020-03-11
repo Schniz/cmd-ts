@@ -10,7 +10,7 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsc",
+    "build": "tsc --rootDir src",
     "lint": "eslint src/**/*.ts test/**/*.ts",
     "now-build": "typedoc --out public",
     "run-example": "yarn --silent ts-node src/example/app.ts",

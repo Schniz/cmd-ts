@@ -1,7 +1,7 @@
 import { ParsingError } from './argparser';
 import chalk from 'chalk';
 import { AstNode } from './newparser/parser';
-import { padNoAnsi } from './utils';
+import { padNoAnsi, enumerate } from './utils';
 import stripAnsi from 'strip-ansi';
 
 type HighlightResult = { colorized: string; errorIndex: number };
@@ -95,10 +95,14 @@ export function errorBox(
         throw new Error('WELP');
       }
 
-      const msg = chalk.red(`${chalk.bold('^')} ${x.message}`);
+      const pad = ''.padStart(x.highlighted.errorIndex);
 
       errorMessages.push(`  ${x.highlighted.colorized}`);
-      errorMessages.push(`  ${''.padStart(x.highlighted.errorIndex)} ${msg}`);
+      for (const [index, line] of enumerate(x.message.split("\n"))) {
+        const prefix = index === 0 ? chalk.bold('^') : ' ';
+        const msg = chalk.red(`  ${pad} ${prefix} ${line}`);
+        errorMessages.push(msg)
+      }
       errorMessages.push('');
       number++;
     });

@@ -41,6 +41,12 @@ test('composes errors', async () => {
   expect(result.exitCode).toBe(1);
 });
 
+test('multiline error', async () => {
+  const result = await runApp(['greet', 'Bon Jovi']);
+  expect(result.all).toMatchSnapshot();
+  expect(result.exitCode).toBe(1);
+});
+
 test('help for composed subcommands', async () => {
   const result = await runApp(['composed', '--help']);
   expect(result.all).toMatchSnapshot();

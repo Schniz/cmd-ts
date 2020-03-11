@@ -1,6 +1,6 @@
 {
-  "include": ["src", "types", "example"],
-  "exclude": ["dist", "test", "src/example"],
+  "include": ["src", "test", "scripts"],
+  "exclude": ["dist", "src/example"],
   "compilerOptions": {
     "target": "es2018",
     "module": "commonjs",
@@ -10,7 +10,7 @@
     "declaration": true,
     "sourceMap": true,
     "outDir": "./dist",
-    "rootDir": "./src",
+    "rootDir": "./",
     "strict": true,
     "noImplicitAny": true,
     "strictNullChecks": true,
