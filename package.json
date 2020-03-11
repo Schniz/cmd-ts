@@ -15,7 +15,7 @@
     "now-build": "typedoc --out public",
     "run-example": "yarn --silent ts-node src/example/app.ts",
     "start": "tsc -w",
-    "test": "jest --watch",
+    "test": "jest",
     "ts-node": "TS_NODE_TRANSPILE_ONLY=true node -r esm -r ts-node/register"
   },
   "husky": {
