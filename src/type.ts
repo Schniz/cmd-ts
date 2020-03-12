@@ -7,21 +7,27 @@ export { identity, OutputOf, InputOf } from './from';
 export type Type<From_, To> = From<From_, To> &
   Partial<Descriptive & Displayed & Default<To>>;
 
-function fromFn<A, B>(t: FromFn<A, B> | From<A, B>): FromFn<A, B> {
-  if (typeof t === 'function') {
-    return t;
-  } else {
-    return t.from;
-  }
-}
-
-function typeDef<T extends From<any, any> | FromFn<any, any>>(
+/**
+ * Get the type definitions or an empty object from a type or a decoding function
+ */
+export function typeDef<T extends From<any, any> | FromFn<any, any>>(
   from: T
 ): T extends FromFn<any, any> ? {} : Omit<T, 'from'> {
   if (typeof from === 'function') {
     return {} as any;
   } else {
     return from as any;
+  }
+}
+
+/**
+ * Get the decoding function from a type or a function
+ */
+export function fromFn<A, B>(t: FromFn<A, B> | From<A, B>): FromFn<A, B> {
+  if (typeof t === 'function') {
+    return t;
+  } else {
+    return t.from;
   }
 }
 
@@ -70,6 +76,7 @@ export function extendType<
   };
 }
 
+/** Contains a type definition inside */
 export type HasType<T extends Type<any, any>> = {
   /** The value decoding strategy for this item */
   type: T;

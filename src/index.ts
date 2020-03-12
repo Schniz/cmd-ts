@@ -18,3 +18,4 @@ export { run, Runner } from './runner';
 export { restPositionals } from './restPositionals';
 export { multiflag } from './multiflag';
 export { multioption } from './multioption';
+export { union } from './union';
