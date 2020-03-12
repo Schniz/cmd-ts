@@ -10,11 +10,12 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsc -p ./tsconfig.build.json",
+    "build": "tsc",
     "lint": "eslint src/**/*.ts test/**/*.ts",
     "now-build": "typedoc --out public",
     "run-example": "yarn --silent ts-node src/example/app.ts",
-    "start": "tsc -w",
+    "start": "yarn build --watch",
+    "prepublishOnly": "yarn build && yarn test",
     "test": "jest",
     "ts-node": "TS_NODE_TRANSPILE_ONLY=true node -r esm -r ts-node/register"
   },
