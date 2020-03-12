@@ -12,6 +12,10 @@ export function union<T1 extends Any, T2s extends Any<InputOf<T1>>>(
   {
     combineErrors = errors => errors.join('\n'),
   }: {
+    /**
+     * Combine all the errors produced by the types.
+     * Defaults to joining them with a newline.
+     */
     combineErrors?(errors: string[]): string;
   } = {}
 ): Type<InputOf<T1>, OutputOf<T1 | T2s>> {
