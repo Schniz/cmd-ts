@@ -9,6 +9,11 @@ type Any<A = any> = FromFn<A, any> | From<A, any>;
  */
 export function union<T1 extends Any, T2s extends Any<InputOf<T1>>>(
   ts: [T1, ...T2s[]],
+  {
+    combineErrors = errors => errors.join('\n'),
+  }: {
+    combineErrors?(errors: string[]): string;
+  } = {}
 ): Type<InputOf<T1>, OutputOf<T1 | T2s>> {
   const merged = Object.assign({}, ...ts.map(x => typeDef(x)));
   return {
@@ -24,7 +29,7 @@ export function union<T1 extends Any, T2s extends Any<InputOf<T1>>>(
         errors.push(decoded.message);
       }
 
-      return { result: 'error', message: errors.join('\n') };
+      return { result: 'error', message: combineErrors(errors) };
     },
   };
 }
