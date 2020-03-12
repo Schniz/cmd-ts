@@ -1,5 +1,5 @@
 {
-  "include": ["src", "test", "scripts"],
+  "include": ["src", "test", "scripts", "example"],
   "exclude": ["dist", "src/example"],
   "compilerOptions": {
     "target": "es2018",

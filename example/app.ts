@@ -14,9 +14,9 @@ import {
   option,
   positional,
   optional,
-} from '..';
-import { restPositionals } from '../restPositionals';
-import { extendType } from '../type';
+  restPositionals,
+  extendType,
+} from '../src';
 
 const complex = command({
   args: {

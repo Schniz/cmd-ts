@@ -4,7 +4,7 @@ import { Stream } from 'stream';
 import { stat, pathExists, createReadStream } from 'fs-extra';
 import fetch from 'node-fetch';
 import URL from 'url';
-import { Type, extendType, number } from '..';
+import { Type, extendType, number } from '../src';
 
 export const Integer: Type<string, number> = extendType(number, {
   async from(n) {

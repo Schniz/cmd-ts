@@ -9,7 +9,7 @@ import {
   extendType,
   command,
   string,
-} from '..';
+} from '../src';
 
 const getRepoUrl = () => 'my-repo-uri';
 
