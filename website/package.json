@@ -1,0 +1,23 @@
+{
+  "name": "docs",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "ansi-to-react": "^6.0.5",
+    "chalk": "^3.0.0",
+    "classnames": "^2.2.6",
+    "execa": "^4.0.0",
+    "next": "9.3.0",
+    "react": "16.13.0",
+    "react-dom": "16.13.0"
+  },
+  "devDependencies": {
+    "@types/classnames": "^2.2.10",
+    "@types/react": "^16.9.23"
+  }
+}
