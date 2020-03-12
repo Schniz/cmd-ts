@@ -2,6 +2,7 @@
 
 - [Introduction](./introduction.md)
 - [Getting Started](./getting_started.md)
+- [Included Types](./included_types.md)
 - [Custom Types](./custom_types.md)
 - [Parsers and Combinators](./parsers.md)
   - [Positional Arguments](./parsers/positionals.md)
