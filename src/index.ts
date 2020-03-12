@@ -1,7 +1,5 @@
 /**
- * The index module: the entrance to the world of clio-ts 😎
- *
- * Also export the entire `io-ts` module as `t`, for convenience.
+ * The index module: the entrance to the world of cmd-ts 😎
  *
  * @packageDocumentation
  */
