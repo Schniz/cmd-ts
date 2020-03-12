@@ -90,4 +90,7 @@ export function flatMap<A, B>(xs: A[], fn: (a: A) => B[]): B[] {
   return results;
 }
 
+/**
+ * Either the provided `T` or an empty object
+ */
 export type AllOrNothing<T> = T | { [key in keyof T]?: never };

@@ -1,19 +1,23 @@
 export type DecodeResult<T> =
   | { result: 'ok'; value: T }
   | { result: 'error'; message: string };
+
+export type FromFn<A, B> = (input: A) => Promise<DecodeResult<B>>;
+
 export type From<A, B> = {
   /**
    * Convert `input` safely and asynchronously into an output.
    */
-  from(input: A): Promise<DecodeResult<B>>;
+  from: FromFn<A, B>;
 };
 export type FromString<T> = From<string, T>;
 export type FromStringArray<T> = From<string[], T>;
 
-export type OutputOf<F extends From<any, any>> = F extends From<
-  any,
-  infer Output
->
+export type OutputOf<
+  F extends From<any, any> | FromFn<any, any>
+> = F extends From<any, infer Output>
+  ? Output
+  : F extends FromFn<any, infer Output>
   ? Output
   : never;
 
