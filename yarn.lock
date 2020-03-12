@@ -984,6 +984,11 @@ capture-exit@^2.0.0:
   dependencies:
     rsvp "^4.8.4"
 
+cargo-mdbook@^0.3.5:
+  version "0.3.5"
+  resolved "https://registry.npmjs.org/cargo-mdbook/-/cargo-mdbook-0.3.5.tgz#5effdd2d8c4d78f22220e56c7fe76241fb5bd799"
+  integrity sha512-2oTrg7aAFiXRszigzV/5BXO/9LwbqJREP83xyq1iG0l4E8qL7EtqTSISp1OuYHwz6bullEfwAkZiFpe+RyaVgQ==
+
 caseless@~0.12.0:
   version "0.12.0"
   resolved "https://registry.npmjs.org/caseless/-/caseless-0.12.0.tgz#1b681c21ff84033c826543090689420d187151dc"
