@@ -1,8 +1,8 @@
-# `clio-ts`
+# `cli-ts`
 
 > 💻 A type-driven command line argument parser, with awesome error reporting 🤤
 
-Not all command line arguments are strings, but for some reason, our CLI parsers force us to use strings everywhere. 🤔 `clio-ts` is a fully-fledged command line argument parser, influenced by Rust's [`clap`](https://github.com/clap-rs/clap) and [`structopt`](https://github.com/TeXitoi/structopt):
+Not all command line arguments are strings, but for some reason, our CLI parsers force us to use strings everywhere. 🤔 `cli-ts` is a fully-fledged command line argument parser, influenced by Rust's [`clap`](https://github.com/clap-rs/clap) and [`structopt`](https://github.com/TeXitoi/structopt):
 
 🤩 Awesome autocomplete, awesome safeness
 
@@ -13,7 +13,7 @@ Not all command line arguments are strings, but for some reason, our CLI parsers
 ### Basic usage
 
 ```ts
-import { command, run, string, number, positional, option } from 'clio-ts';
+import { command, run, string, number, positional, option } from 'cli-ts';
 
 const cmd = command({
   name: 'my-command',
@@ -51,7 +51,7 @@ Let's say we're about to write a `cat` clone. We want to accept a file to read i
 ```ts
 // my-app.ts
 
-import { command, run, positional, string } from 'clio-ts';
+import { command, run, positional, string } from 'cli-ts';
 
 const app = command({
   /// name: ...,
@@ -73,12 +73,12 @@ That works okay. But we can do better. In which ways?
 - Error handling is out of the command line argument parser context, and in userland, making things less consistent and pretty.
 - It shows we lack composability and encapsulation — and we miss a way to distribute shared "command line" behavior.
 
-What if we had a way to get a `Stream` out of the parser, instead of a plain string? This is where `clio-ts` gets its power from, custom type decoding:
+What if we had a way to get a `Stream` out of the parser, instead of a plain string? This is where `cli-ts` gets its power from, custom type decoding:
 
 ```ts
 // ReadStream.ts
 
-import { Type } from 'clio-ts';
+import { Type } from 'cli-ts';
 import fs from 'fs';
 
 // Type<string, Stream> reads as "A type from `string` to `Stream`"
@@ -99,7 +99,7 @@ Now we can use (and share) this type and always get a `Stream`, instead of carry
 ```ts
 // my-app.ts
 
-import { command, run, positional } from 'clio-ts';
+import { command, run, positional } from 'cli-ts';
 
 const app = command({
   // name: ...,
@@ -123,4 +123,4 @@ And the best thing about it — everything is encapsulated to an easily tested t
 
 ## Inspiration
 
-This project is called `clio-ts`, because it was based on `io-ts`. This is no longer the case, because I want to reduce the dependency count and mental overhead. I might have a function to migrate types between the two.
+This project was previously called `cli-ts`, because it was based on `io-ts`. This is no longer the case, because I want to reduce the dependency count and mental overhead. I might have a function to migrate types between the two.
