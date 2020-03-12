@@ -16,6 +16,7 @@ import {
   optional,
   restPositionals,
   extendType,
+  union,
 } from '../src';
 
 const complex = command({
@@ -28,6 +29,10 @@ const complex = command({
       type: Integer,
       short: 'n',
       long: 'number',
+    }),
+    intOrString: option({
+      type: union([Integer, string]),
+      long: 'int-or-string',
     }),
     optionalOption: option({
       type: optional(string),
@@ -52,7 +57,11 @@ const complex = command({
   },
   name: 'printer',
   description: 'Just prints the arguments',
-  handler: args => console.log(`I got`, args),
+  handler: args => {
+    /** @export complex -> intOrString */
+    const x = args.intOrString;
+    console.log(`I got`, args, x);
+  },
 });
 
 const withStream = command({

@@ -6,6 +6,7 @@ test('types are inferred correctly', () => {
   const types = getTypes(filepath);
   expect(types).toEqual({
     'cat -> stream': 'Stream',
+    'complex -> intOrString': 'string | number',
     'greet -> greeting': 'string',
     'greet -> name': 'string',
     'greet -> noExclaim': 'boolean',
