@@ -86,10 +86,10 @@ const ReadStream: Type<string, Stream> = {
   async from(str) {
     if (!fs.existsSync(str)) {
       // Here is our error handling!
-      return { result: 'error', message: 'File not found' };
+      throw new Error('File not found');
     }
 
-    return { result: 'ok', value: fs.createReadStream(str) };
+    return fs.createReadStream(str);
   },
 };
 ```

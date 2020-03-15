@@ -17,14 +17,16 @@ test('fails on specific positional', async () => {
 
   const result = argparser.parse({ nodes, visitedNodes: new Set() });
 
-  await expect(result).resolves.toEqual(Either.err({
-    errors: [
-      {
-        nodes: nodes.filter(x => x.raw === 'hello'),
-        message: 'Not a number',
-      },
-    ],
-  }));
+  await expect(result).resolves.toEqual(
+    Either.err({
+      errors: [
+        {
+          nodes: nodes.filter(x => x.raw === 'hello'),
+          message: 'Not a number',
+        },
+      ],
+    })
+  );
 });
 
 test('succeeds when all unused positional decode successfuly', async () => {
