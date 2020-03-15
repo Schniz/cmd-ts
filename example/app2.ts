@@ -11,8 +11,6 @@ import {
   string,
 } from '../src';
 
-const getRepoUrl = () => 'my-repo-uri';
-
 const PrNumber = extendType(string, {
   async from(branchName) {
     const prNumber = branchName === 'master' ? '10' : undefined;
@@ -31,7 +29,9 @@ const PrNumber = extendType(string, {
 
 const Repo: Type<string, string> = {
   ...string,
-  defaultValue: getRepoUrl,
+  defaultValue: () => {
+    throw new Error("Can't infer repo from git");
+  },
   description: 'repository uri',
   displayName: 'uri',
 };

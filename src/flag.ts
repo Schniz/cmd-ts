@@ -65,15 +65,17 @@ export function flag<Decoder extends Type<boolean, any>>(
         defaults.push(`env: ${config.env}${env}`);
       }
 
-      const defaultValueFn = config.defaultValue ?? config.type.defaultValue;
-      const defaultValueIsSerializable =
-        config.defaultValueIsSerializable ??
-        config.type.defaultValueIsSerializable;
+      try {
+        const defaultValueFn = config.defaultValue ?? config.type.defaultValue;
+        const defaultValueIsSerializable =
+          config.defaultValueIsSerializable ??
+          config.type.defaultValueIsSerializable;
 
-      if (defaultValueFn && defaultValueIsSerializable) {
-        const defaultValue = defaultValueFn();
-        defaults.push('default: ' + chalk.italic(defaultValue));
-      }
+        if (defaultValueFn && defaultValueIsSerializable) {
+          const defaultValue = defaultValueFn();
+          defaults.push('default: ' + chalk.italic(defaultValue));
+        }
+      } catch (e) {}
 
       return [
         {
@@ -124,7 +126,15 @@ export function flag<Decoder extends Type<boolean, any>>(
         options.length === 0 &&
         typeof config.type.defaultValue === 'function'
       ) {
-        return { outcome: 'success', value: config.type.defaultValue() };
+        try {
+          return { outcome: 'success', value: config.type.defaultValue() };
+        } catch (e) {
+          const message = `Can't read default value for '--${config.long}': ${e.message}`;
+          return {
+            outcome: 'failure',
+            errors: [{ message, nodes: [] }],
+          };
+        }
       } else if (options.length === 1) {
         rawValue = options[0].value?.node.raw ?? 'true';
       } else {
