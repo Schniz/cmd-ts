@@ -91,6 +91,19 @@ export function flatMap<A, B>(xs: A[], fn: (a: A) => B[]): B[] {
 }
 
 /**
+ * Flatten an array
+ *
+ * @ignore
+ */
+export function flatten<A>(xs: A[][]): A[] {
+  const results: A[] = [];
+  for (const x of xs) {
+    results.push(...x);
+  }
+  return results;
+}
+
+/**
  * Either the provided `T` or an empty object
  */
 export type AllOrNothing<T> = T | { [key in keyof T]?: never };

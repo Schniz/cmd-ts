@@ -1,26 +1,26 @@
-import execa from 'execa';
+import execa, { ExecaReturnValue } from 'execa';
 import path from 'path';
 
 test('help for subcommands', async () => {
-  const result = await runApp(['--help']);
+  const result = await runApp1(['--help']);
   expect(result.all).toMatchSnapshot();
   expect(result.exitCode).toBe(1);
 });
 
 test('invalid subcommand', async () => {
-  const result = await runApp(['subcommand-that-doesnt-exist']);
+  const result = await runApp1(['subcommand-that-doesnt-exist']);
   expect(result.all).toMatchSnapshot();
   expect(result.exitCode).toBe(1);
 });
 
 test('help for complex command', async () => {
-  const result = await runApp(['complex', '--help']);
+  const result = await runApp1(['complex', '--help']);
   expect(result.all).toMatchSnapshot();
   expect(result.exitCode).toBe(1);
 });
 
 test('too many arguments', async () => {
-  const result = await runApp([
+  const result = await runApp1([
     '--this=will-be-an-error',
     'cat',
     path.relative(process.cwd(), path.join(__dirname, '../package.json')),
@@ -32,7 +32,7 @@ test('too many arguments', async () => {
 });
 
 test('composes errors', async () => {
-  const result = await runApp([
+  const result = await runApp1([
     'greet',
     '--times=not-a-number',
     'not-capitalized',
@@ -42,48 +42,60 @@ test('composes errors', async () => {
 });
 
 test('multiline error', async () => {
-  const result = await runApp(['greet', 'Bon Jovi']);
+  const result = await runApp1(['greet', 'Bon Jovi']);
   expect(result.all).toMatchSnapshot();
   expect(result.exitCode).toBe(1);
 });
 
 test('help for composed subcommands', async () => {
-  const result = await runApp(['composed', '--help']);
+  const result = await runApp1(['composed', '--help']);
   expect(result.all).toMatchSnapshot();
   expect(result.exitCode).toBe(1);
 });
 
 test('help for composed subcommand', async () => {
-  const result = await runApp(['composed', 'cat', '--help']);
+  const result = await runApp1(['composed', 'cat', '--help']);
   expect(result.all).toMatchSnapshot();
   expect(result.exitCode).toBe(1);
 });
 
 test('asynchronous type conversion works for failures', async () => {
-  const result = await runApp(['composed', 'cat', 'https://httpstat.us/404']);
+  const result = await runApp1(['composed', 'cat', 'https://httpstat.us/404']);
   expect(result.all).toMatchSnapshot();
   expect(result.exitCode).toBe(1);
 });
 
 test('asynchronous type conversion works for success', async () => {
-  const result = await runApp(['composed', 'cat', 'https://httpstat.us/200']);
+  const result = await runApp1(['composed', 'cat', 'https://httpstat.us/200']);
   expect(result.all).toMatchSnapshot();
   expect(result.exitCode).toBe(0);
 });
 
-async function runApp(args: string[]) {
-  jest.setTimeout(10000);
-  const scriptPath = path.join(__dirname, '../example/app.ts');
-  const result = await execa(
-    path.join(__dirname, '../scripts/ts-node'),
-    [scriptPath, ...args],
-    {
-      all: true,
-      reject: false,
-      env: {
-        FORCE_COLOR: 'true',
-      },
-    }
-  );
-  return result;
+test('failures in defaultValue', async () => {
+  const result = await runApp2([]);
+  expect(result.all).toMatchSnapshot();
+  expect(result.exitCode).toBe(1);
+});
+
+const runApp1 = app(path.join(__dirname, '../example/app.ts'));
+const runApp2 = app(path.join(__dirname, '../example/app2.ts'));
+
+function app(
+  scriptPath: string
+): (args: string[]) => Promise<ExecaReturnValue> {
+  return async args => {
+    jest.setTimeout(10000);
+    const result = await execa(
+      path.join(__dirname, '../scripts/ts-node'),
+      [scriptPath, ...args],
+      {
+        all: true,
+        reject: false,
+        env: {
+          FORCE_COLOR: 'true',
+        },
+      }
+    );
+    return result;
+  };
 }

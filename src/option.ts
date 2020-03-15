@@ -58,15 +58,17 @@ export function option<Decoder extends Type<string, any>>(
       const defaultValueFn = config.defaultValue ?? config.type.defaultValue;
 
       if (defaultValueFn) {
-        const defaultValue = defaultValueFn();
-        if (
-          config.defaultValueIsSerializable ??
-          config.type.defaultValueIsSerializable
-        ) {
-          defaults.push('default: ' + chalk.italic(defaultValue));
-        } else {
-          defaults.push('optional');
-        }
+        try {
+          const defaultValue = defaultValueFn();
+          if (
+            config.defaultValueIsSerializable ??
+            config.type.defaultValueIsSerializable
+          ) {
+            defaults.push('default: ' + chalk.italic(defaultValue));
+          } else {
+            defaults.push('optional');
+          }
+        } catch (e) {}
       }
 
       return [
@@ -116,10 +118,23 @@ export function option<Decoder extends Type<string, any>>(
         rawValue = valueFromEnv;
         envPrefix = `env[${chalk.italic(config.env)}]: `;
       } else if (!option && typeof defaultValueFn === 'function') {
-        return {
-          outcome: 'success',
-          value: defaultValueFn(),
-        };
+        try {
+          return {
+            outcome: 'success',
+            value: defaultValueFn(),
+          };
+        } catch (e) {
+          const message = `Default value not found for '--${config.long}': ${e.message}`;
+          return {
+            outcome: 'failure',
+            errors: [
+              {
+                nodes: [],
+                message,
+              },
+            ],
+          };
+        }
       } else {
         const raw =
           option?.type === 'shortOption'
