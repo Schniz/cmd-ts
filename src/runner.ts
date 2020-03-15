@@ -3,6 +3,7 @@ import { ParseContext, ParsingResult, Register } from './argparser';
 import { tokenize } from './newparser/tokenizer';
 import { parse } from './newparser/parser';
 import { errorBox } from './errorBox';
+import { isLeft } from './either';
 
 export type Handling<Values, Result> = { handler: (values: Values) => Result };
 
@@ -36,8 +37,8 @@ export async function run<R extends Runner<any, any>>(
   });
   const result = await ap.run({ nodes, visitedNodes: new Set(), hotPath });
 
-  if (result.outcome === 'failure') {
-    console.error(errorBox(nodes, result.errors, hotPath));
+  if (isLeft(result)) {
+    console.error(errorBox(nodes, result.error.errors, hotPath));
     process.exit(1);
   } else {
     return result.value;

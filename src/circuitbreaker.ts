@@ -3,6 +3,7 @@ import { boolean } from './types';
 import { flag } from './flag';
 import { ProvidesHelp } from './helpdoc';
 import { flatMap } from './utils';
+import * as Either from './either';
 
 type CircuitBreaker = 'help' | 'version';
 
@@ -40,26 +41,25 @@ export const circuitbreaker: ArgParser<CircuitBreaker> & ProvidesHelp = {
     const help = await helpFlag.parse(context);
     const version = await versionFlag.parse(context);
 
-    if (help.outcome === 'failure' || version.outcome === 'failure') {
-      const helpErrors = help.outcome === 'failure' ? help.errors : [];
-      const versionErrors = version.outcome === 'failure' ? version.errors : [];
-      return { outcome: 'failure', errors: [...helpErrors, ...versionErrors] };
+    if (Either.isLeft(help) || Either.isLeft(version)) {
+      const helpErrors = Either.isLeft(help) ? help.error.errors : [];
+      const versionErrors = Either.isLeft(version) ? version.error.errors : [];
+      return Either.err({ errors: [...helpErrors, ...versionErrors] });
     }
 
     if (help.value) {
-      return { outcome: 'success', value: 'help' };
+      return Either.ok('help');
     } else if (version.value) {
-      return { outcome: 'success', value: 'version' };
+      return Either.ok('version');
     } else {
-      return {
-        outcome: 'failure',
+      return Either.err({
         errors: [
           {
             nodes: [],
             message: 'Neither help nor version',
           },
         ],
-      };
+      });
     }
   },
 };

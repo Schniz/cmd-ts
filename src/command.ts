@@ -18,6 +18,7 @@ import {
 import { padNoAnsi, entries, groupBy, flatMap } from './utils';
 import { Runner } from './runner';
 import { circuitbreaker } from './circuitbreaker';
+import * as Either from './either';
 
 type ArgTypes = Record<string, ArgParser<any> & Partial<ProvidesHelp>>;
 type HandlerFunc<Args extends ArgTypes> = (args: Output<Args>) => any;
@@ -124,8 +125,8 @@ export function command<
 
       for (const [argName, arg] of argEntries) {
         const result = await arg.parse(context);
-        if (result.outcome === 'failure') {
-          errors.push(...result.errors);
+        if (Either.isLeft(result)) {
+          errors.push(...result.error.errors);
         } else {
           resultObject[argName] = result.value;
         }
@@ -157,16 +158,12 @@ export function command<
       }
 
       if (errors.length > 0) {
-        return {
-          outcome: 'failure',
+        return Either.err({
           errors: errors,
           partialValue: resultObject,
-        };
+        });
       } else {
-        return {
-          outcome: 'success',
-          value: resultObject,
-        };
+        return Either.ok(resultObject);
       }
     },
     async run(context) {
@@ -174,9 +171,9 @@ export function command<
 
       const breaker = await circuitbreaker.parse(context);
       const shouldShowHelp =
-        breaker.outcome === 'success' && breaker.value === 'help';
+        Either.isRight(breaker) && breaker.value === 'help';
       const shouldShowVersion =
-        breaker.outcome === 'success' && breaker.value === 'version';
+        Either.isRight(breaker) && breaker.value === 'version';
 
       if (shouldShowHelp) {
         this.printHelp(context);
@@ -186,15 +183,14 @@ export function command<
         process.exit(0);
       }
 
-      if (parsed.outcome === 'failure') {
-        return {
-          outcome: 'failure',
-          errors: parsed.errors,
-          partialValue: { ...parsed.partialValue },
-        };
+      if (Either.isLeft(parsed)) {
+        return Either.err({
+          errors: parsed.error.errors,
+          partialValue: { ...parsed.error.partialValue },
+        });
       }
 
-      return { outcome: 'success', value: this.handler(parsed.value) };
+      return Either.ok(this.handler(parsed.value));
     },
   };
 }

@@ -6,6 +6,7 @@ import { parse } from '../src/newparser/parser';
 import { command } from '../src/command';
 import { subcommands } from '../src/subcommands';
 import { string, boolean } from './test-types';
+import * as Either from '../src/either';
 
 const logMock = jest.fn();
 
@@ -53,17 +54,14 @@ test('chooses one subcommand', async () => {
     shortFlagKeys: shortOptionKeys,
   });
   const result = await subcmds.parse({ nodes, visitedNodes: new Set() });
-  const expected: typeof result = {
-    outcome: 'success',
-    value: {
-      args: {
-        name: 'Gal',
-        exclaim: true,
-        greeting: 'Hello',
-      },
-      command: 'greeter',
+  const expected: typeof result = Either.ok({
+    args: {
+      name: 'Gal',
+      exclaim: true,
+      greeting: 'Hello',
     },
-  };
+    command: 'greeter',
+  });
 
   expect(result).toEqual(expected);
 });
@@ -82,15 +80,12 @@ test('chooses the other subcommand', async () => {
     shortFlagKeys: shortOptionKeys,
   });
   const result = await subcmds.parse({ nodes, visitedNodes: new Set() });
-  const expected: typeof result = {
-    outcome: 'success',
-    value: {
-      command: 'howdy',
-      args: {
-        name: 'joe',
-      },
+  const expected: typeof result = Either.ok({
+    command: 'howdy',
+    args: {
+      name: 'joe',
     },
-  };
+  });
 
   expect(result).toEqual(expected);
 });
@@ -109,8 +104,7 @@ test('fails when using unknown subcommand', async () => {
     shortFlagKeys: shortOptionKeys,
   });
   const result = await subcmds.parse({ nodes, visitedNodes: new Set() });
-  const expected: typeof result = {
-    outcome: 'failure',
+  const expected: typeof result = Either.err({
     errors: [
       {
         nodes: nodes.filter(x => x.raw === 'how'),
@@ -118,7 +112,7 @@ test('fails when using unknown subcommand', async () => {
       },
     ],
     partialValue: {},
-  };
+  });
 
   expect(result).toEqual(expected);
 });
@@ -137,8 +131,7 @@ test('fails for a subcommand argument parsing issue', async () => {
     shortFlagKeys: shortOptionKeys,
   });
   const result = await subcmds.parse({ nodes, visitedNodes: new Set() });
-  const expected = {
-    outcome: 'failure',
+  const expected = Either.err({
     errors: [
       {
         nodes: nodes.filter(x => x.raw.includes('hell-no')),
@@ -152,7 +145,7 @@ test('fails for a subcommand argument parsing issue', async () => {
         name: 'Gal',
       },
     },
-  };
+  });
 
   expect(result).toEqual(expected);
 });

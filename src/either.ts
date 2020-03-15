@@ -1,21 +1,21 @@
-export type Right<R> = { type: 'ok'; value: R };
-export type Left<L> = { type: 'error'; error: L };
+export type Right<R> = { result: 'ok'; value: R };
+export type Left<L> = { result: 'error'; error: L };
 export type Either<L, R> = Left<L> | Right<R>;
 
 export function ok<R>(value: R): Right<R> {
-  return { type: 'ok', value };
+  return { result: 'ok', value };
 }
 
 export function err<L>(error: L): Left<L> {
-  return { type: 'error', error };
+  return { result: 'error', error };
 }
 
 export function isRight<R>(either: Either<any, R>): either is Right<R> {
-  return either.type === 'ok';
+  return either.result === 'ok';
 }
 
 export function isLeft<L>(either: Either<L, any>): either is Left<L> {
-  return either.type === 'error';
+  return either.result === 'error';
 }
 
 export async function safeAsync<R>(

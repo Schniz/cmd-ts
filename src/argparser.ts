@@ -1,4 +1,5 @@
 import { AstNode } from './newparser/parser';
+import { Either } from './either';
 
 export type Nodes = AstNode[];
 
@@ -17,15 +18,9 @@ export type DeepPartial<X> = {
 };
 
 export type FailedParse<Into> = {
-  outcome: 'failure';
   errors: ParsingError[];
   /** The content that was parsed so far */
   partialValue?: DeepPartial<Into>;
-};
-
-export type SuccessfulParse<Into> = {
-  outcome: 'success';
-  value: Into;
 };
 
 export type ParseContext = {
@@ -40,7 +35,7 @@ export type ParseContext = {
   hotPath?: string[];
 };
 
-export type ParsingResult<Into> = FailedParse<Into> | SuccessfulParse<Into>;
+export type ParsingResult<Into> = Either<FailedParse<Into>, Into>;
 
 export type RegisterOptions = {
   forceFlagLongNames: Set<string>;

@@ -4,6 +4,7 @@ import { parse } from '../src/newparser/parser';
 import { errorBox } from '../src/errorBox';
 import { option } from '../src/option';
 import { number } from './test-types';
+import * as Either from '../src/either';
 
 test('works for multiple nodes', async () => {
   const argv = `hello world --some arg --flag --some another --flag --this-is=option -abcde=f -abcde`;
@@ -24,11 +25,11 @@ test('works for multiple nodes', async () => {
     visitedNodes: new Set(),
   });
 
-  if (result.outcome === 'success') {
+  if (Either.isRight(result)) {
     throw new Error('should fail...');
   }
 
-  const errors = errorBox(tree, result.errors, []);
+  const errors = errorBox(tree, result.error.errors, []);
   expect(errors).toMatch('Too many times provided');
 });
 
@@ -52,11 +53,11 @@ test('works for a short flag', async () => {
     visitedNodes: new Set(),
   });
 
-  if (result.outcome === 'success') {
+  if (Either.isRight(result)) {
     throw new Error('should fail...');
   }
 
-  const errors = errorBox(tree, result.errors, []);
+  const errors = errorBox(tree, result.error.errors, []);
   expect(errors).toMatch(chalk.red('n not_a_number'));
 });
 
@@ -79,11 +80,11 @@ test('works for a single node', async () => {
     visitedNodes: new Set(),
   });
 
-  if (result.outcome === 'success') {
+  if (Either.isRight(result)) {
     throw new Error('should fail...');
   }
 
-  const errors = errorBox(tree, result.errors, []);
+  const errors = errorBox(tree, result.error.errors, []);
   expect(errors).toMatch('Not a number');
 });
 
@@ -106,10 +107,10 @@ test('works when no nodes', async () => {
     visitedNodes: new Set(),
   });
 
-  if (result.outcome === 'success') {
+  if (Either.isRight(result)) {
     throw new Error('should fail...');
   }
 
-  const errors = errorBox(tree, result.errors, []);
+  const errors = errorBox(tree, result.error.errors, []);
   expect(errors).toMatch(`No value provided for --some`);
 });

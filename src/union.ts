@@ -1,5 +1,6 @@
 import { Type, fromFn, typeDef } from './type';
 import { OutputOf, InputOf, FromFn, From } from './from';
+import * as Either from './either';
 
 type Any<A = any> = FromFn<A, any> | From<A, any>;
 
@@ -26,14 +27,14 @@ export function union<T1 extends Any, T2s extends Any<InputOf<T1>>>(
       const errors: string[] = [];
 
       for (const t of ts) {
-        const decoded = await fromFn(t)(input);
-        if (decoded.result === 'ok') {
-          return decoded;
+        const decoded = await Either.safeAsync(fromFn(t)(input));
+        if (Either.isRight(decoded)) {
+          return decoded.value;
         }
-        errors.push(decoded.message);
+        errors.push(decoded.error.message);
       }
 
-      return { result: 'error', message: combineErrors(errors) };
+      throw new Error(combineErrors(errors));
     },
   };
 }

@@ -11,7 +11,7 @@ import { Type, extendType, OutputOf, HasType } from './type';
 import chalk from 'chalk';
 import { Default } from './default';
 import { AllOrNothing } from './utils';
-import { safeAsync } from './either';
+import * as Either from './either';
 
 type FlagConfig<Decoder extends Type<boolean, any>> = LongDoc &
   HasType<Decoder> &
@@ -104,15 +104,14 @@ export function flag<Decoder extends Type<boolean, any>>(
       options.forEach(opt => visitedNodes.add(opt));
 
       if (options.length > 1) {
-        return {
-          outcome: 'failure',
+        return Either.err({
           errors: [
             {
               nodes: options,
               message: 'Expected 1 occurence, got ' + options.length,
             },
           ],
-        };
+        });
       }
 
       const valueFromEnv = config.env ? process.env[config.env] : undefined;
@@ -127,40 +126,37 @@ export function flag<Decoder extends Type<boolean, any>>(
         typeof config.type.defaultValue === 'function'
       ) {
         try {
-          return { outcome: 'success', value: config.type.defaultValue() };
+          return Either.ok(config.type.defaultValue());
         } catch (e) {
           const message = `Default value not found for '--${config.long}': ${e.message}`;
-          return {
-            outcome: 'failure',
+          return Either.err({
             errors: [{ message, nodes: [] }],
-          };
+          });
         }
       } else if (options.length === 1) {
         rawValue = options[0].value?.node.raw ?? 'true';
       } else {
-        return {
-          outcome: 'failure',
+        return Either.err({
           errors: [
             { nodes: [], message: `No value provided for --${config.long}` },
           ],
-        };
+        });
       }
 
-      const decoded = await safeAsync(decoder.from(rawValue));
+      const decoded = await Either.safeAsync(decoder.from(rawValue));
 
-      if (decoded.type === 'error') {
-        return {
-          outcome: 'failure',
+      if (Either.isLeft(decoded)) {
+        return Either.err({
           errors: [
             {
               nodes: options,
               message: envPrefix + decoded.error.message,
             },
           ],
-        };
+        });
       }
 
-      return { outcome: 'success', value: decoded.value };
+      return decoded;
     },
   };
 }

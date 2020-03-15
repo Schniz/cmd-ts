@@ -9,6 +9,7 @@ import { findOption } from './newparser/findOption';
 import { ProvidesHelp, LongDoc, ShortDoc, Descriptive } from './helpdoc';
 import { Type, HasType } from './type';
 import { AstNode } from './newparser/parser';
+import * as Either from './either';
 
 type MultiOptionConfig<Decoder extends Type<string[], any>> = HasType<Decoder> &
   LongDoc &
@@ -72,27 +73,20 @@ export function multioption<Decoder extends Type<string[], any>>(
       }
 
       if (errors.length > 0) {
-        return {
-          outcome: 'failure',
-          errors,
-        };
+        return Either.err({ errors });
       }
 
-      const multiDecoded = await config.type.from(optionValues);
+      const multiDecoded = await Either.safeAsync(
+        config.type.from(optionValues)
+      );
 
-      if (multiDecoded.result === 'error') {
-        return {
-          outcome: 'failure',
-          errors: [
-            {
-              nodes: options,
-              message: multiDecoded.message,
-            },
-          ],
-        };
+      if (Either.isLeft(multiDecoded)) {
+        return Either.err({
+          errors: [{ nodes: options, message: multiDecoded.error.message }],
+        });
       }
 
-      return { outcome: 'success', value: multiDecoded.value };
+      return multiDecoded;
     },
   };
 }
