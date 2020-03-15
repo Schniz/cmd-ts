@@ -98,10 +98,10 @@ export function errorBox(
       const pad = ''.padStart(x.highlighted.errorIndex);
 
       errorMessages.push(`  ${x.highlighted.colorized}`);
-      for (const [index, line] of enumerate(x.message.split("\n"))) {
+      for (const [index, line] of enumerate(x.message.split('\n'))) {
         const prefix = index === 0 ? chalk.bold('^') : ' ';
         const msg = chalk.red(`  ${pad} ${prefix} ${line}`);
-        errorMessages.push(msg)
+        errorMessages.push(msg);
       }
       errorMessages.push('');
       number++;
