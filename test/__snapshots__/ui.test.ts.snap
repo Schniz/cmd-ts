@@ -32,7 +32,7 @@ exports[`failures in defaultValue 1`] = `
 
   [31m[1m1.[22m[39m [31mNo value provided for --user[39m
   [31m[1m2.[22m[39m [31mNo value provided for --password[39m
-  [31m[1m3.[22m[39m [31mCan't read default value for '--repo': Can't infer repo from git[39m
+  [31m[1m3.[22m[39m [31mDefault value not found for '--repo': Can't infer repo from git[39m
 
 [31m[1mhint: [22m[39mfor more information, try '[33mbuild --help[39m'"
 `;

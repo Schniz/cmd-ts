@@ -124,7 +124,7 @@ export function option<Decoder extends Type<string, any>>(
             value: defaultValueFn(),
           };
         } catch (e) {
-          const message = `Can't read default value for '--${config.long}': ${e.message}`;
+          const message = `Default value not found for '--${config.long}': ${e.message}`;
           return {
             outcome: 'failure',
             errors: [

@@ -129,7 +129,7 @@ export function flag<Decoder extends Type<boolean, any>>(
         try {
           return { outcome: 'success', value: config.type.defaultValue() };
         } catch (e) {
-          const message = `Can't read default value for '--${config.long}': ${e.message}`;
+          const message = `Default value not found for '--${config.long}': ${e.message}`;
           return {
             outcome: 'failure',
             errors: [{ message, nodes: [] }],
