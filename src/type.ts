@@ -65,13 +65,7 @@ export function extendType<
     ...t2Object,
     async from(a) {
       const f1Result = await base.from(a);
-
-      if (f1Result.result === 'error') {
-        return f1Result;
-      }
-
-      const f2Result = await t2From(f1Result.value);
-      return f2Result;
+      return await t2From(f1Result);
     },
   };
 }

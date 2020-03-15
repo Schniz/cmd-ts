@@ -17,6 +17,7 @@ import { Type, HasType } from './type';
 import chalk from 'chalk';
 import { Default } from './default';
 import { AllOrNothing } from './utils';
+import { safeAsync } from './either';
 
 type OptionConfig<Decoder extends Type<string, any>> = LongDoc &
   HasType<Decoder> &
@@ -151,11 +152,13 @@ export function option<Decoder extends Type<string, any>>(
         };
       }
 
-      const decoded = await config.type.from(rawValue);
-      if (decoded.result === 'error') {
+      const decoded = await safeAsync(config.type.from(rawValue));
+      if (decoded.type === 'error') {
         return {
           outcome: 'failure',
-          errors: [{ nodes: options, message: envPrefix + decoded.message }],
+          errors: [
+            { nodes: options, message: envPrefix + decoded.error.message },
+          ],
         };
       }
 

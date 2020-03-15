@@ -11,6 +11,7 @@ import { Type, extendType, OutputOf, HasType } from './type';
 import chalk from 'chalk';
 import { Default } from './default';
 import { AllOrNothing } from './utils';
+import { safeAsync } from './either';
 
 type FlagConfig<Decoder extends Type<boolean, any>> = LongDoc &
   HasType<Decoder> &
@@ -23,12 +24,11 @@ type FlagConfig<Decoder extends Type<boolean, any>> = LongDoc &
  */
 export const boolean: Type<string, boolean> = {
   async from(str) {
-    if (str === 'true') return { result: 'ok', value: true };
-    if (str === 'false') return { result: 'ok', value: false };
-    return {
-      result: 'error',
-      message: `expected value to be either "true" or "false". got: "${str}"`,
-    };
+    if (str === 'true') return true;
+    if (str === 'false') return false;
+    throw new Error(
+      `expected value to be either "true" or "false". got: "${str}"`
+    );
   },
   displayName: 'true/false',
   defaultValue: () => false,
@@ -146,15 +146,15 @@ export function flag<Decoder extends Type<boolean, any>>(
         };
       }
 
-      const decoded = await decoder.from(rawValue);
+      const decoded = await safeAsync(decoder.from(rawValue));
 
-      if (decoded.result === 'error') {
+      if (decoded.type === 'error') {
         return {
           outcome: 'failure',
           errors: [
             {
               nodes: options,
-              message: envPrefix + decoded.message,
+              message: envPrefix + decoded.error.message,
             },
           ],
         };

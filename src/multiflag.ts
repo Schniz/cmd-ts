@@ -9,6 +9,7 @@ import { findOption } from './newparser/findOption';
 import { ProvidesHelp, LongDoc, Descriptive, ShortDoc } from './helpdoc';
 import { boolean } from './flag';
 import { HasType } from './type';
+import { safeAsync } from './either';
 
 type MultiFlagConfig<Decoder extends From<boolean[], any>> = HasType<Decoder> &
   LongDoc &
@@ -59,9 +60,11 @@ export function multiflag<Decoder extends From<boolean[], any>>(
       const errors: ParsingError[] = [];
 
       for (const option of options) {
-        const decoded = await boolean.from(option.value?.node.raw ?? 'true');
-        if (decoded.result === 'error') {
-          errors.push({ nodes: [option], message: decoded.message });
+        const decoded = await safeAsync(
+          boolean.from(option.value?.node.raw ?? 'true')
+        );
+        if (decoded.type === 'error') {
+          errors.push({ nodes: [option], message: decoded.error.message });
         } else {
           optionValues.push(decoded.value);
         }

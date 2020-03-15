@@ -55,9 +55,9 @@ export function subcommands<
         })
         .find(x => x.names.includes(str));
       if (cmd) {
-        return { result: 'ok', value: cmd.cmdName };
+        return cmd.cmdName;
       }
-      return { result: 'error', message: 'Not a valid subcommand name' };
+      throw new Error('Not a valid subcommand name');
     },
   };
 

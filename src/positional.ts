@@ -3,6 +3,7 @@ import { OutputOf } from './from';
 import { PositionalArgument } from './newparser/parser';
 import { ProvidesHelp, Descriptive, Displayed } from './helpdoc';
 import { Type, HasType } from './type';
+import { safeAsync } from './either';
 
 type PositionalConfig<Decoder extends Type<string, any>> = HasType<Decoder> &
   Displayed &
@@ -57,15 +58,15 @@ export function positional<Decoder extends Type<string, any>>(
       }
 
       visitedNodes.add(positional);
-      const decoded = await config.type.from(positional.raw);
+      const decoded = await safeAsync(config.type.from(positional.raw));
 
-      if (decoded.result === 'error') {
+      if (decoded.type === 'error') {
         return {
           outcome: 'failure',
           errors: [
             {
               nodes: [positional],
-              message: decoded.message,
+              message: decoded.error.message,
             },
           ],
         };
