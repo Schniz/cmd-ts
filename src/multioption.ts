@@ -80,7 +80,7 @@ export function multioption<Decoder extends Type<string[], any>>(
         config.type.from(optionValues)
       );
 
-      if (Result.isLeft(multiDecoded)) {
+      if (Result.isErr(multiDecoded)) {
         return Result.err({
           errors: [{ nodes: options, message: multiDecoded.error.message }],
         });

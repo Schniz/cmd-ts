@@ -53,7 +53,7 @@ test('works for a short flag', async () => {
     visitedNodes: new Set(),
   });
 
-  if (Result.isRight(result)) {
+  if (Result.isOk(result)) {
     throw new Error('should fail...');
   }
 
@@ -80,7 +80,7 @@ test('works for a single node', async () => {
     visitedNodes: new Set(),
   });
 
-  if (Result.isRight(result)) {
+  if (Result.isOk(result)) {
     throw new Error('should fail...');
   }
 
@@ -107,7 +107,7 @@ test('works when no nodes', async () => {
     visitedNodes: new Set(),
   });
 
-  if (Result.isRight(result)) {
+  if (Result.isOk(result)) {
     throw new Error('should fail...');
   }
 

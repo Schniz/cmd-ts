@@ -63,7 +63,7 @@ export function multiflag<Decoder extends From<boolean[], any>>(
         const decoded = await Result.safeAsync(
           boolean.from(option.value?.node.raw ?? 'true')
         );
-        if (Result.isLeft(decoded)) {
+        if (Result.isErr(decoded)) {
           errors.push({ nodes: [option], message: decoded.error.message });
         } else {
           optionValues.push(decoded.value);
@@ -80,7 +80,7 @@ export function multiflag<Decoder extends From<boolean[], any>>(
         config.type.from(optionValues)
       );
 
-      if (Result.isLeft(multiDecoded)) {
+      if (Result.isErr(multiDecoded)) {
         return Result.err({
           errors: [
             {

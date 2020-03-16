@@ -145,7 +145,7 @@ export function flag<Decoder extends Type<boolean, any>>(
 
       const decoded = await Result.safeAsync(decoder.from(rawValue));
 
-      if (Result.isLeft(decoded)) {
+      if (Result.isErr(decoded)) {
         return Result.err({
           errors: [
             {

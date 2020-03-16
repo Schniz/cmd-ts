@@ -119,7 +119,7 @@ export function subcommands<
     ): Promise<ParsingResult<Output<Commands>>> {
       const parsed = await subcommand.parse(context);
 
-      if (Result.isLeft(parsed)) {
+      if (Result.isErr(parsed)) {
         return Result.err({
           errors: parsed.error.errors,
           partialValue: {},
@@ -130,7 +130,7 @@ export function subcommands<
 
       const cmd = config.cmds[parsed.value];
       const parsedCommand = await cmd.parse(context);
-      if (Result.isLeft(parsedCommand)) {
+      if (Result.isErr(parsedCommand)) {
         return Result.err({
           errors: parsedCommand.error.errors,
           partialValue: {
@@ -147,7 +147,7 @@ export function subcommands<
     async run(context): Promise<ParsingResult<RunnerOutput<Commands>>> {
       const parsedSubcommand = await subcommand.parse(context);
 
-      if (Result.isLeft(parsedSubcommand)) {
+      if (Result.isErr(parsedSubcommand)) {
         const breaker = await circuitbreaker.parse(context);
         if (Result.isOk(breaker)) {
           if (breaker.value === 'help') {

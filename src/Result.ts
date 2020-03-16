@@ -34,10 +34,10 @@ export function isOk<R>(result: Result<any, R>): result is Ok<R> {
 }
 
 /**
- * Checks whether a value is a Left.
+ * Checks whether a value is an `Err`.
  * Handy with TypeScript guards
  */
-export function isLeft<L>(either: Result<L, any>): either is Err<L> {
+export function isErr<L>(either: Result<L, any>): either is Err<L> {
   return either._tag === 'error';
 }
 

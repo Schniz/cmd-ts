@@ -145,7 +145,7 @@ export function option<Decoder extends Type<string, any>>(
       }
 
       const decoded = await Result.safeAsync(config.type.from(rawValue));
-      if (Result.isLeft(decoded)) {
+      if (Result.isErr(decoded)) {
         return Result.err({
           errors: [
             { nodes: options, message: envPrefix + decoded.error.message },

@@ -59,7 +59,7 @@ export function positional<Decoder extends Type<string, any>>(
       visitedNodes.add(positional);
       const decoded = await Result.safeAsync(config.type.from(positional.raw));
 
-      if (Result.isLeft(decoded)) {
+      if (Result.isErr(decoded)) {
         return Result.err({
           errors: [
             {

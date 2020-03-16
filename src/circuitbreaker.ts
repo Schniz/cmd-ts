@@ -41,9 +41,9 @@ export const circuitbreaker: ArgParser<CircuitBreaker> & ProvidesHelp = {
     const help = await helpFlag.parse(context);
     const version = await versionFlag.parse(context);
 
-    if (Result.isLeft(help) || Result.isLeft(version)) {
-      const helpErrors = Result.isLeft(help) ? help.error.errors : [];
-      const versionErrors = Result.isLeft(version) ? version.error.errors : [];
+    if (Result.isErr(help) || Result.isErr(version)) {
+      const helpErrors = Result.isErr(help) ? help.error.errors : [];
+      const versionErrors = Result.isErr(version) ? version.error.errors : [];
       return Result.err({ errors: [...helpErrors, ...versionErrors] });
     }
 

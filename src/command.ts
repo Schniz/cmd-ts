@@ -125,7 +125,7 @@ export function command<
 
       for (const [argName, arg] of argEntries) {
         const result = await arg.parse(context);
-        if (Result.isLeft(result)) {
+        if (Result.isErr(result)) {
           errors.push(...result.error.errors);
         } else {
           resultObject[argName] = result.value;
@@ -182,7 +182,7 @@ export function command<
         process.exit(0);
       }
 
-      if (Result.isLeft(parsed)) {
+      if (Result.isErr(parsed)) {
         return Result.err({
           errors: parsed.error.errors,
           partialValue: { ...parsed.error.partialValue },
