@@ -11,7 +11,7 @@ import { Runner } from './runner';
 import { Aliased, Named, Descriptive } from './helpdoc';
 import chalk from 'chalk';
 import { circuitbreaker } from './circuitbreaker';
-import * as Either from './either';
+import * as Result from './Result';
 
 type Output<
   Commands extends Record<string, ArgParser<any> & Runner<any, any>>
@@ -119,9 +119,9 @@ export function subcommands<
     ): Promise<ParsingResult<Output<Commands>>> {
       const parsed = await subcommand.parse(context);
 
-      if (Either.isLeft(parsed)) {
-        return Either.err({
-          ...parsed.error,
+      if (Result.isLeft(parsed)) {
+        return Result.err({
+          errors: parsed.error.errors,
           partialValue: {},
         });
       }
@@ -130,8 +130,8 @@ export function subcommands<
 
       const cmd = config.cmds[parsed.value];
       const parsedCommand = await cmd.parse(context);
-      if (Either.isLeft(parsedCommand)) {
-        return Either.err({
+      if (Result.isLeft(parsedCommand)) {
+        return Result.err({
           errors: parsedCommand.error.errors,
           partialValue: {
             command: parsed.value as any,
@@ -139,7 +139,7 @@ export function subcommands<
           },
         });
       }
-      return Either.ok({
+      return Result.ok({
         args: parsedCommand.value,
         command: parsed.value,
       });
@@ -147,9 +147,9 @@ export function subcommands<
     async run(context): Promise<ParsingResult<RunnerOutput<Commands>>> {
       const parsedSubcommand = await subcommand.parse(context);
 
-      if (Either.isLeft(parsedSubcommand)) {
+      if (Result.isLeft(parsedSubcommand)) {
         const breaker = await circuitbreaker.parse(context);
-        if (Either.isRight(breaker)) {
+        if (Result.isOk(breaker)) {
           if (breaker.value === 'help') {
             this.printHelp(context);
             process.exit(1);
@@ -161,7 +161,7 @@ export function subcommands<
           }
         }
 
-        return Either.err({ ...parsedSubcommand.error, partialValue: {} });
+        return Result.err({ ...parsedSubcommand.error, partialValue: {} });
       }
 
       context.hotPath?.push(parsedSubcommand.value as string);
@@ -169,14 +169,14 @@ export function subcommands<
       const cmd = config.cmds[parsedSubcommand.value];
       const commandRun = await cmd.run(context);
 
-      if (Either.isRight(commandRun)) {
-        return Either.ok({
+      if (Result.isOk(commandRun)) {
+        return Result.ok({
           command: parsedSubcommand.value,
           value: commandRun.value,
         });
       }
 
-      return Either.err({
+      return Result.err({
         ...commandRun.error,
         partialValue: {
           command: parsedSubcommand.value,

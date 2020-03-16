@@ -9,7 +9,7 @@ import { findOption } from './newparser/findOption';
 import { ProvidesHelp, LongDoc, Descriptive, ShortDoc } from './helpdoc';
 import { boolean } from './flag';
 import { HasType } from './type';
-import * as Either from './either';
+import * as Result from './Result';
 
 type MultiFlagConfig<Decoder extends From<boolean[], any>> = HasType<Decoder> &
   LongDoc &
@@ -60,10 +60,10 @@ export function multiflag<Decoder extends From<boolean[], any>>(
       const errors: ParsingError[] = [];
 
       for (const option of options) {
-        const decoded = await Either.safeAsync(
+        const decoded = await Result.safeAsync(
           boolean.from(option.value?.node.raw ?? 'true')
         );
-        if (Either.isLeft(decoded)) {
+        if (Result.isLeft(decoded)) {
           errors.push({ nodes: [option], message: decoded.error.message });
         } else {
           optionValues.push(decoded.value);
@@ -71,20 +71,17 @@ export function multiflag<Decoder extends From<boolean[], any>>(
       }
 
       if (errors.length > 0) {
-        return {
-          result: 'error',
-          error: {
-            errors,
-          },
-        };
+        return Result.err({
+          errors,
+        });
       }
 
-      const multiDecoded = await Either.safeAsync(
+      const multiDecoded = await Result.safeAsync(
         config.type.from(optionValues)
       );
 
-      if (Either.isLeft(multiDecoded)) {
-        return Either.err({
+      if (Result.isLeft(multiDecoded)) {
+        return Result.err({
           errors: [
             {
               nodes: options,

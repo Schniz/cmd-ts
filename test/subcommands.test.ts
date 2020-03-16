@@ -6,7 +6,7 @@ import { parse } from '../src/newparser/parser';
 import { command } from '../src/command';
 import { subcommands } from '../src/subcommands';
 import { string, boolean } from './test-types';
-import * as Either from '../src/either';
+import * as Result from '../src/Result';
 
 const logMock = jest.fn();
 
@@ -54,7 +54,7 @@ test('chooses one subcommand', async () => {
     shortFlagKeys: shortOptionKeys,
   });
   const result = await subcmds.parse({ nodes, visitedNodes: new Set() });
-  const expected: typeof result = Either.ok({
+  const expected: typeof result = Result.ok({
     args: {
       name: 'Gal',
       exclaim: true,
@@ -80,7 +80,7 @@ test('chooses the other subcommand', async () => {
     shortFlagKeys: shortOptionKeys,
   });
   const result = await subcmds.parse({ nodes, visitedNodes: new Set() });
-  const expected: typeof result = Either.ok({
+  const expected: typeof result = Result.ok({
     command: 'howdy',
     args: {
       name: 'joe',
@@ -104,7 +104,7 @@ test('fails when using unknown subcommand', async () => {
     shortFlagKeys: shortOptionKeys,
   });
   const result = await subcmds.parse({ nodes, visitedNodes: new Set() });
-  const expected: typeof result = Either.err({
+  const expected: typeof result = Result.err({
     errors: [
       {
         nodes: nodes.filter(x => x.raw === 'how'),
@@ -131,7 +131,7 @@ test('fails for a subcommand argument parsing issue', async () => {
     shortFlagKeys: shortOptionKeys,
   });
   const result = await subcmds.parse({ nodes, visitedNodes: new Set() });
-  const expected = Either.err({
+  const expected = Result.err({
     errors: [
       {
         nodes: nodes.filter(x => x.raw.includes('hell-no')),

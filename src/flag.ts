@@ -11,7 +11,7 @@ import { Type, extendType, OutputOf, HasType } from './type';
 import chalk from 'chalk';
 import { Default } from './default';
 import { AllOrNothing } from './utils';
-import * as Either from './either';
+import * as Result from './Result';
 
 type FlagConfig<Decoder extends Type<boolean, any>> = LongDoc &
   HasType<Decoder> &
@@ -104,7 +104,7 @@ export function flag<Decoder extends Type<boolean, any>>(
       options.forEach(opt => visitedNodes.add(opt));
 
       if (options.length > 1) {
-        return Either.err({
+        return Result.err({
           errors: [
             {
               nodes: options,
@@ -126,27 +126,27 @@ export function flag<Decoder extends Type<boolean, any>>(
         typeof config.type.defaultValue === 'function'
       ) {
         try {
-          return Either.ok(config.type.defaultValue());
+          return Result.ok(config.type.defaultValue());
         } catch (e) {
           const message = `Default value not found for '--${config.long}': ${e.message}`;
-          return Either.err({
+          return Result.err({
             errors: [{ message, nodes: [] }],
           });
         }
       } else if (options.length === 1) {
         rawValue = options[0].value?.node.raw ?? 'true';
       } else {
-        return Either.err({
+        return Result.err({
           errors: [
             { nodes: [], message: `No value provided for --${config.long}` },
           ],
         });
       }
 
-      const decoded = await Either.safeAsync(decoder.from(rawValue));
+      const decoded = await Result.safeAsync(decoder.from(rawValue));
 
-      if (Either.isLeft(decoded)) {
-        return Either.err({
+      if (Result.isLeft(decoded)) {
+        return Result.err({
           errors: [
             {
               nodes: options,

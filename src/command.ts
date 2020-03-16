@@ -18,7 +18,7 @@ import {
 import { padNoAnsi, entries, groupBy, flatMap } from './utils';
 import { Runner } from './runner';
 import { circuitbreaker } from './circuitbreaker';
-import * as Either from './either';
+import * as Result from './Result';
 
 type ArgTypes = Record<string, ArgParser<any> & Partial<ProvidesHelp>>;
 type HandlerFunc<Args extends ArgTypes> = (args: Output<Args>) => any;
@@ -125,7 +125,7 @@ export function command<
 
       for (const [argName, arg] of argEntries) {
         const result = await arg.parse(context);
-        if (Either.isLeft(result)) {
+        if (Result.isLeft(result)) {
           errors.push(...result.error.errors);
         } else {
           resultObject[argName] = result.value;
@@ -158,22 +158,21 @@ export function command<
       }
 
       if (errors.length > 0) {
-        return Either.err({
+        return Result.err({
           errors: errors,
           partialValue: resultObject,
         });
       } else {
-        return Either.ok(resultObject);
+        return Result.ok(resultObject);
       }
     },
     async run(context) {
       const parsed = await this.parse(context);
 
       const breaker = await circuitbreaker.parse(context);
-      const shouldShowHelp =
-        Either.isRight(breaker) && breaker.value === 'help';
+      const shouldShowHelp = Result.isOk(breaker) && breaker.value === 'help';
       const shouldShowVersion =
-        Either.isRight(breaker) && breaker.value === 'version';
+        Result.isOk(breaker) && breaker.value === 'version';
 
       if (shouldShowHelp) {
         this.printHelp(context);
@@ -183,14 +182,14 @@ export function command<
         process.exit(0);
       }
 
-      if (Either.isLeft(parsed)) {
-        return Either.err({
+      if (Result.isLeft(parsed)) {
+        return Result.err({
           errors: parsed.error.errors,
           partialValue: { ...parsed.error.partialValue },
         });
       }
 
-      return Either.ok(this.handler(parsed.value));
+      return Result.ok(this.handler(parsed.value));
     },
   };
 }

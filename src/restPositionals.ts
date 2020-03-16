@@ -8,7 +8,7 @@ import { OutputOf } from './from';
 import { PositionalArgument } from './newparser/parser';
 import { Type } from './type';
 import { ProvidesHelp } from './helpdoc';
-import * as Either from './either';
+import * as Result from './Result';
 
 type RestPositionalsConfig<Decoder extends Type<string, any>> = {
   type: Decoder;
@@ -51,10 +51,10 @@ export function restPositionals<Decoder extends Type<string, any>>(
 
       for (const positional of positionals) {
         visitedNodes.add(positional);
-        const decoded = await Either.safeAsync(
+        const decoded = await Result.safeAsync(
           config.type.from(positional.raw)
         );
-        if (Either.isRight(decoded)) {
+        if (Result.isOk(decoded)) {
           results.push(decoded.value);
         } else {
           errors.push({
@@ -65,12 +65,12 @@ export function restPositionals<Decoder extends Type<string, any>>(
       }
 
       if (errors.length > 0) {
-        return Either.err({
+        return Result.err({
           errors,
         });
       }
 
-      return Either.ok(results);
+      return Result.ok(results);
     },
   };
 }

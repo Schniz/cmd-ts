@@ -3,7 +3,7 @@ import { ParseContext, ParsingResult, Register } from './argparser';
 import { tokenize } from './newparser/tokenizer';
 import { parse } from './newparser/parser';
 import { errorBox } from './errorBox';
-import { isLeft } from './either';
+import { isLeft } from './Result';
 
 export type Handling<Values, Result> = { handler: (values: Values) => Result };
 

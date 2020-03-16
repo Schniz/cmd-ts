@@ -2,7 +2,7 @@ import { flag } from '../src/flag';
 import { tokenize } from '../src/newparser/tokenizer';
 import { parse } from '../src/newparser/parser';
 import { boolean } from '../src/types';
-import * as Either from '../src/either';
+import * as Result from '../src/Result';
 
 test('fails on incompatible value', async () => {
   const argv = `--hello=world`;
@@ -29,7 +29,7 @@ test('fails on incompatible value', async () => {
   });
 
   await expect(result).resolves.toEqual(
-    Either.err({
+    Result.err({
       errors: [
         {
           nodes: nodes,
@@ -65,7 +65,7 @@ test('defaults to false', async () => {
     visitedNodes: new Set(),
   });
 
-  await expect(result).resolves.toEqual(Either.ok(false));
+  await expect(result).resolves.toEqual(Result.ok(false));
 });
 
 test('allows short arguments', async () => {
@@ -93,5 +93,5 @@ test('allows short arguments', async () => {
     visitedNodes: new Set(),
   });
 
-  await expect(result).resolves.toEqual(Either.ok(true));
+  await expect(result).resolves.toEqual(Result.ok(true));
 });

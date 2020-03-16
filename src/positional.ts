@@ -3,7 +3,7 @@ import { OutputOf } from './from';
 import { PositionalArgument } from './newparser/parser';
 import { ProvidesHelp, Descriptive, Displayed } from './helpdoc';
 import { Type, HasType } from './type';
-import * as Either from './either';
+import * as Result from './Result';
 
 type PositionalConfig<Decoder extends Type<string, any>> = HasType<Decoder> &
   Displayed &
@@ -46,7 +46,7 @@ export function positional<Decoder extends Type<string, any>>(
       const positional = positionals[0];
 
       if (!positional) {
-        return Either.err({
+        return Result.err({
           errors: [
             {
               nodes: [],
@@ -57,10 +57,10 @@ export function positional<Decoder extends Type<string, any>>(
       }
 
       visitedNodes.add(positional);
-      const decoded = await Either.safeAsync(config.type.from(positional.raw));
+      const decoded = await Result.safeAsync(config.type.from(positional.raw));
 
-      if (Either.isLeft(decoded)) {
-        return Either.err({
+      if (Result.isLeft(decoded)) {
+        return Result.err({
           errors: [
             {
               nodes: [positional],
@@ -70,7 +70,7 @@ export function positional<Decoder extends Type<string, any>>(
         });
       }
 
-      return Either.ok(decoded.value);
+      return Result.ok(decoded.value);
     },
   };
 }

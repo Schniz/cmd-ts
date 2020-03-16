@@ -4,7 +4,7 @@ import { parse } from '../src/newparser/parser';
 import { errorBox } from '../src/errorBox';
 import { option } from '../src/option';
 import { number } from './test-types';
-import * as Either from '../src/either';
+import * as Result from '../src/Result';
 
 test('works for multiple nodes', async () => {
   const argv = `hello world --some arg --flag --some another --flag --this-is=option -abcde=f -abcde`;
@@ -25,7 +25,7 @@ test('works for multiple nodes', async () => {
     visitedNodes: new Set(),
   });
 
-  if (Either.isRight(result)) {
+  if (Result.isOk(result)) {
     throw new Error('should fail...');
   }
 
@@ -53,7 +53,7 @@ test('works for a short flag', async () => {
     visitedNodes: new Set(),
   });
 
-  if (Either.isRight(result)) {
+  if (Result.isRight(result)) {
     throw new Error('should fail...');
   }
 
@@ -80,7 +80,7 @@ test('works for a single node', async () => {
     visitedNodes: new Set(),
   });
 
-  if (Either.isRight(result)) {
+  if (Result.isRight(result)) {
     throw new Error('should fail...');
   }
 
@@ -107,7 +107,7 @@ test('works when no nodes', async () => {
     visitedNodes: new Set(),
   });
 
-  if (Either.isRight(result)) {
+  if (Result.isRight(result)) {
     throw new Error('should fail...');
   }
 

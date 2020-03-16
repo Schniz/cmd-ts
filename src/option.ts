@@ -17,7 +17,7 @@ import { Type, HasType } from './type';
 import chalk from 'chalk';
 import { Default } from './default';
 import { AllOrNothing } from './utils';
-import * as Either from './either';
+import * as Result from './Result';
 
 type OptionConfig<Decoder extends Type<string, any>> = LongDoc &
   HasType<Decoder> &
@@ -100,7 +100,7 @@ export function option<Decoder extends Type<string, any>>(
             'Too many times provided. Expected 1, got: ' + options.length,
           nodes: options,
         };
-        return Either.err({ errors: [error] });
+        return Result.err({ errors: [error] });
       }
 
       const valueFromEnv = config.env ? process.env[config.env] : undefined;
@@ -117,10 +117,10 @@ export function option<Decoder extends Type<string, any>>(
         envPrefix = `env[${chalk.italic(config.env)}]: `;
       } else if (!option && typeof defaultValueFn === 'function') {
         try {
-          return Either.ok(defaultValueFn());
+          return Result.ok(defaultValueFn());
         } catch (e) {
           const message = `Default value not found for '--${config.long}': ${e.message}`;
-          return Either.err({
+          return Result.err({
             errors: [
               {
                 nodes: [],
@@ -134,7 +134,7 @@ export function option<Decoder extends Type<string, any>>(
           option?.type === 'shortOption'
             ? `-${option?.key}`
             : `--${option?.key ?? config.long}`;
-        return Either.err({
+        return Result.err({
           errors: [
             {
               nodes: options,
@@ -144,16 +144,16 @@ export function option<Decoder extends Type<string, any>>(
         });
       }
 
-      const decoded = await Either.safeAsync(config.type.from(rawValue));
-      if (Either.isLeft(decoded)) {
-        return Either.err({
+      const decoded = await Result.safeAsync(config.type.from(rawValue));
+      if (Result.isLeft(decoded)) {
+        return Result.err({
           errors: [
             { nodes: options, message: envPrefix + decoded.error.message },
           ],
         });
       }
 
-      return Either.ok(decoded.value);
+      return Result.ok(decoded.value);
     },
   };
 }

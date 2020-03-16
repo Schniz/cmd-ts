@@ -5,7 +5,7 @@ import { tokenize } from '../src/newparser/tokenizer';
 import { parse } from '../src/newparser/parser';
 import { command } from '../src/command';
 import { number, string, boolean } from './test-types';
-import * as Either from '../src/either';
+import * as Result from '../src/Result';
 
 const cmd = command({
   name: 'My command',
@@ -39,7 +39,7 @@ test('merges options, positionals and flags', async () => {
     shortFlagKeys: shortOptionKeys,
   });
   const result = await cmd.parse({ nodes, visitedNodes: new Set() });
-  const expected: typeof result = Either.ok({
+  const expected: typeof result = Result.ok({
     positionals: ['first', 'second', 'third'],
     option: 666,
     secondOption: 'works-too',
@@ -72,7 +72,7 @@ test('fails if an argument fail to parse', async () => {
   });
 
   await expect(result).resolves.toEqual(
-    Either.err({
+    Result.err({
       errors: [
         {
           nodes: nodes.filter(x => x.raw.startsWith('--option')),
@@ -119,7 +119,7 @@ test('fails if providing unknown arguments', async () => {
   });
 
   expect(result).toEqual(
-    Either.err({
+    Result.err({
       errors: [
         {
           message: 'Unknown arguments',

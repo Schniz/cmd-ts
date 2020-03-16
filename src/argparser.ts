@@ -1,5 +1,5 @@
 import { AstNode } from './newparser/parser';
-import { Either } from './either';
+import { Result } from './Result';
 
 export type Nodes = AstNode[];
 
@@ -35,7 +35,7 @@ export type ParseContext = {
   hotPath?: string[];
 };
 
-export type ParsingResult<Into> = Either<FailedParse<Into>, Into>;
+export type ParsingResult<Into> = Result<FailedParse<Into>, Into>;
 
 export type RegisterOptions = {
   forceFlagLongNames: Set<string>;
