@@ -52,19 +52,19 @@ const ReadStream: Type<string, Stream> = {
   async from(str) {
     if (!fs.existsSync(str)) {
       // Here is our error handling!
-      return { result: 'error', message: 'File not found' };
+      throw new Error('File not found');
     }
 
-    return { result: 'ok', value: fs.createReadStream(str) };
+    return fs.createReadStream(str);
   },
 };
 ```
 
-* `from` is the only required key in `Type<A, B>`. It's an async operation that gets `A` and returns a `{type: 'error', message: string}`, or `{type: 'ok', value: B}`.
-* Other than `from`, we can provide more metadata about the type:
-  * `description` to provide a default description for this type
-  * `displayName` is a short way to describe the type in the help
-  * `defaultValue(): B` to allow the type to be optional and have a default value
+- `from` is the only required key in `Type<A, B>`. It's an async operation that gets `A` and returns a `B`, or throws an error with some message.
+- Other than `from`, we can provide more metadata about the type:
+  - `description` to provide a default description for this type
+  - `displayName` is a short way to describe the type in the help
+  - `defaultValue(): B` to allow the type to be optional and have a default value
 
 Using the type we've just created is no different that using `string`:
 
