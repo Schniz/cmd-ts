@@ -2,6 +2,7 @@ import { restPositionals } from '../src/restPositionals';
 import { tokenize } from '../src/newparser/tokenizer';
 import { parse, AstNode } from '../src/newparser/parser';
 import { number } from './test-types';
+import * as Result from '../src/Result';
 
 test('fails on specific positional', async () => {
   const argv = `10 20 --mamma mia hello 40`;
@@ -16,15 +17,16 @@ test('fails on specific positional', async () => {
 
   const result = argparser.parse({ nodes, visitedNodes: new Set() });
 
-  await expect(result).resolves.toEqual({
-    outcome: 'failure',
-    errors: [
-      {
-        nodes: nodes.filter(x => x.raw === 'hello'),
-        message: 'Not a number',
-      },
-    ],
-  });
+  await expect(result).resolves.toEqual(
+    Result.err({
+      errors: [
+        {
+          nodes: nodes.filter(x => x.raw === 'hello'),
+          message: 'Not a number',
+        },
+      ],
+    })
+  );
 });
 
 test('succeeds when all unused positional decode successfuly', async () => {
@@ -47,8 +49,5 @@ test('succeeds when all unused positional decode successfuly', async () => {
 
   const result = argparser.parse({ nodes, visitedNodes });
 
-  await expect(result).resolves.toEqual({
-    outcome: 'success',
-    value: [10, 20, 40],
-  });
+  await expect(result).resolves.toEqual(Result.ok([10, 20, 40]));
 });

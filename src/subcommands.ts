@@ -11,6 +11,7 @@ import { Runner } from './runner';
 import { Aliased, Named, Descriptive } from './helpdoc';
 import chalk from 'chalk';
 import { circuitbreaker } from './circuitbreaker';
+import * as Result from './Result';
 
 type Output<
   Commands extends Record<string, ArgParser<any> & Runner<any, any>>
@@ -55,9 +56,9 @@ export function subcommands<
         })
         .find(x => x.names.includes(str));
       if (cmd) {
-        return { result: 'ok', value: cmd.cmdName };
+        return cmd.cmdName;
       }
-      return { result: 'error', message: 'Not a valid subcommand name' };
+      throw new Error('Not a valid subcommand name');
     },
   };
 
@@ -118,38 +119,37 @@ export function subcommands<
     ): Promise<ParsingResult<Output<Commands>>> {
       const parsed = await subcommand.parse(context);
 
-      if (parsed.outcome === 'failure') {
-        return {
-          ...parsed,
+      if (Result.isErr(parsed)) {
+        return Result.err({
+          errors: parsed.error.errors,
           partialValue: {},
-        };
+        });
       }
 
       context.hotPath?.push(parsed.value as string);
 
       const cmd = config.cmds[parsed.value];
       const parsedCommand = await cmd.parse(context);
-      if (parsedCommand.outcome === 'failure') {
-        return {
-          outcome: 'failure',
-          errors: parsedCommand.errors,
+      if (Result.isErr(parsedCommand)) {
+        return Result.err({
+          errors: parsedCommand.error.errors,
           partialValue: {
             command: parsed.value as any,
-            args: { ...parsedCommand.partialValue } as any,
+            args: { ...parsedCommand.error.partialValue } as any,
           },
-        };
+        });
       }
-      return {
-        outcome: 'success',
-        value: { args: parsedCommand.value, command: parsed.value },
-      };
+      return Result.ok({
+        args: parsedCommand.value,
+        command: parsed.value,
+      });
     },
     async run(context): Promise<ParsingResult<RunnerOutput<Commands>>> {
       const parsedSubcommand = await subcommand.parse(context);
 
-      if (parsedSubcommand.outcome === 'failure') {
+      if (Result.isErr(parsedSubcommand)) {
         const breaker = await circuitbreaker.parse(context);
-        if (breaker.outcome === 'success') {
+        if (Result.isOk(breaker)) {
           if (breaker.value === 'help') {
             this.printHelp(context);
             process.exit(1);
@@ -161,7 +161,7 @@ export function subcommands<
           }
         }
 
-        return { ...parsedSubcommand, partialValue: {} };
+        return Result.err({ ...parsedSubcommand.error, partialValue: {} });
       }
 
       context.hotPath?.push(parsedSubcommand.value as string);
@@ -169,20 +169,20 @@ export function subcommands<
       const cmd = config.cmds[parsedSubcommand.value];
       const commandRun = await cmd.run(context);
 
-      if (commandRun.outcome === 'success') {
-        return {
-          outcome: 'success',
-          value: { command: parsedSubcommand.value, value: commandRun.value },
-        };
+      if (Result.isOk(commandRun)) {
+        return Result.ok({
+          command: parsedSubcommand.value,
+          value: commandRun.value,
+        });
       }
 
-      return {
-        ...commandRun,
+      return Result.err({
+        ...commandRun.error,
         partialValue: {
           command: parsedSubcommand.value,
-          value: commandRun.partialValue,
+          value: commandRun.error.partialValue,
         },
-      };
+      });
     },
   };
 }

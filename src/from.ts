@@ -1,8 +1,4 @@
-export type DecodeResult<T> =
-  | { result: 'ok'; value: T }
-  | { result: 'error'; message: string };
-
-export type FromFn<A, B> = (input: A) => Promise<DecodeResult<B>>;
+export type FromFn<A, B> = (input: A) => Promise<B>;
 
 /** A safe conversion from type A to type B */
 export type From<A, B> = {
@@ -36,7 +32,7 @@ export type InputOf<
 export function identity<T>(): From<T, T> {
   return {
     async from(a) {
-      return { result: 'ok', value: a };
+      return a;
     },
   };
 }

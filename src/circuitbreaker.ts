@@ -3,6 +3,7 @@ import { boolean } from './types';
 import { flag } from './flag';
 import { ProvidesHelp } from './helpdoc';
 import { flatMap } from './utils';
+import * as Result from './Result';
 
 type CircuitBreaker = 'help' | 'version';
 
@@ -40,26 +41,25 @@ export const circuitbreaker: ArgParser<CircuitBreaker> & ProvidesHelp = {
     const help = await helpFlag.parse(context);
     const version = await versionFlag.parse(context);
 
-    if (help.outcome === 'failure' || version.outcome === 'failure') {
-      const helpErrors = help.outcome === 'failure' ? help.errors : [];
-      const versionErrors = version.outcome === 'failure' ? version.errors : [];
-      return { outcome: 'failure', errors: [...helpErrors, ...versionErrors] };
+    if (Result.isErr(help) || Result.isErr(version)) {
+      const helpErrors = Result.isErr(help) ? help.error.errors : [];
+      const versionErrors = Result.isErr(version) ? version.error.errors : [];
+      return Result.err({ errors: [...helpErrors, ...versionErrors] });
     }
 
     if (help.value) {
-      return { outcome: 'success', value: 'help' };
+      return Result.ok('help');
     } else if (version.value) {
-      return { outcome: 'success', value: 'version' };
+      return Result.ok('version');
     } else {
-      return {
-        outcome: 'failure',
+      return Result.err({
         errors: [
           {
             nodes: [],
             message: 'Neither help nor version',
           },
         ],
-      };
+      });
     }
   },
 };

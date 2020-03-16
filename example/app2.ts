@@ -16,13 +16,10 @@ const PrNumber = extendType(string, {
     const prNumber = branchName === 'master' ? '10' : undefined;
 
     if (!prNumber) {
-      return {
-        result: 'error',
-        message: `There is no PR associated with branch '${branchName}'`,
-      };
+      throw new Error(`There is no PR associated with branch '${branchName}'`);
     }
 
-    return { result: 'ok', value: prNumber };
+    return prNumber;
   },
   defaultValue: () => 'Hello',
 });

@@ -7,9 +7,9 @@ export const number: Type<string, number> = {
     const decoded = parseInt(str, 10);
 
     if (Number.isNaN(decoded)) {
-      return { result: 'error', message: 'Not a number' };
+      throw new Error('Not a number');
     } else {
-      return { result: 'ok', value: decoded };
+      return decoded;
     }
   },
   displayName: 'number',

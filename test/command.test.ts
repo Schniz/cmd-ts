@@ -5,6 +5,7 @@ import { tokenize } from '../src/newparser/tokenizer';
 import { parse } from '../src/newparser/parser';
 import { command } from '../src/command';
 import { number, string, boolean } from './test-types';
+import * as Result from '../src/Result';
 
 const cmd = command({
   name: 'My command',
@@ -38,15 +39,12 @@ test('merges options, positionals and flags', async () => {
     shortFlagKeys: shortOptionKeys,
   });
   const result = await cmd.parse({ nodes, visitedNodes: new Set() });
-  const expected: typeof result = {
-    outcome: 'success',
-    value: {
-      positionals: ['first', 'second', 'third'],
-      option: 666,
-      secondOption: 'works-too',
-      flag: true,
-    },
-  };
+  const expected: typeof result = Result.ok({
+    positionals: ['first', 'second', 'third'],
+    option: 666,
+    secondOption: 'works-too',
+    flag: true,
+  });
 
   expect(result).toEqual(expected);
 });
@@ -73,23 +71,24 @@ test('fails if an argument fail to parse', async () => {
     visitedNodes: new Set(),
   });
 
-  await expect(result).resolves.toEqual({
-    outcome: 'failure',
-    errors: [
-      {
-        nodes: nodes.filter(x => x.raw.startsWith('--option')),
-        message: 'Not a number',
+  await expect(result).resolves.toEqual(
+    Result.err({
+      errors: [
+        {
+          nodes: nodes.filter(x => x.raw.startsWith('--option')),
+          message: 'Not a number',
+        },
+        {
+          nodes: nodes.filter(x => x.raw.startsWith('--flag')),
+          message: `expected value to be either "true" or "false". got: "fails-too"`,
+        },
+      ],
+      partialValue: {
+        positionals: ['first', 'second', 'third'],
+        secondOption: 'works-too',
       },
-      {
-        nodes: nodes.filter(x => x.raw.startsWith('--flag')),
-        message: `expected value to be either "true" or "false". got: "fails-too"`,
-      },
-    ],
-    partialValue: {
-      positionals: ['first', 'second', 'third'],
-      secondOption: 'works-too',
-    },
-  });
+    })
+  );
 });
 
 test('fails if providing unknown arguments', async () => {
@@ -119,19 +118,21 @@ test('fails if providing unknown arguments', async () => {
     visitedNodes: new Set(),
   });
 
-  expect(result).toEqual({
-    outcome: 'failure',
-    errors: [
-      {
-        message: 'Unknown arguments',
-        nodes: nodes.filter(
-          node =>
-            node.raw.startsWith('--option') || node.raw.startsWith('--another')
-        ),
+  expect(result).toEqual(
+    Result.err({
+      errors: [
+        {
+          message: 'Unknown arguments',
+          nodes: nodes.filter(
+            node =>
+              node.raw.startsWith('--option') ||
+              node.raw.startsWith('--another')
+          ),
+        },
+      ],
+      partialValue: {
+        positionals: ['okay', 'alright'],
       },
-    ],
-    partialValue: {
-      positionals: ['okay', 'alright'],
-    },
-  });
+    })
+  );
 });

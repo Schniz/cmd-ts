@@ -2,6 +2,7 @@ import { flag } from '../src/flag';
 import { tokenize } from '../src/newparser/tokenizer';
 import { parse } from '../src/newparser/parser';
 import { boolean } from '../src/types';
+import * as Result from '../src/Result';
 
 test('fails on incompatible value', async () => {
   const argv = `--hello=world`;
@@ -27,15 +28,17 @@ test('fails on incompatible value', async () => {
     visitedNodes: new Set(),
   });
 
-  await expect(result).resolves.toEqual({
-    outcome: 'failure',
-    errors: [
-      {
-        nodes: nodes,
-        message: 'expected value to be either "true" or "false". got: "world"',
-      },
-    ],
-  });
+  await expect(result).resolves.toEqual(
+    Result.err({
+      errors: [
+        {
+          nodes: nodes,
+          message:
+            'expected value to be either "true" or "false". got: "world"',
+        },
+      ],
+    })
+  );
 });
 
 test('defaults to false', async () => {
@@ -62,10 +65,7 @@ test('defaults to false', async () => {
     visitedNodes: new Set(),
   });
 
-  await expect(result).resolves.toEqual({
-    outcome: 'success',
-    value: false,
-  });
+  await expect(result).resolves.toEqual(Result.ok(false));
 });
 
 test('allows short arguments', async () => {
@@ -93,8 +93,5 @@ test('allows short arguments', async () => {
     visitedNodes: new Set(),
   });
 
-  await expect(result).resolves.toEqual({
-    outcome: 'success',
-    value: true,
-  });
+  await expect(result).resolves.toEqual(Result.ok(true));
 });

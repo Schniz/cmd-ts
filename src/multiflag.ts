@@ -9,6 +9,7 @@ import { findOption } from './newparser/findOption';
 import { ProvidesHelp, LongDoc, Descriptive, ShortDoc } from './helpdoc';
 import { boolean } from './flag';
 import { HasType } from './type';
+import * as Result from './Result';
 
 type MultiFlagConfig<Decoder extends From<boolean[], any>> = HasType<Decoder> &
   LongDoc &
@@ -59,36 +60,38 @@ export function multiflag<Decoder extends From<boolean[], any>>(
       const errors: ParsingError[] = [];
 
       for (const option of options) {
-        const decoded = await boolean.from(option.value?.node.raw ?? 'true');
-        if (decoded.result === 'error') {
-          errors.push({ nodes: [option], message: decoded.message });
+        const decoded = await Result.safeAsync(
+          boolean.from(option.value?.node.raw ?? 'true')
+        );
+        if (Result.isErr(decoded)) {
+          errors.push({ nodes: [option], message: decoded.error.message });
         } else {
           optionValues.push(decoded.value);
         }
       }
 
       if (errors.length > 0) {
-        return {
-          outcome: 'failure',
+        return Result.err({
           errors,
-        };
+        });
       }
 
-      const multiDecoded = await config.type.from(optionValues);
+      const multiDecoded = await Result.safeAsync(
+        config.type.from(optionValues)
+      );
 
-      if (multiDecoded.result === 'error') {
-        return {
-          outcome: 'failure',
+      if (Result.isErr(multiDecoded)) {
+        return Result.err({
           errors: [
             {
               nodes: options,
-              message: multiDecoded.message,
+              message: multiDecoded.error.message,
             },
           ],
-        };
+        });
       }
 
-      return { outcome: 'success', value: multiDecoded.value };
+      return multiDecoded;
     },
   };
 }

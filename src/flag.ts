@@ -11,6 +11,7 @@ import { Type, extendType, OutputOf, HasType } from './type';
 import chalk from 'chalk';
 import { Default } from './default';
 import { AllOrNothing } from './utils';
+import * as Result from './Result';
 
 type FlagConfig<Decoder extends Type<boolean, any>> = LongDoc &
   HasType<Decoder> &
@@ -23,12 +24,11 @@ type FlagConfig<Decoder extends Type<boolean, any>> = LongDoc &
  */
 export const boolean: Type<string, boolean> = {
   async from(str) {
-    if (str === 'true') return { result: 'ok', value: true };
-    if (str === 'false') return { result: 'ok', value: false };
-    return {
-      result: 'error',
-      message: `expected value to be either "true" or "false". got: "${str}"`,
-    };
+    if (str === 'true') return true;
+    if (str === 'false') return false;
+    throw new Error(
+      `expected value to be either "true" or "false". got: "${str}"`
+    );
   },
   displayName: 'true/false',
   defaultValue: () => false,
@@ -104,15 +104,14 @@ export function flag<Decoder extends Type<boolean, any>>(
       options.forEach(opt => visitedNodes.add(opt));
 
       if (options.length > 1) {
-        return {
-          outcome: 'failure',
+        return Result.err({
           errors: [
             {
               nodes: options,
               message: 'Expected 1 occurence, got ' + options.length,
             },
           ],
-        };
+        });
       }
 
       const valueFromEnv = config.env ? process.env[config.env] : undefined;
@@ -127,40 +126,37 @@ export function flag<Decoder extends Type<boolean, any>>(
         typeof config.type.defaultValue === 'function'
       ) {
         try {
-          return { outcome: 'success', value: config.type.defaultValue() };
+          return Result.ok(config.type.defaultValue());
         } catch (e) {
           const message = `Default value not found for '--${config.long}': ${e.message}`;
-          return {
-            outcome: 'failure',
+          return Result.err({
             errors: [{ message, nodes: [] }],
-          };
+          });
         }
       } else if (options.length === 1) {
         rawValue = options[0].value?.node.raw ?? 'true';
       } else {
-        return {
-          outcome: 'failure',
+        return Result.err({
           errors: [
             { nodes: [], message: `No value provided for --${config.long}` },
           ],
-        };
+        });
       }
 
-      const decoded = await decoder.from(rawValue);
+      const decoded = await Result.safeAsync(decoder.from(rawValue));
 
-      if (decoded.result === 'error') {
-        return {
-          outcome: 'failure',
+      if (Result.isErr(decoded)) {
+        return Result.err({
           errors: [
             {
               nodes: options,
-              message: envPrefix + decoded.message,
+              message: envPrefix + decoded.error.message,
             },
           ],
-        };
+        });
       }
 
-      return { outcome: 'success', value: decoded.value };
+      return decoded;
     },
   };
 }

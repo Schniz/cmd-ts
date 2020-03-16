@@ -17,6 +17,7 @@ import { Type, HasType } from './type';
 import chalk from 'chalk';
 import { Default } from './default';
 import { AllOrNothing } from './utils';
+import * as Result from './Result';
 
 type OptionConfig<Decoder extends Type<string, any>> = LongDoc &
   HasType<Decoder> &
@@ -99,10 +100,7 @@ export function option<Decoder extends Type<string, any>>(
             'Too many times provided. Expected 1, got: ' + options.length,
           nodes: options,
         };
-        return {
-          outcome: 'failure',
-          errors: [error],
-        };
+        return Result.err({ errors: [error] });
       }
 
       const valueFromEnv = config.env ? process.env[config.env] : undefined;
@@ -119,50 +117,43 @@ export function option<Decoder extends Type<string, any>>(
         envPrefix = `env[${chalk.italic(config.env)}]: `;
       } else if (!option && typeof defaultValueFn === 'function') {
         try {
-          return {
-            outcome: 'success',
-            value: defaultValueFn(),
-          };
+          return Result.ok(defaultValueFn());
         } catch (e) {
           const message = `Default value not found for '--${config.long}': ${e.message}`;
-          return {
-            outcome: 'failure',
+          return Result.err({
             errors: [
               {
                 nodes: [],
                 message,
               },
             ],
-          };
+          });
         }
       } else {
         const raw =
           option?.type === 'shortOption'
             ? `-${option?.key}`
             : `--${option?.key ?? config.long}`;
-        return {
-          outcome: 'failure',
+        return Result.err({
           errors: [
             {
               nodes: options,
               message: `No value provided for ${raw}`,
             },
           ],
-        };
+        });
       }
 
-      const decoded = await config.type.from(rawValue);
-      if (decoded.result === 'error') {
-        return {
-          outcome: 'failure',
-          errors: [{ nodes: options, message: envPrefix + decoded.message }],
-        };
+      const decoded = await Result.safeAsync(config.type.from(rawValue));
+      if (Result.isErr(decoded)) {
+        return Result.err({
+          errors: [
+            { nodes: options, message: envPrefix + decoded.error.message },
+          ],
+        });
       }
 
-      return {
-        outcome: 'success',
-        value: decoded.value,
-      };
+      return Result.ok(decoded.value);
     },
   };
 }
