@@ -16,8 +16,8 @@ Much like `commander` and similar Node.js tools, the goal of `cmd-ts` is to prov
 
 `cmd-ts` is essentially an adapter between the user's shell and your code. For some reason, most command line argument parsers only accept strings as arguments, and provide no typechecking that the value makes sense in the context of your app:
 
-* Some arguments may be a number; so providing a string should result in an error
-* Some arguments may be an integer; so providing a float should result in an error
-* Some arguments may be readable files; so providing a missing path should result in an error
+- Some arguments may be a number; so providing a string should result in an error
+- Some arguments may be an integer; so providing a float should result in an error
+- Some arguments may be readable files; so providing a missing path should result in an error
 
 These types of concerns are mostly implemented in userland right now. `cmd-ts` has a different way of thinking about it using the `Type` construct, which provides both static (TypeScript) and runtime typechecking. The power of `Type` lets us have a strongly-typed commands that provide us autocomplete for our implementation and confidence in our codebase, while providing an awesome experience for the users, when they provide a wrong argument. More on that on the [Custom Types guide](./custom_types.md)
