@@ -11,3 +11,4 @@
   - [Command](./parsers/command.md)
   - [Subcommands](./parsers/subcommands.md)
   - [Binary](./parsers/binary.md)
+  - [Building a Custom Parser](./parsers/custom.md)

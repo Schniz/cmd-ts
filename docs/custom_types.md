@@ -2,7 +2,7 @@
 
 Not all command line arguments are strings. You sometimes want integers, UUIDs, file paths, directories, globs...
 
-> **Note:** this section describes the `ReadStream` type, implemented in `./src/example/test-types.ts`
+> **Note:** this section describes the `ReadStream` type, implemented in `./example/test-types.ts`
 
 Let's say we're about to write a `cat` clone. We want to accept a file to read into stdout. A simple example would be something like:
 

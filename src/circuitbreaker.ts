@@ -1,4 +1,4 @@
-import { ArgParser } from './argparser';
+import { ArgParser, Register } from './argparser';
 import { boolean } from './types';
 import { flag } from './flag';
 import { ProvidesHelp } from './helpdoc';
@@ -29,7 +29,7 @@ export const versionFlag = flag({
  * It is called circuitbreaker because if you have `--help` or `--version`
  * anywhere in your argument list, you'll see the version and the help for the closest command
  */
-export const circuitbreaker: ArgParser<CircuitBreaker> & ProvidesHelp = {
+export const circuitbreaker: ArgParser<CircuitBreaker> & ProvidesHelp & Register = {
   register(opts) {
     helpFlag.register(opts);
     versionFlag.register(opts);

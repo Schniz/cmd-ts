@@ -29,7 +29,7 @@ const app = command({
   },
 });
 
-run(app, process.argv.split(2));
+run(app, process.argv.slice(2));
 ```
 
 This app is taking one string positional argument and prints it to the screen. Read more about the different parsers and combinators in [Parsers and Combinators](./parsers.md).

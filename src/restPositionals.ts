@@ -6,14 +6,14 @@ import {
 } from './argparser';
 import { OutputOf } from './from';
 import { PositionalArgument } from './newparser/parser';
-import { Type } from './type';
-import { ProvidesHelp } from './helpdoc';
+import { Type, HasType } from './type';
+import { ProvidesHelp, Displayed, Descriptive } from './helpdoc';
 import * as Result from './Result';
 
-type RestPositionalsConfig<Decoder extends Type<string, any>> = {
-  type: Decoder;
-  displayName?: string;
-};
+type RestPositionalsConfig<Decoder extends Type<string, any>> = HasType<
+  Decoder
+> &
+  Partial<Displayed & Descriptive>;
 
 /**
  * Read all the positionals and decode them using the type provided.
@@ -32,7 +32,7 @@ export function restPositionals<Decoder extends Type<string, any>>(
           usage: `[...${displayName}]`,
           category: 'arguments',
           defaults: [],
-          description: config.type.description ?? '',
+          description: config.description ?? config.type.description ?? '',
         },
       ];
     },
