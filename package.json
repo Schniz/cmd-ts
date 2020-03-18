@@ -33,7 +33,6 @@
   },
   "dependencies": {
     "chalk": "^3.0.0",
-    "eslint-config-prettier": "^6.10.0",
     "strip-ansi": "^6.0.0",
     "tslib": "^1.10.0"
   },
@@ -47,6 +46,7 @@
     "cargo-mdbook": "^0.3.5",
     "docs-ts": "^0.3.4",
     "eslint": "^6.8.0",
+    "eslint-config-prettier": "^6.10.0",
     "eslint-plugin-import": "^2.20.1",
     "eslint-plugin-prettier": "^3.1.2",
     "esm": "^3.2.25",
