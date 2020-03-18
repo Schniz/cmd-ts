@@ -110,7 +110,7 @@ export function command<
     },
     register(opts) {
       for (const [, arg] of argEntries) {
-        arg.register(opts);
+        arg.register?.(opts);
       }
     },
     async parse(

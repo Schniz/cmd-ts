@@ -1,4 +1,4 @@
-import { ArgParser, ParsingResult, ParseContext } from './argparser';
+import { ArgParser, ParsingResult, ParseContext, Register } from './argparser';
 import { findOption } from './newparser/findOption';
 import {
   ProvidesHelp,
@@ -45,7 +45,10 @@ export const boolean: Type<string, boolean> = {
  */
 export function flag<Decoder extends Type<boolean, any>>(
   config: FlagConfig<Decoder>
-): ArgParser<OutputOf<Decoder>> & ProvidesHelp & Partial<Descriptive> {
+): ArgParser<OutputOf<Decoder>> &
+  ProvidesHelp &
+  Register &
+  Partial<Descriptive> {
   const decoder = extendType(boolean, config.type);
 
   return {

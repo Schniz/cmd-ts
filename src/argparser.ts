@@ -50,7 +50,7 @@ export type Register = {
   register(opts: RegisterOptions): void;
 };
 
-export type ArgParser<Into> = Register & {
+export type ArgParser<Into> = Partial<Register> & {
   /**
    * Parse from AST nodes into the value provided in [[Into]].
    *

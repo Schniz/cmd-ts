@@ -12,7 +12,8 @@
   "scripts": {
     "build": "tsc",
     "lint": "eslint src/**/*.ts test/**/*.ts",
-    "now-build": "typedoc --out public",
+    "// now-build": "typedoc --out public",
+    "now-build": "mdbook build --dest-dir=public",
     "run-example": "yarn --silent ts-node src/example/app.ts",
     "start": "yarn build --watch",
     "prepublishOnly": "yarn build && yarn test",
@@ -43,6 +44,7 @@
     "@types/request": "^2.48.4",
     "@typescript-eslint/eslint-plugin": "^2.23.0",
     "@typescript-eslint/parser": "^2.23.0",
+    "cargo-mdbook": "^0.3.5",
     "docs-ts": "^0.3.4",
     "eslint": "^6.8.0",
     "eslint-plugin-import": "^2.20.1",
