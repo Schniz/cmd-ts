@@ -1,7 +1,7 @@
 {
   "name": "cmd-ts",
-  "version": "0.3.2",
-  "homepage": "https://clio-ts.now.sh",
+  "version": "0.4.0",
+  "homepage": "https://cmd-ts.now.sh",
   "license": "MIT",
   "author": "Gal Schlezinger",
   "main": "dist/index.js",
