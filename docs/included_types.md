@@ -20,4 +20,4 @@ Takes a type and makes it nullable by providing a default value of `undefined`
 
 Tries to decode the types provided until it succeeds, or throws all the errors combined. There's an optional configuration to this function:
 
-* `combineErrors`: function that takes a list of strings (the error messages) and returns a string which is the combined error message. The default value for it is to join with a newline: `xs => xs.join("\n")`.
+- `combineErrors`: function that takes a list of strings (the error messages) and returns a string which is the combined error message. The default value for it is to join with a newline: `xs => xs.join("\n")`.
