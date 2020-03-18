@@ -6,7 +6,7 @@
 
 An argument parser is a simple struct with a `parse` function and an optional `register` function.
 
-`cmd-ts` is shipped with a couple of parsers and combinators to help you build your dream command-line app:
+`cmd-ts` is shipped with a couple of parsers and combinators to help you build your dream command-line app. [`subcommands`](./parsers/subcommands.md) are built using nested [`command`](./parsers/command.md)s. Every [`command`](./parsers/command.md) is built with [`flag`](./parsers/flags.md), [`option`](./parsers/options.md) and [`positional`](./parsers/positionals.md) arguments. Here is a short parser description:
 
 - [`positional` and `restPositionals`](./parsers/positionals.md) to read arguments by position
 - [`option` and `multioption`](./parsers/options.md) to read binary `--key value` arguments
