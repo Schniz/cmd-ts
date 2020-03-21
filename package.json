@@ -13,7 +13,7 @@
     "build": "tsc",
     "lint": "eslint src/**/*.ts test/**/*.ts",
     "// now-build": "typedoc --out public",
-    "now-build": "mdbook build --dest-dir=public",
+    "now-build": "mdbook build --dest-dir=public/book",
     "run-example": "yarn --silent ts-node src/example/app.ts",
     "start": "yarn build --watch",
     "prepublishOnly": "yarn build && yarn test",
