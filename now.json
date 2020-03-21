@@ -11,10 +11,10 @@
     }
   ],
   "routes": [
-    { "src": "/book", "status": "302", "headers": { "Location": "/book/introduction.html" } },
+    { "src": "/book", "status": 302, "headers": { "Location": "/book/introduction.html" } },
     { "src": "/book/(.*)", "dest": "/book/$1" },
 
-    { "src": "/typedoc", "status": "302", "headers": { "Location": "/typedoc/index.html" } },
+    { "src": "/typedoc", "status": 302, "headers": { "Location": "/typedoc/index.html" } },
     { "src": "/typedoc/(.*)", "dest": "/typedoc/$1" },
 
     { "src": "/(.*)", "dest": "/website/$1" }
