@@ -4,21 +4,31 @@ import cx from 'classnames';
 export type Variant = 'code';
 export type Size = 'heading';
 
+const aligns = {
+  left: 'left',
+  right: 'right',
+  center: 'center',
+};
+
 export function Text(props: {
   variant?: Size;
   style?: Variant;
   children: React.ReactNode;
+  align?: keyof typeof aligns;
+  className?: string;
 }) {
-  const className = props.style === 'code' ? 'code' : 'normal';
-  const Tag = props.variant === 'heading' ? 'h1' : 'span';
+  const Tag = props.variant === 'heading' ? 'h1' : 'div';
   return (
     <>
       <Tag
-        className={cx({
+        className={cx(props.className, {
           code: props.style === 'code',
           heading: props.variant === 'heading',
           normal: !props.style,
         })}
+        style={{
+          textAlign: props.align,
+        }}
       >
         {props.children}
       </Tag>

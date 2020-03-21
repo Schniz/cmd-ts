@@ -8,16 +8,24 @@
     "start": "next start"
   },
   "dependencies": {
+    "@mdx-js/loader": "^1.5.7",
+    "@mdx-js/react": "^1.5.7",
+    "@next/mdx": "^9.3.1",
+    "@types/webpack-env": "^1.15.1",
     "ansi-to-react": "^6.0.5",
     "chalk": "^3.0.0",
     "classnames": "^2.2.6",
     "execa": "^4.0.0",
+    "github-markdown-css": "^4.0.0",
+    "globby": "^11.0.0",
     "next": "9.3.0",
     "react": "16.13.0",
     "react-dom": "16.13.0"
   },
   "devDependencies": {
     "@types/classnames": "^2.2.10",
-    "@types/react": "^16.9.23"
+    "@types/mdx-js__react": "^1.5.1",
+    "@types/react": "^16.9.23",
+    "ts-loader": "^6.2.1"
   }
 }
