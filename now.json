@@ -17,6 +17,6 @@
     { "src": "/typedoc", "status": 302, "headers": { "Location": "/typedoc/index.html" } },
     { "src": "/typedoc/(.*)", "dest": "/typedoc/$1" },
 
-    { "src": "/(.*)", "dest": "/website/$1" }
+    { "src": "/(.*)", "dest": "/website/$1", "headers": { "Cache-Control": "s-maxage=1, stale-while-revalidate" } }
   ]
 }
