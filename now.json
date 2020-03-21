@@ -11,7 +11,7 @@
     }
   ],
   "routes": [
-    { "src": "/.*", "dest": "./website/package.json" },
-    { "src": "/book/.*", "dest": "package.json" }
+    { "src": "/.*", "dest": "/website/" },
+    { "src": "/book/.*", "dest": "/book/" }
   ]
 }
