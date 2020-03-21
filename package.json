@@ -12,8 +12,7 @@
   "scripts": {
     "build": "tsc",
     "lint": "eslint src/**/*.ts test/**/*.ts",
-    "// now-build": "typedoc --out public",
-    "now-build": "mdbook build --dest-dir=public/book",
+    "now-build": "mdbook build --dest-dir=public/book && typedoc --out public/typedoc",
     "run-example": "yarn --silent ts-node src/example/app.ts",
     "start": "yarn build --watch",
     "prepublishOnly": "yarn build && yarn test",
