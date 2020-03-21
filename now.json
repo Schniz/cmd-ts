@@ -3,7 +3,10 @@
   "builds": [
     {
       "src": "package.json",
-      "use": "@now/node"
+      "use": "@now/static-build",
+      "config": {
+        "distDir": "book"
+      }
     },
     {
       "src": "./website/package.json",

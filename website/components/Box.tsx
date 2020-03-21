@@ -20,15 +20,27 @@ export function Box(props: {
   return (
     <div
       className={props.className}
-      style={{
+      style={compactObj({
         flex: props.flex,
         paddingRight,
         paddingLeft,
         paddingBottom,
         padding,
-      }}
+      })}
     >
       {props.children}
     </div>
   );
+}
+
+function compactObj<T>(obj: T): T {
+  const result = {} as T;
+
+  for (const [key, value] of Object.entries(obj)) {
+    if (value !== null && value !== undefined) {
+      result[key as keyof T] = value;
+    }
+  }
+
+  return result;
 }
