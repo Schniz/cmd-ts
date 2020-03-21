@@ -11,7 +11,7 @@
     }
   ],
   "routes": [
-    { "src": "/.*", "dest": "/website/" },
-    { "src": "/book/.*", "dest": "/book/" }
+    { "src": "/book/(.*)", "dest": "/book/$1" },
+    { "src": "/(.*)", "dest": "/website/$1" }
   ]
 }
