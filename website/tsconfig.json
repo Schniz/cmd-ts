@@ -27,8 +27,10 @@
   "include": [
     "./next-env.d.ts",
     "./src/**/*.tsx",
+    "./src/**/*.ts",
     "./components/**/*.tsx",
     "./pages/**/*.tsx",
+    "./pages/api/*.ts",
   ],
   "exclude": [
     "node_modules"

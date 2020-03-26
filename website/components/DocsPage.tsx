@@ -53,6 +53,15 @@ function ShowSummary() {
         .ul:not(:first-child) {
           margin-left: 1em;
         }
+
+        :global([id] > a) {
+          vertical-align: middle;
+          opacity: 0.3;
+        }
+
+        :global([id]:hover > a) {
+          opacity: 1;
+        }
       `}</style>
     </MDXProvider>
   );

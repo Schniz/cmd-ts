@@ -1,0 +1,118 @@
+{
+  "$schema": "vscode://schemas/color-theme",
+  "name": "GitHub Theme",
+  "colors": {
+    "editor.background": "#f5f5f5",
+    "editor.foreground": "#24292e",
+    "editorLineNumber.foreground": "#ccc",
+    "editorIndentGuide.background": "#eee",
+    "editorBracketMatch.background": "#f1f8ff",
+    "editorBracketMatch.border": "#c8e1ff",
+    "editor.lineHighlightBackground": "#fffbdd",
+    "focusBorder": "#fafbfc",
+
+    // Activitybar
+    "activityBar.background": "#24292e",
+
+    // Sidebar
+    "sideBar.background": "#fafbfc",
+    "sideBar.foreground": "#586069",
+    "sideBar.border": "#ddd",
+    "sideBarTitle.foreground": "#24292e",
+    "sideBarSectionHeader.background": "#fafbfc",
+    "sideBarSectionHeader.foreground": "#24292e",
+
+    // Statusbar
+    "statusBar.foreground": "#24292e",
+    "statusBar.background": "#fafbfc",
+    "statusBar.border": "#ddd",
+    "statusBar.noFolderForeground": "#24292e",
+    "statusBar.noFolderBackground": "#fafbfc",
+    "statusBar.debuggingForeground": "#24292e",
+    "statusBar.debuggingBackground": "#fafbfc",
+
+    // Notification
+    "notification.background": "#54a3ff"
+  },
+  "tokenColors": [
+    {
+      "scope": "emphasis",
+      "settings": {
+        "fontStyle": "italic"
+      }
+    },
+    {
+      "scope": "strong",
+      "settings": {
+        "fontStyle": "bold"
+      }
+    },
+    {
+      "scope": "comment",
+      "settings": {
+        "foreground": "#6a737d"
+      }
+    },
+    {
+      "scope": "string",
+      "settings": {
+        "foreground": "#032f62"
+      }
+    },
+    {
+      "scope": [
+        "constant.numeric",
+        "constant.language.null",
+        "variable.language.this",
+        "support.type.primitive",
+        "support.function",
+        "support.variable.dom",
+        "support.variable.property",
+        "support.variable.property",
+
+        // CSS
+        "meta.property-name",
+        "meta.property-value",
+
+        // Handlebars
+        "support.constant.handlebars"
+      ],
+      "settings": {
+        "foreground": "#005cc5"
+      }
+    },
+    {
+      "scope": [
+        "keyword",
+        "storage.modifier",
+        "storage.type",
+        "variable.parameter"
+      ],
+      "settings": {
+        "foreground": "#d73a49"
+      }
+    },
+    {
+      "scope": [
+        "entity.name.type",
+        "entity.other.inherited-class",
+        "meta.function-call",
+
+        // HTML/XML
+        "entity.other.attribute-name",
+
+        // Shell
+        "entity.name.function.shell"
+      ],
+      "settings": {
+        "foreground": "#6f42c1"
+      }
+    },
+    {
+      "scope": ["entity.name.tag"],
+      "settings": {
+        "foreground": "#22863a"
+      }
+    }
+  ]
+}

@@ -2,7 +2,7 @@
 
 Read positional arguments. Positional arguments are all the arguments that are not an [option](./options.md) or a [flag](./options.md). So in the following command line invocation for the `my-app` command:
 
-```
+```bash
 my-app greet --greeting Hello Joe
        ^^^^^                  ^^^  - positional arguments
 ```

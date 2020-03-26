@@ -12,11 +12,15 @@ A simple `boolean => boolean` type. Useful for [`flag`](./parsers/options.md)
 
 A `string => number` type. Checks that the input is indeed a number or fails with a descriptive error message.
 
-### `optional(type)`
+### `optional`
+
+> Usage: `optional(type)`
 
 Takes a type and makes it nullable by providing a default value of `undefined`
 
-### `union([types])`
+### `union`
+
+> Usage: `union([type1, type2, ...])`
 
 Tries to decode the types provided until it succeeds, or throws all the errors combined. There's an optional configuration to this function:
 

@@ -1,5 +1,6 @@
 import { AppProps } from 'next/app';
 import 'github-markdown-css/github-markdown.css';
+import 'highlight.js/styles/github.css';
 
 export default (props: AppProps) => {
   return (

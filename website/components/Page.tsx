@@ -1,4 +1,5 @@
 import { Stack, Columns, Column, Box, Text } from './Design';
+import Link from 'next/link';
 import Head from 'next/head';
 
 export function Page(props: {
@@ -19,7 +20,11 @@ export function Page(props: {
           </Column>
           <Column flex={1}>
             <Box padding="small">
-              <Text align="right">Docs</Text>
+              <Text align="right">
+                <Link href="/docs">
+                  <a>Docs</a>
+                </Link>
+              </Text>
             </Box>
           </Column>
         </Columns>
