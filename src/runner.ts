@@ -3,7 +3,7 @@ import { ParseContext, ParsingResult, Register } from './argparser';
 import { tokenize } from './newparser/tokenizer';
 import { parse } from './newparser/parser';
 import { errorBox } from './errorBox';
-import { isErr } from './Result';
+import { err, ok, Result, isErr } from './Result';
 
 export type Handling<Values, Result> = { handler: (values: Values) => Result };
 
@@ -22,6 +22,22 @@ export async function run<R extends Runner<any, any>>(
   ap: R,
   strings: string[]
 ): Promise<Into<R>> {
+  const result = await runNoExit(ap, strings);
+  if (isErr(result)) {
+    console.error(result.error);
+    process.exit(1);
+  } else {
+    return result.value;
+  }
+}
+
+/**
+ * Run a command but don't quit. Returns an `Result` instead.
+ */
+export async function runNoExit<R extends Runner<any, any>>(
+  ap: R,
+  strings: string[]
+): Promise<Result<string, Into<R>>> {
   const longOptionKeys = new Set<string>();
   const shortOptionKeys = new Set<string>();
   const hotPath: string[] = [];
@@ -38,9 +54,8 @@ export async function run<R extends Runner<any, any>>(
   const result = await ap.run({ nodes, visitedNodes: new Set(), hotPath });
 
   if (isErr(result)) {
-    console.error(errorBox(nodes, result.error.errors, hotPath));
-    process.exit(1);
+    return err(errorBox(nodes, result.error.errors, hotPath));
   } else {
-    return result.value;
+    return ok(result.value);
   }
 }
