@@ -134,8 +134,8 @@ export function subcommands<
         return Result.err({
           errors: parsedCommand.error.errors,
           partialValue: {
-            command: parsed.value as any,
-            args: { ...parsedCommand.error.partialValue } as any,
+            command: parsed.value,
+            args: parsedCommand.error.partialValue,
           },
         });
       }

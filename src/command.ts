@@ -183,10 +183,7 @@ export function command<
       }
 
       if (Result.isErr(parsed)) {
-        return Result.err({
-          errors: parsed.error.errors,
-          partialValue: { ...parsed.error.partialValue },
-        });
+        return Result.err(parsed.error);
       }
 
       return Result.ok(this.handler(parsed.value));

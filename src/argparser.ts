@@ -10,17 +10,10 @@ export type ParsingError = {
   message: string;
 };
 
-/**
- * Like TypeScript's `Partial<T>`, only recursive.
- */
-export type DeepPartial<X> = {
-  [key in keyof X]?: DeepPartial<X[key]>;
-};
-
-export type FailedParse<Into> = {
+export type FailedParse = {
   errors: ParsingError[];
   /** The content that was parsed so far */
-  partialValue?: DeepPartial<Into>;
+  partialValue?: unknown;
 };
 
 export type ParseContext = {
@@ -35,7 +28,7 @@ export type ParseContext = {
   hotPath?: string[];
 };
 
-export type ParsingResult<Into> = Result<FailedParse<Into>, Into>;
+export type ParsingResult<Into> = Result<FailedParse, Into>;
 
 export type RegisterOptions = {
   forceFlagLongNames: Set<string>;
