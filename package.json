@@ -26,6 +26,7 @@
       "pre-commit": "yarn lint"
     }
   },
+  "sideEffects": false,
   "prettier": {
     "printWidth": 80,
     "semi": true,
