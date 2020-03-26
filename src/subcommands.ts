@@ -12,7 +12,7 @@ import { Aliased, Named, Descriptive } from './helpdoc';
 import chalk from 'chalk';
 import { circuitbreaker } from './circuitbreaker';
 import * as Result from './Result';
-import { ExitWithStatus } from './effects';
+import { Exit } from './effects';
 
 type Output<
   Commands extends Record<string, ArgParser<any> & Runner<any, any>>
@@ -92,9 +92,9 @@ export function subcommands<
         lines.push(chalk.dim('> ') + config.description);
       }
 
-      lines.push("");
+      lines.push('');
       lines.push(`where ${chalk.italic('<subcommand>')} can be one of:`);
-      lines.push("");
+      lines.push('');
 
       for (const key of Object.keys(config.cmds)) {
         const cmd = config.cmds[key];
@@ -111,9 +111,9 @@ export function subcommands<
 
       const helpCommand = chalk.yellow(`${argsSoFar} <subcommand> --help`);
 
-      lines.push("");
+      lines.push('');
       lines.push(chalk.dim(`For more help, try running \`${helpCommand}\``));
-      return lines.join("\n");
+      return lines.join('\n');
     },
     async parse(
       context: ParseContext
@@ -153,11 +153,19 @@ export function subcommands<
         if (Result.isOk(breaker)) {
           if (breaker.value === 'help') {
             const help = this.printHelp(context);
-            throw new ExitWithStatus(1, help);
+            throw new Exit({
+              exitCode: 1,
+              message: help,
+              into: 'stdout',
+            });
           }
 
           if (breaker.value === 'version') {
-            throw new ExitWithStatus(0, this.version || '0.0.0');
+            throw new Exit({
+              exitCode: 0,
+              message: this.version || '0.0.0',
+              into: 'stdout',
+            });
           }
         }
 

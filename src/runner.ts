@@ -4,7 +4,7 @@ import { tokenize } from './newparser/tokenizer';
 import { parse } from './newparser/parser';
 import { errorBox } from './errorBox';
 import { err, ok, Result, isErr } from './Result';
-import { ExitWithStatus } from './effects';
+import { Exit } from './effects';
 
 export type Handling<Values, Result> = { handler: (values: Values) => Result };
 
@@ -32,9 +32,13 @@ export async function run<R extends Runner<any, any>>(
       return result.value;
     }
   } catch (e) {
-    if (e instanceof ExitWithStatus) {
-      console.error(e.message);
-      process.exit(e.status);
+    if (e instanceof Exit) {
+      if (e.config.into === 'stderr') {
+        console.error(e.config.message);
+      } else {
+        console.log(e.config.message);
+      }
+      process.exit(e.config.exitCode);
     }
     throw e;
   }
@@ -71,8 +75,8 @@ export async function runNoExit<R extends Runner<any, any>>(
       return ok(result.value);
     }
   } catch (e) {
-    if (catchExits && e instanceof ExitWithStatus) {
-      return err(e.message);
+    if (catchExits && e instanceof Exit) {
+      return err(e.config.message);
     }
     throw e;
   }

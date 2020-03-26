@@ -1,4 +1,9 @@
-export class ExitWithStatus {
-  constructor(public readonly status: number, public readonly message: string) {
-  }
+export class Exit {
+  constructor(
+    public readonly config: {
+      exitCode: number;
+      message: string;
+      into: 'stdout' | 'stderr';
+    }
+  ) {}
 }

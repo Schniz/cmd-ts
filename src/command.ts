@@ -19,7 +19,7 @@ import { padNoAnsi, entries, groupBy, flatMap } from './utils';
 import { Runner } from './runner';
 import { circuitbreaker } from './circuitbreaker';
 import * as Result from './Result';
-import {ExitWithStatus} from './effects';
+import { Exit } from './effects';
 
 type ArgTypes = Record<string, ArgParser<any> & Partial<ProvidesHelp>>;
 type HandlerFunc<Args extends ArgTypes> = (args: Output<Args>) => any;
@@ -93,7 +93,7 @@ export function command<
       const usageBreakdown = groupBy(this.helpTopics(), x => x.category);
 
       for (const [category, helpTopics] of entries(usageBreakdown)) {
-        lines.push("");
+        lines.push('');
         lines.push(category.toUpperCase() + ':');
         const widestUsage = helpTopics.reduce((len, curr) => {
           return Math.max(len, curr.usage.length);
@@ -110,7 +110,7 @@ export function command<
         }
       }
 
-      return lines.join("\n");
+      return lines.join('\n');
     },
     register(opts) {
       for (const [, arg] of argEntries) {
@@ -180,10 +180,13 @@ export function command<
 
       if (shouldShowHelp) {
         const message = this.printHelp(context);
-        throw new ExitWithStatus(1, message);
+        throw new Exit({ exitCode: 1, message, into: 'stdout' });
       } else if (shouldShowVersion) {
-        console.log();
-        throw new ExitWithStatus(0, config.version || '0.0.0');
+        throw new Exit({
+          exitCode: 0,
+          message: config.version || '0.0.0',
+          into: 'stdout',
+        });
       }
 
       if (Result.isErr(parsed)) {
