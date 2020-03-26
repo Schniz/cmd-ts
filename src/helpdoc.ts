@@ -50,7 +50,7 @@ export type PrintHelp = {
   /**
    * Print help for the current item and the current parsing context.
    */
-  printHelp(context: ParseContext): void;
+  printHelp(context: ParseContext): string;
 };
 
 export type Aliased = {

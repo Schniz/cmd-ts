@@ -19,6 +19,7 @@ import { padNoAnsi, entries, groupBy, flatMap } from './utils';
 import { Runner } from './runner';
 import { circuitbreaker } from './circuitbreaker';
 import * as Result from './Result';
+import {ExitWithStatus} from './effects';
 
 type ArgTypes = Record<string, ArgParser<any> & Partial<ProvidesHelp>>;
 type HandlerFunc<Args extends ArgTypes> = (args: Output<Args>) => any;
@@ -71,6 +72,7 @@ export function command<
       );
     },
     printHelp(context) {
+      const lines: string[] = [];
       let name = context.hotPath?.join(' ') ?? '';
       if (!name) {
         name = config.name;
@@ -82,17 +84,17 @@ export function command<
         name += ' ' + chalk.dim(config.version);
       }
 
-      console.log(name);
+      lines.push(name);
 
       if (config.description) {
-        console.log(chalk.dim('> ') + config.description);
+        lines.push(chalk.dim('> ') + config.description);
       }
 
       const usageBreakdown = groupBy(this.helpTopics(), x => x.category);
 
       for (const [category, helpTopics] of entries(usageBreakdown)) {
-        console.log();
-        console.log(category.toUpperCase() + ':');
+        lines.push("");
+        lines.push(category.toUpperCase() + ':');
         const widestUsage = helpTopics.reduce((len, curr) => {
           return Math.max(len, curr.usage.length);
         }, 0);
@@ -104,9 +106,11 @@ export function command<
           for (const defaultValue of helpTopic.defaults) {
             line += chalk.dim(` [${defaultValue}]`);
           }
-          console.log(line);
+          lines.push(line);
         }
       }
+
+      return lines.join("\n");
     },
     register(opts) {
       for (const [, arg] of argEntries) {
@@ -175,11 +179,11 @@ export function command<
         Result.isOk(breaker) && breaker.value === 'version';
 
       if (shouldShowHelp) {
-        this.printHelp(context);
-        process.exit(1);
+        const message = this.printHelp(context);
+        throw new ExitWithStatus(1, message);
       } else if (shouldShowVersion) {
-        console.log(config.version || '0.0.0');
-        process.exit(0);
+        console.log();
+        throw new ExitWithStatus(0, config.version || '0.0.0');
       }
 
       if (Result.isErr(parsed)) {

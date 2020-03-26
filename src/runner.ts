@@ -4,6 +4,7 @@ import { tokenize } from './newparser/tokenizer';
 import { parse } from './newparser/parser';
 import { errorBox } from './errorBox';
 import { err, ok, Result, isErr } from './Result';
+import { ExitWithStatus } from './effects';
 
 export type Handling<Values, Result> = { handler: (values: Values) => Result };
 
@@ -22,12 +23,20 @@ export async function run<R extends Runner<any, any>>(
   ap: R,
   strings: string[]
 ): Promise<Into<R>> {
-  const result = await runNoExit(ap, strings);
-  if (isErr(result)) {
-    console.error(result.error);
-    process.exit(1);
-  } else {
-    return result.value;
+  try {
+    const result = await runNoExit(ap, strings, false);
+    if (isErr(result)) {
+      console.error(result.error);
+      process.exit(1);
+    } else {
+      return result.value;
+    }
+  } catch (e) {
+    if (e instanceof ExitWithStatus) {
+      console.error(e.message);
+      process.exit(e.status);
+    }
+    throw e;
   }
 }
 
@@ -36,7 +45,8 @@ export async function run<R extends Runner<any, any>>(
  */
 export async function runNoExit<R extends Runner<any, any>>(
   ap: R,
-  strings: string[]
+  strings: string[],
+  catchExits: boolean
 ): Promise<Result<string, Into<R>>> {
   const longOptionKeys = new Set<string>();
   const shortOptionKeys = new Set<string>();
@@ -51,11 +61,19 @@ export async function runNoExit<R extends Runner<any, any>>(
     longFlagKeys: longOptionKeys,
     shortFlagKeys: shortOptionKeys,
   });
-  const result = await ap.run({ nodes, visitedNodes: new Set(), hotPath });
 
-  if (isErr(result)) {
-    return err(errorBox(nodes, result.error.errors, hotPath));
-  } else {
-    return ok(result.value);
+  try {
+    const result = await ap.run({ nodes, visitedNodes: new Set(), hotPath });
+
+    if (isErr(result)) {
+      return err(errorBox(nodes, result.error.errors, hotPath));
+    } else {
+      return ok(result.value);
+    }
+  } catch (e) {
+    if (catchExits && e instanceof ExitWithStatus) {
+      return err(e.message);
+    }
+    throw e;
   }
 }
