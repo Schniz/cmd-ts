@@ -10,9 +10,8 @@ import { From } from './from';
 import { Runner } from './runner';
 import { Aliased, Named, Descriptive } from './helpdoc';
 import chalk from 'chalk';
-import { circuitbreaker } from './circuitbreaker';
+import { circuitbreaker, handleCircuitBreaker } from './circuitbreaker';
 import * as Result from './Result';
-import { Exit } from './effects';
 
 type Output<
   Commands extends Record<string, ArgParser<any> & Runner<any, any>>
@@ -150,24 +149,7 @@ export function subcommands<
 
       if (Result.isErr(parsedSubcommand)) {
         const breaker = await circuitbreaker.parse(context);
-        if (Result.isOk(breaker)) {
-          if (breaker.value === 'help') {
-            const help = this.printHelp(context);
-            throw new Exit({
-              exitCode: 1,
-              message: help,
-              into: 'stdout',
-            });
-          }
-
-          if (breaker.value === 'version') {
-            throw new Exit({
-              exitCode: 0,
-              message: this.version || '0.0.0',
-              into: 'stdout',
-            });
-          }
-        }
+        handleCircuitBreaker(context, this, breaker);
 
         return Result.err({ ...parsedSubcommand.error, partialValue: {} });
       }

@@ -1,9 +1,10 @@
-import { ArgParser, Register } from './argparser';
+import { ArgParser, Register, ParseContext } from './argparser';
 import { boolean } from './types';
 import { flag } from './flag';
-import { ProvidesHelp } from './helpdoc';
+import { ProvidesHelp, PrintHelp, Versioned } from './helpdoc';
 import { flatMap } from './utils';
 import * as Result from './Result';
+import { Exit } from './effects';
 
 type CircuitBreaker = 'help' | 'version';
 
@@ -20,6 +21,24 @@ export const versionFlag = flag({
   type: boolean,
   description: 'print the version',
 });
+
+export function handleCircuitBreaker(
+  context: ParseContext,
+  value: PrintHelp & Partial<Versioned>,
+  breaker: Result.Result<any, CircuitBreaker>
+): void {
+  if (Result.isErr(breaker)) {
+    return;
+  }
+
+  if (breaker.value === 'help') {
+    const message = value.printHelp(context);
+    throw new Exit({ exitCode: 1, message, into: 'stdout' });
+  } else if (breaker.value === 'version') {
+    const message = value.version || '0.0.0';
+    throw new Exit({ exitCode: 0, message, into: 'stdout' });
+  }
+}
 
 /**
  * Helper flags that are being used in `command` and `subcommands`:

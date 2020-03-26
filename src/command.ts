@@ -17,9 +17,8 @@ import {
 } from './helpdoc';
 import { padNoAnsi, entries, groupBy, flatMap } from './utils';
 import { Runner } from './runner';
-import { circuitbreaker } from './circuitbreaker';
+import { circuitbreaker, handleCircuitBreaker } from './circuitbreaker';
 import * as Result from './Result';
-import { Exit } from './effects';
 
 type ArgTypes = Record<string, ArgParser<any> & Partial<ProvidesHelp>>;
 type HandlerFunc<Args extends ArgTypes> = (args: Output<Args>) => any;
@@ -172,22 +171,8 @@ export function command<
     },
     async run(context) {
       const parsed = await this.parse(context);
-
       const breaker = await circuitbreaker.parse(context);
-      const shouldShowHelp = Result.isOk(breaker) && breaker.value === 'help';
-      const shouldShowVersion =
-        Result.isOk(breaker) && breaker.value === 'version';
-
-      if (shouldShowHelp) {
-        const message = this.printHelp(context);
-        throw new Exit({ exitCode: 1, message, into: 'stdout' });
-      } else if (shouldShowVersion) {
-        throw new Exit({
-          exitCode: 0,
-          message: config.version || '0.0.0',
-          into: 'stdout',
-        });
-      }
+      handleCircuitBreaker(context, this, breaker);
 
       if (Result.isErr(parsed)) {
         return Result.err(parsed.error);
