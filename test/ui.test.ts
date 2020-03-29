@@ -83,8 +83,15 @@ test('failures in defaultValue', async () => {
   expect(result.exitCode).toBe(1);
 });
 
+test('subcommands with process.argv.slice(2)', async () => {
+  const result = await runApp3(['--help']);
+  expect(result.all).toMatchSnapshot();
+  expect(result.exitCode).toBe(1);
+})
+
 const runApp1 = app(path.join(__dirname, '../example/app.ts'));
 const runApp2 = app(path.join(__dirname, '../example/app2.ts'));
+const runApp3 = app(path.join(__dirname, '../example/app3.ts'));
 
 function app(
   scriptPath: string

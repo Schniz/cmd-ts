@@ -118,6 +118,16 @@ Along the following error:
 
 exports[`subcommands show their version 1`] = `"1.0.0"`;
 
+exports[`subcommands with process.argv.slice(2) 1`] = `
+"[1msubcmds[3m <subcommand>[23m[22m
+
+where [3m<subcommand>[23m can be one of:
+
+[2m- [22msub1
+
+[2mFor more help, try running \`[33msubcmds <subcommand> --help[39m\`[22m"
+`;
+
 exports[`too many arguments 1`] = `
 "[31m[1merror: [22m[39mfound [33m1[39m error
 
