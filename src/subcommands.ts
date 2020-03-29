@@ -8,9 +8,9 @@ import {
 import { positional } from './positional';
 import { From } from './from';
 import { Runner } from './runner';
-import { Aliased, Named, Descriptive } from './helpdoc';
+import { Aliased, Named, Descriptive, Versioned } from './helpdoc';
 import chalk from 'chalk';
-import { circuitbreaker, handleCircuitBreaker } from './circuitbreaker';
+import { createCircuitBreaker, handleCircuitBreaker } from './circuitbreaker';
 import * as Result from './Result';
 
 type Output<
@@ -43,8 +43,9 @@ export function subcommands<
   description?: string;
 }): ArgParser<Output<Commands>> &
   Named &
-  Partial<Descriptive> &
+  Partial<Descriptive & Versioned> &
   Runner<Output<Commands>, RunnerOutput<Commands>> {
+  const circuitbreaker = createCircuitBreaker(!!config.version);
   const type: From<string, keyof Commands> = {
     async from(str) {
       const cmd = Object.entries(config.cmds)
@@ -69,6 +70,7 @@ export function subcommands<
   });
 
   return {
+    version: config.version,
     description: config.description,
     name: config.name,
     handler: value => {

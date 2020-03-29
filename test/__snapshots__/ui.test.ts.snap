@@ -38,7 +38,7 @@ exports[`failures in defaultValue 1`] = `
 `;
 
 exports[`help for complex command 1`] = `
-"[1msubcmds complex[22m
+"[1msubcmds complex[22m [2m6.6.6-alpha[22m
 [2m> [22mJust prints the arguments
 
 ARGUMENTS:
@@ -65,8 +65,7 @@ ARGUMENTS:
   <stream> - A file path or a URL to make a GET request to
 
 FLAGS:
-  --help, -h    - show help
-  --version, -v - print the version"
+  --help, -h - show help"
 `;
 
 exports[`help for composed subcommands 1`] = `
@@ -116,6 +115,8 @@ Along the following error:
 
 [31m[1mhint: [22m[39mfor more information, try '[33msubcmds greet --help[39m'"
 `;
+
+exports[`subcommands show their version 1`] = `"1.0.0"`;
 
 exports[`too many arguments 1`] = `
 "[31m[1merror: [22m[39mfound [33m1[39m error

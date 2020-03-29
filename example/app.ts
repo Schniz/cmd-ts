@@ -20,6 +20,7 @@ import {
 } from '../src';
 
 const complex = command({
+  version: '6.6.6-alpha',
   args: {
     pos1: positional({
       displayName: 'pos1',
@@ -94,7 +95,7 @@ const Name = extendType(string, {
     if (s.length === 0) {
       throw new Error('name cannot be empty');
     } else if (s === 'Bon Jovi') {
-      throw new Error(`Woah, we're half way there\nWoah! living on a prayer!`)
+      throw new Error(`Woah, we're half way there\nWoah! living on a prayer!`);
     } else if (s.charAt(0).toUpperCase() !== s.charAt(0)) {
       throw new Error('name must be capitalized');
     } else {
@@ -147,6 +148,7 @@ const withSubcommands = subcommands({
   },
   name: 'subcmds',
   description: 'An awesome subcommand app!',
+  version: '1.0.0',
 });
 
 const cli = binary(withSubcommands);
