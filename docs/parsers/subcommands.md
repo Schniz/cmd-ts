@@ -4,17 +4,21 @@ This is yet another combinator, which takes a couple of [`command`](./command.md
 
 ### Config
 
-* `name` (required): A name for the container
-* `version`: The container version
-* `cmds`: An object where the keys are the names of the subcommands to use, and the values are [`command`](./command.md) instances. You can also provide `subcommands` instances to nest a nested subcommand!
+- `name` (required): A name for the container
+- `version`: The container version
+- `cmds`: An object where the keys are the names of the subcommands to use, and the values are [`command`](./command.md) instances. You can also provide `subcommands` instances to nest a nested subcommand!
 
 ### Usage
 
 ```ts
 import { command, subcommands, run } from 'cmd-ts';
 
-const cmd1 = command({ /* ... */ });
-const cmd2 = command({ /* ... */ });
+const cmd1 = command({
+  /* ... */
+});
+const cmd2 = command({
+  /* ... */
+});
 
 const subcmd1 = subcommands({
   name: 'my subcmd1',
@@ -23,7 +27,7 @@ const subcmd1 = subcommands({
 
 const nestingSubcommands = subcommands({
   name: 'nesting subcommands',
-  cmds: { subcmd1 }
+  cmds: { subcmd1 },
 });
 
 run(nestingSubcommands, process.argv.slice(2));

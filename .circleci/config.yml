@@ -20,7 +20,7 @@ jobs:
           name: Run tests
           command: yarn test --coverage  --ci --reporters=default --reporters=jest-junit --runInBand
           environment:
-            JEST_JUNIT_OUTPUT_DIR: "test-results/jest"
+            JEST_JUNIT_OUTPUT_DIR: 'test-results/jest'
 
       - run: yarn pack -f clio-ts.tgz
 
