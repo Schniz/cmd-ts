@@ -71,6 +71,12 @@ test('asynchronous type conversion works for success', async () => {
   expect(result.exitCode).toBe(0);
 });
 
+test('subcommands show their version', async () => {
+  const result = await runApp1(['--version']);
+  expect(result.all).toMatchSnapshot();
+  expect(result.exitCode).toBe(0);
+});
+
 test('failures in defaultValue', async () => {
   const result = await runApp2([]);
   expect(result.all).toMatchSnapshot();

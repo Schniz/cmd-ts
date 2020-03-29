@@ -116,6 +116,8 @@ Along the following error:
 [31m[1mhint: [22m[39mfor more information, try '[33msubcmds greet --help[39m'"
 `;
 
+exports[`subcommands show their version 1`] = `"1.0.0"`;
+
 exports[`too many arguments 1`] = `
 "[31m[1merror: [22m[39mfound [33m1[39m error
 

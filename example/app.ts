@@ -148,6 +148,7 @@ const withSubcommands = subcommands({
   },
   name: 'subcmds',
   description: 'An awesome subcommand app!',
+  version: '1.0.0',
 });
 
 const cli = binary(withSubcommands);
