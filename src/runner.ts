@@ -23,35 +23,21 @@ export async function run<R extends Runner<any, any>>(
   ap: R,
   strings: string[]
 ): Promise<Into<R>> {
-  try {
-    const result = await runNoExit(ap, strings, false);
-    if (isErr(result)) {
-      console.error(result.error);
-      process.exit(1);
-    } else {
-      return result.value;
-    }
-  } catch (e) {
-    if (e instanceof Exit) {
-      if (e.config.into === 'stderr') {
-        console.error(e.config.message);
-      } else {
-        console.log(e.config.message);
-      }
-      process.exit(e.config.exitCode);
-    }
-    throw e;
+  const result = await runSafely(ap, strings);
+  if (isErr(result)) {
+    return result.error.run();
+  } else {
+    return result.value;
   }
 }
 
 /**
- * Run a command but don't quit. Returns an `Result` instead.
+ * Runs a command but does not apply any effect
  */
-export async function runNoExit<R extends Runner<any, any>>(
+export async function runSafely<R extends Runner<any, any>>(
   ap: R,
-  strings: string[],
-  catchExits: boolean
-): Promise<Result<string, Into<R>>> {
+  strings: string[]
+): Promise<Result<Exit, Into<R>>> {
   const longOptionKeys = new Set<string>();
   const shortOptionKeys = new Set<string>();
   const hotPath: string[] = [];
@@ -70,14 +56,33 @@ export async function runNoExit<R extends Runner<any, any>>(
     const result = await ap.run({ nodes, visitedNodes: new Set(), hotPath });
 
     if (isErr(result)) {
-      return err(errorBox(nodes, result.error.errors, hotPath));
+      throw new Exit({
+        message: errorBox(nodes, result.error.errors, hotPath),
+        exitCode: 1,
+        into: 'stderr',
+      });
     } else {
       return ok(result.value);
     }
   } catch (e) {
-    if (catchExits && e instanceof Exit) {
-      return err(e.config.message);
+    if (e instanceof Exit) {
+      return err(e);
     }
     throw e;
+  }
+}
+
+/**
+ * Run a command but don't quit. Returns an `Result` instead.
+ */
+export async function dryRun<R extends Runner<any, any>>(
+  ap: R,
+  strings: string[]
+): Promise<Result<string, Into<R>>> {
+  const result = await runSafely(ap, strings);
+  if (isErr(result)) {
+    return err(result.error.dryRun());
+  } else {
+    return result;
   }
 }
