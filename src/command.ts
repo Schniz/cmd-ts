@@ -17,7 +17,7 @@ import {
 } from './helpdoc';
 import { padNoAnsi, entries, groupBy, flatMap } from './utils';
 import { Runner } from './runner';
-import { circuitbreaker, handleCircuitBreaker } from './circuitbreaker';
+import { createCircuitBreaker, handleCircuitBreaker } from './circuitbreaker';
 import * as Result from './Result';
 
 type ArgTypes = Record<string, ArgParser<any> & Partial<ProvidesHelp>>;
@@ -57,6 +57,7 @@ export function command<
   Runner<Output<Arguments>, ReturnType<Handler>> &
   Partial<Versioned & Descriptive & Aliased> {
   const argEntries = entries(config.args);
+  const circuitbreaker = createCircuitBreaker(!!config.version);
 
   return {
     name: config.name,

@@ -20,6 +20,7 @@ import {
 } from '../src';
 
 const complex = command({
+  version: '6.6.6-alpha',
   args: {
     pos1: positional({
       displayName: 'pos1',
