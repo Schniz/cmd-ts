@@ -10,7 +10,7 @@ import { From } from './from';
 import { Runner } from './runner';
 import { Aliased, Named, Descriptive } from './helpdoc';
 import chalk from 'chalk';
-import { circuitbreaker } from './circuitbreaker';
+import { circuitbreaker, handleCircuitBreaker } from './circuitbreaker';
 import * as Result from './Result';
 
 type Output<
@@ -82,17 +82,18 @@ export function subcommands<
       circuitbreaker.register(opts);
     },
     printHelp(context) {
+      const lines: string[] = [];
       const argsSoFar = context.hotPath?.join(' ') ?? 'cli';
 
-      console.log(chalk.bold(argsSoFar + chalk.italic(' <subcommand>')));
+      lines.push(chalk.bold(argsSoFar + chalk.italic(' <subcommand>')));
 
       if (config.description) {
-        console.log(chalk.dim('> ') + config.description);
+        lines.push(chalk.dim('> ') + config.description);
       }
 
-      console.log();
-      console.log(`where ${chalk.italic('<subcommand>')} can be one of:`);
-      console.log();
+      lines.push('');
+      lines.push(`where ${chalk.italic('<subcommand>')} can be one of:`);
+      lines.push('');
 
       for (const key of Object.keys(config.cmds)) {
         const cmd = config.cmds[key];
@@ -104,15 +105,14 @@ export function subcommands<
           description += chalk.dim(`[${aliasTxt}: ${aliases}]`);
         }
         const row = chalk.dim('- ') + key + description;
-        console.log(row.trim());
+        lines.push(row.trim());
       }
 
       const helpCommand = chalk.yellow(`${argsSoFar} <subcommand> --help`);
 
-      console.log();
-      console.log(chalk.dim(`For more help, try running \`${helpCommand}\``));
-
-      process.exit(1);
+      lines.push('');
+      lines.push(chalk.dim(`For more help, try running \`${helpCommand}\``));
+      return lines.join('\n');
     },
     async parse(
       context: ParseContext
@@ -149,17 +149,7 @@ export function subcommands<
 
       if (Result.isErr(parsedSubcommand)) {
         const breaker = await circuitbreaker.parse(context);
-        if (Result.isOk(breaker)) {
-          if (breaker.value === 'help') {
-            this.printHelp(context);
-            process.exit(1);
-          }
-
-          if (breaker.value === 'version') {
-            console.log(this.version || '0.0.0');
-            process.exit(0);
-          }
-        }
+        handleCircuitBreaker(context, this, breaker);
 
         return Result.err({ ...parsedSubcommand.error, partialValue: {} });
       }

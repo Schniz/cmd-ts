@@ -17,7 +17,7 @@ import {
 } from './helpdoc';
 import { padNoAnsi, entries, groupBy, flatMap } from './utils';
 import { Runner } from './runner';
-import { circuitbreaker } from './circuitbreaker';
+import { circuitbreaker, handleCircuitBreaker } from './circuitbreaker';
 import * as Result from './Result';
 
 type ArgTypes = Record<string, ArgParser<any> & Partial<ProvidesHelp>>;
@@ -71,6 +71,7 @@ export function command<
       );
     },
     printHelp(context) {
+      const lines: string[] = [];
       let name = context.hotPath?.join(' ') ?? '';
       if (!name) {
         name = config.name;
@@ -82,17 +83,17 @@ export function command<
         name += ' ' + chalk.dim(config.version);
       }
 
-      console.log(name);
+      lines.push(name);
 
       if (config.description) {
-        console.log(chalk.dim('> ') + config.description);
+        lines.push(chalk.dim('> ') + config.description);
       }
 
       const usageBreakdown = groupBy(this.helpTopics(), x => x.category);
 
       for (const [category, helpTopics] of entries(usageBreakdown)) {
-        console.log();
-        console.log(category.toUpperCase() + ':');
+        lines.push('');
+        lines.push(category.toUpperCase() + ':');
         const widestUsage = helpTopics.reduce((len, curr) => {
           return Math.max(len, curr.usage.length);
         }, 0);
@@ -104,9 +105,11 @@ export function command<
           for (const defaultValue of helpTopic.defaults) {
             line += chalk.dim(` [${defaultValue}]`);
           }
-          console.log(line);
+          lines.push(line);
         }
       }
+
+      return lines.join('\n');
     },
     register(opts) {
       for (const [, arg] of argEntries) {
@@ -168,19 +171,8 @@ export function command<
     },
     async run(context) {
       const parsed = await this.parse(context);
-
       const breaker = await circuitbreaker.parse(context);
-      const shouldShowHelp = Result.isOk(breaker) && breaker.value === 'help';
-      const shouldShowVersion =
-        Result.isOk(breaker) && breaker.value === 'version';
-
-      if (shouldShowHelp) {
-        this.printHelp(context);
-        process.exit(1);
-      } else if (shouldShowVersion) {
-        console.log(config.version || '0.0.0');
-        process.exit(0);
-      }
+      handleCircuitBreaker(context, this, breaker);
 
       if (Result.isErr(parsed)) {
         return Result.err(parsed.error);
