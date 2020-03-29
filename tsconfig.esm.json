@@ -1,6 +1,6 @@
 {
   "$schema": "http://json.schemastore.org/tsconfig",
-  "extends": "./tsconfig.json",
+  "extends": "./tsconfig.cjs.json",
   "compilerOptions": {
     "module": "ESNext",
     "outDir": "./dist/esm"
