@@ -23,6 +23,7 @@ jobs:
           PACKAGE_VERSION: 0.0.0-${{ github.sha }}
       - run: yarn
       - run:
-          yarn publish --tag=next
+          echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
+          yarn publish --tag=next; rm ~/.npmrc
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
