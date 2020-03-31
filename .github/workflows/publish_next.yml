@@ -22,7 +22,8 @@ jobs:
         env:
           PACKAGE_VERSION: 0.0.0-${{ github.sha }}
       - run: yarn
-      - run:
+      - name: 'publish to npm'
+        run: |
           echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
           yarn publish --tag=next; rm ~/.npmrc
         env:
