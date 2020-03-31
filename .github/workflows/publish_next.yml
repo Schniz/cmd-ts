@@ -13,7 +13,7 @@ jobs:
       - uses: actions/checkout@v2
       - run: |
           echo "Setting the version to $PACKAGE_VERSION"
-          jq ".version = '$PACKAGE_VERSION'" package.json > new.package.json
+          jq '.version = env.PACKAGE_VERSION' package.json > new.package.json
           mv new.package.json package.json
         env:
           PACKAGE_VERSION: 0.0.0-${{ github.sha }}
