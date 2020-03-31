@@ -7,7 +7,7 @@ on:
 
 jobs:
   next_tag:
-    name: `next` tag
+    name: "`next` tag"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/setup-node@v1
