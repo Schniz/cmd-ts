@@ -1,0 +1,26 @@
+name: "Publish `next` tag"
+
+on:
+  push:
+    # branches:
+    #   - master
+
+jobs:
+  publish:
+    name: Publish
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: yarn
+      - run: apt-get install -y jq
+      - run:
+          echo "Setting the version to $PACKAGE_VERSION"
+          jq ".version = '$PACKAGE_VERSION'" package.json > new.package.json
+          mv new.package.json package.json
+        env:
+          PACKAGE_VERSION: 0.0.0-${{ github.sha }}
+      - run: cat package.json
+      # - run:
+      #     yarn publish --token=$NPM_TOKEN --tag=next
+      #   env:
+      #     NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
