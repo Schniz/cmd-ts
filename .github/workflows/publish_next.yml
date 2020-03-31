@@ -11,16 +11,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - run: yarn
-      - run: jq . package.json
-      - run: sudo apt-get install -y jq
-      - run:
+      - run: |
           echo "Setting the version to $PACKAGE_VERSION"
           jq ".version = '$PACKAGE_VERSION'" package.json > new.package.json
           mv new.package.json package.json
         env:
           PACKAGE_VERSION: 0.0.0-${{ github.sha }}
       - run: cat package.json
+      - run: yarn
       # - run:
       #     yarn publish --token=$NPM_TOKEN --tag=next
       #   env:
