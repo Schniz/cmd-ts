@@ -19,7 +19,7 @@ jobs:
           PACKAGE_VERSION: 0.0.0-${{ github.sha }}
       - run: cat package.json
       - run: yarn
-      # - run:
-      #     yarn publish --token=$NPM_TOKEN --tag=next
-      #   env:
-      #     NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - run:
+          yarn publish --tag=next
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
