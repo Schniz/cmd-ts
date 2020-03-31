@@ -1,0 +1,30 @@
+name: "auto publish"
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  next_tag:
+    name: "`next` tag"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-node@v1
+        with:
+          always-auth: true
+      - uses: actions/checkout@v2
+      - name: "Set package version"
+        run: |
+          echo "Setting the version to $PACKAGE_VERSION"
+          jq '.version = env.PACKAGE_VERSION' package.json > new.package.json
+          mv new.package.json package.json
+        env:
+          PACKAGE_VERSION: 0.0.0-${{ github.sha }}
+      - run: yarn
+      - name: 'publish to npm'
+        run: |
+          echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
+          yarn publish --tag=next; rm ~/.npmrc
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
