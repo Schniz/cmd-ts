@@ -1,4 +1,3 @@
-import chalk from 'chalk';
 import stripAnsi from 'strip-ansi';
 
 /**
@@ -17,24 +16,6 @@ export function padNoAnsi(
   } else {
     return pad + str;
   }
-}
-
-const colorCycle = [
-  chalk.green,
-  chalk.blue,
-  chalk.magenta,
-  chalk.cyan,
-  chalk.white,
-];
-
-/**
- * Creates a function to get a new color
- *
- * @ignore
- */
-export function generateColorCycle(): () => chalk.Chalk {
-  let i = 0;
-  return () => colorCycle[i++ % colorCycle.length];
 }
 
 /**
