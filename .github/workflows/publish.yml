@@ -1,13 +1,13 @@
-name: "Publish `next` tag"
+name: "auto publish"
 
 on:
   push:
-    # branches:
-    #   - master
+    branches:
+      - master
 
 jobs:
-  publish:
-    name: Publish
+  next_tag:
+    name: `next` tag
     runs-on: ubuntu-latest
     steps:
       - uses: actions/setup-node@v1
