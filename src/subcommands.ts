@@ -119,6 +119,9 @@ export function subcommands<
     async parse(
       context: ParseContext
     ): Promise<ParsingResult<Output<Commands>>> {
+      if (context.hotPath?.length === 0) {
+        context.hotPath.push(config.name);
+      }
       const parsed = await subcommand.parse(context);
 
       if (Result.isErr(parsed)) {
@@ -147,6 +150,10 @@ export function subcommands<
       });
     },
     async run(context): Promise<ParsingResult<RunnerOutput<Commands>>> {
+      if (context.hotPath?.length === 0) {
+        context.hotPath.push(config.name);
+      }
+
       const parsedSubcommand = await subcommand.parse(context);
 
       if (Result.isErr(parsedSubcommand)) {
