@@ -1,4 +1,7 @@
 import { Token } from './tokenizer';
+import createDebugger from 'debug';
+
+const debug = createDebugger('cmd-ts:parser');
 
 export type AstNode =
   | Value
@@ -74,6 +77,15 @@ type ForceFlag = {
  * @param forceFlag Keys to force as flag. {@see ForceFlag} to read more about it.
  */
 export function parse(tokens: Token[], forceFlag: ForceFlag): AstNode[] {
+  if (debug.enabled) {
+    debug(
+      `Registered short flags: ${JSON.stringify([...forceFlag.shortFlagKeys])}`
+    );
+    debug(
+      `Registered long flags: ${JSON.stringify([...forceFlag.longFlagKeys])}`
+    );
+  }
+
   const nodes: AstNode[] = [];
   let index = 0;
   let forcedPositional = false;
@@ -246,6 +258,12 @@ export function parse(tokens: Token[], forceFlag: ForceFlag): AstNode[] {
     index++;
     continue;
   }
+
+  if (debug.enabled) {
+    const objectNodes = nodes.map(node => ({ [node.type]: node.raw }));
+    debug(`Parsed items:`, JSON.stringify(objectNodes));
+  }
+
   return nodes;
 }
 
