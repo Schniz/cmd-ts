@@ -136,3 +136,19 @@ test('fails if providing unknown arguments', async () => {
     })
   );
 });
+
+test('should fail run when an async handler fails', async () => {
+  const error = new Error('oops');
+  const cmd = command({
+    name: 'my command',
+    args: {},
+    handler: async _ => {
+        throw error
+    },
+  });
+
+  await expect(cmd.run({
+    nodes: [],
+    visitedNodes: new Set(),
+  })).rejects.toEqual(error);
+})

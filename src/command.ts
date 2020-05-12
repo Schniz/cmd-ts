@@ -179,7 +179,7 @@ export function command<
         return Result.err(parsed.error);
       }
 
-      return Result.ok(this.handler(parsed.value));
+      return Result.ok(await this.handler(parsed.value));
     },
   };
 }
