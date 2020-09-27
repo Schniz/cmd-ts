@@ -4,7 +4,7 @@
 
 ### A command line argument parser written in TypeScript
 
-Much like `commander` and similar Node.js tools, the goal of `cmd-ts` is to providing your users a superior experience while using your app from the terminal.
+Much like `commander` and similar Node.js tools, the goal of `cmd-ts` is to provide your users a superior experience while using your app from the terminal.
 
 `cmd-ts` is built with TypeScript and tries to bring soundness and ease of use to CLI apps. It is fully typed and allows custom types as CLI arguments. More on that on the next paragraph.
 
@@ -14,7 +14,7 @@ Much like `commander` and similar Node.js tools, the goal of `cmd-ts` is to prov
 
 ### Type-driven command line argument parser
 
-`cmd-ts` is essentially an adapter between the user's shell and your code. For some reason, most command line argument parsers only accept strings as arguments, and provide no typechecking that the value makes sense in the context of your app:
+`cmd-ts` is essentially an adapter between the user's shell and the code. For some reason, most command line argument parsers only accept strings as arguments, and provide no typechecking that the value makes sense in the context of your app:
 
 - Some arguments may be a number; so providing a string should result in an error
 - Some arguments may be an integer; so providing a float should result in an error
