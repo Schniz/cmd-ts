@@ -1,7 +1,7 @@
 import { restPositionals } from '../src/restPositionals';
 import { tokenize } from '../src/newparser/tokenizer';
 import { parse, AstNode } from '../src/newparser/parser';
-import { number } from './test-types';
+import { number, string } from './test-types';
 import * as Result from '../src/Result';
 
 test('fails on specific positional', async () => {
@@ -50,4 +50,27 @@ test('succeeds when all unused positional decode successfuly', async () => {
   const result = argparser.parse({ nodes, visitedNodes });
 
   await expect(result).resolves.toEqual(Result.ok([10, 20, 40]));
+});
+
+test('succeeds when rest is quoted', async () => {
+  // const argv = `-- "--single-quote --trailing-comma all {{scripts,src}/**/*.{js,ts},{scripts,src}/*.{js,ts},*.{js,ts}}"`;
+  const tokens = tokenize([
+    '--single-quote --trailing-comma all {{scripts,src}/**/*.{js,ts},{scripts,src}/*.{js,ts},*.{js,ts}}',
+  ]);
+  const nodes = parse(tokens, {
+    shortFlagKeys: new Set(),
+    longFlagKeys: new Set(),
+  });
+  const argparser = restPositionals({
+    type: string,
+  });
+  const visitedNodes = new Set<AstNode>();
+
+  const result = argparser.parse({ nodes, visitedNodes });
+
+  await expect(result).resolves.toEqual(
+    Result.ok([
+      '--single-quote --trailing-comma all {{scripts,src}/**/*.{js,ts},{scripts,src}/*.{js,ts},*.{js,ts}}',
+    ])
+  );
 });
