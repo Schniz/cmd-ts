@@ -1,7 +1,7 @@
 import { restPositionals } from '../src/restPositionals';
 import { tokenize } from '../src/newparser/tokenizer';
 import { parse, AstNode } from '../src/newparser/parser';
-import { number, string } from './test-types';
+import { number } from './test-types';
 import * as Result from '../src/Result';
 
 test('fails on specific positional', async () => {
