@@ -143,12 +143,53 @@ test('should fail run when an async handler fails', async () => {
     name: 'my command',
     args: {},
     handler: async _ => {
-        throw error
+      throw error;
     },
   });
 
-  await expect(cmd.run({
-    nodes: [],
+  await expect(
+    cmd.run({
+      nodes: [],
+      visitedNodes: new Set(),
+    })
+  ).rejects.toEqual(error);
+});
+
+test('succeeds when rest is quoted', async () => {
+  // since spliting this by space doesn't give us the expected result, I just built the array myself
+  // const argv = `--option=666 --second-option works-too positional -- "--restPositionals --trailing-comma all {{scripts,src}/**/*.{js,ts},{scripts,src}/*.{js,ts},*.{js,ts}}"`;
+  const tokens = tokenize([
+    '--option=666',
+    '--second-option',
+    'works-too',
+    'positional',
+    '--',
+    '--restPositionals --trailing-comma all {{scripts,src}/**/*.{js,ts},{scripts,src}/*.{js,ts},*.{js,ts}}',
+  ]);
+  const longOptionKeys = new Set<string>();
+  const shortOptionKeys = new Set<string>();
+  cmd.register({
+    forceFlagLongNames: longOptionKeys,
+    forceFlagShortNames: shortOptionKeys,
+  });
+  const nodes = parse(tokens, {
+    longFlagKeys: longOptionKeys,
+    shortFlagKeys: shortOptionKeys,
+  });
+  const result = cmd.parse({
+    nodes,
     visitedNodes: new Set(),
-  })).rejects.toEqual(error);
-})
+  });
+
+  await expect(result).resolves.toEqual(
+    Result.ok({
+      positionals: [
+        'positional',
+        '--restPositionals --trailing-comma all {{scripts,src}/**/*.{js,ts},{scripts,src}/*.{js,ts},*.{js,ts}}',
+      ],
+      option: 666,
+      secondOption: 'works-too',
+      flag: false,
+    })
+  );
+});

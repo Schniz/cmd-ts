@@ -142,7 +142,9 @@ export function command<
           continue;
         }
 
-        if (node.type === 'shortOptions') {
+        if (node.type === 'forcePositional') {
+          continue;
+        } else if (node.type === 'shortOptions') {
           for (const option of node.options) {
             if (context.visitedNodes.has(option)) {
               continue;
