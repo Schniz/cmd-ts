@@ -143,6 +143,8 @@ export function command<
         }
 
         if (node.type === 'forcePositional') {
+          // A `forcePositional` node can't really be visited since it has no meaning
+          // other than forcing a positional argument in the parsing phase
           continue;
         } else if (node.type === 'shortOptions') {
           for (const option of node.options) {
