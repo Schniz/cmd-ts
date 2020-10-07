@@ -140,7 +140,6 @@ export function parse(tokens: Token[], forceFlag: ForceFlag): AstNode[] {
       let nextToken = getToken();
 
       if (nextToken?.type === 'argumentDivider') {
-        console.log('force!');
         nodes.push({
           type: 'forcePositional',
           index: currentToken.index,
