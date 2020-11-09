@@ -15,7 +15,6 @@
     "lint": "eslint src/**/*.ts test/**/*.ts",
     "// now-build": "typedoc --out public",
     "now-build": "mdbook build --dest-dir=public",
-    "run-example": "yarn --silent ts-node src/example/app.ts",
     "start": "yarn build --watch",
     "prepublishOnly": "yarn build && yarn test",
     "test": "jest",
@@ -67,7 +66,6 @@
     "prettier": "^1.19.1",
     "request": "^2.88.0",
     "tempy": "^0.3.0",
-    "ts-node": "^8.6.2",
     "typedoc": "^0.16.10",
     "typescript": "^3.7.5"
   },
