@@ -128,6 +128,17 @@ where [3m<subcommand>[23m can be one of:
 [2mFor more help, try running \`[33msubcmds <subcommand> --help[39m\`[22m"
 `;
 
+exports[`suggests a subcommand on typo 1`] = `
+"[31m[1merror: [22m[39mfound [33m1[39m error
+
+  [2msubcmds[22m [31mgreek[39m
+[31m          [1m^[22m Not a valid subcommand name[39m
+[31m            Did you mean [3mgreet[23m?[39m
+
+
+[31m[1mhint: [22m[39mfor more information, try '[33msubcmds --help[39m'"
+`;
+
 exports[`too many arguments 1`] = `
 "[31m[1merror: [22m[39mfound [33m1[39m error
 

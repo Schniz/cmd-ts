@@ -1,4 +1,5 @@
 {
   "extends": "../tsconfig.noEmit.json",
-  "include": ["."]
+  "include": [".."],
+  "exclude": ["../dist"]
 }
