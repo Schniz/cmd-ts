@@ -18,7 +18,7 @@ module.exports = {
     'import/no-extraneous-dependencies': [
       'error',
       {
-        devDependencies: ['test/**', 'src/example/**'],
+        devDependencies: ['test/**', 'example/**'],
         optionalDependencies: false
       },
     ],
