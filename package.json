@@ -12,7 +12,7 @@
   ],
   "scripts": {
     "build": "tsc && tsc --project ./tsconfig.esm.json",
-    "lint": "eslint src/**/*.ts test/**/*.ts",
+    "lint": "eslint src/**/*.ts test/**/*.ts example/**/*.ts",
     "// now-build": "typedoc --out public",
     "now-build": "mdbook build --dest-dir=public",
     "start": "yarn build --watch",
