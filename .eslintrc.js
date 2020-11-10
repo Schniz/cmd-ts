@@ -1,9 +1,7 @@
 module.exports = {
   root: true,
   parser: '@typescript-eslint/parser',
-  plugins: [
-    '@typescript-eslint',
-  ],
+  plugins: ['@typescript-eslint'],
   extends: [
     'plugin:@typescript-eslint/base',
     'plugin:import/errors',
@@ -18,8 +16,8 @@ module.exports = {
     'import/no-extraneous-dependencies': [
       'error',
       {
-        devDependencies: ['test/**', 'src/example/**'],
-        optionalDependencies: false
+        devDependencies: ['test/**', 'example/**'],
+        optionalDependencies: false,
       },
     ],
   },
