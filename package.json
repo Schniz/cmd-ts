@@ -18,7 +18,7 @@
     "start": "yarn build --watch",
     "prepublishOnly": "yarn build && yarn test",
     "test": "jest",
-    "ts-node": "node -r esm -r @swc-node/register"
+    "ts-node": "./scripts/ts-node"
   },
   "husky": {
     "hooks": {
