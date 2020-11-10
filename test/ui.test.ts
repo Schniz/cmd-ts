@@ -31,6 +31,14 @@ test('too many arguments', async () => {
   expect(result.exitCode).toBe(1);
 });
 
+test('suggests a subcommand on typo', async () => {
+  const result = await runApp1([
+    'greek',
+  ]);
+  expect(result.all).toMatchSnapshot();
+  expect(result.exitCode).toBe(1);
+});
+
 test('composes errors', async () => {
   const result = await runApp1([
     'greet',

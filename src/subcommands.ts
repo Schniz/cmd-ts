@@ -12,6 +12,7 @@ import { Aliased, Named, Descriptive, Versioned } from './helpdoc';
 import chalk from 'chalk';
 import { createCircuitBreaker, handleCircuitBreaker } from './circuitbreaker';
 import * as Result from './Result';
+import didYouMean from 'didyoumean';
 
 type Output<
   Commands extends Record<string, ArgParser<any> & Runner<any, any>>
@@ -48,18 +49,27 @@ export function subcommands<
   const circuitbreaker = createCircuitBreaker(!!config.version);
   const type: From<string, keyof Commands> = {
     async from(str) {
-      const cmd = Object.entries(config.cmds)
+      const commands = Object.entries(config.cmds)
         .map(([name, cmd]) => {
           return {
             cmdName: name as keyof Commands,
             names: [name, ...(cmd.aliases ?? [])],
           };
-        })
+        });
+      const cmd = commands
         .find(x => x.names.includes(str));
       if (cmd) {
         return cmd.cmdName;
       }
-      throw new Error('Not a valid subcommand name');
+      let errorMessage = `Not a valid subcommand name`;
+
+      const closeOptions = didYouMean(str, flatMap(commands, x => x.names));
+      if (closeOptions) {
+        const option = Array.isArray(closeOptions) ? closeOptions[0] : closeOptions;
+        errorMessage += `\nDid you mean ${chalk.italic(option)}?`;
+      }
+
+      throw new Error(errorMessage);
     },
   };
 
@@ -184,4 +194,12 @@ export function subcommands<
       });
     },
   };
+}
+
+function flatMap<T, R>(array: T[], f: (t: T) => R[]): R[] {
+  const rs: R[] = [];
+  for (const item of array) {
+    rs.push(...f(item));
+  }
+  return rs;
 }
