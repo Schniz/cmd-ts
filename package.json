@@ -63,7 +63,7 @@
     "jest": "25.5.4",
     "jest-junit": "10.0.0",
     "node-fetch": "2.6.1",
-    "prettier": "1.19.1",
+    "prettier": "2.1.2",
     "request": "2.88.2",
     "tempy": "0.7.1",
     "typedoc": "0.19.2",
