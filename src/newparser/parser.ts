@@ -238,7 +238,7 @@ export function parse(tokens: Token[], forceFlag: ForceFlag): AstNode[] {
         key: lastKey.raw,
       });
 
-      let optionsRaw = `-${keys.map(x => x.raw).join('')}${lastKey.raw}`;
+      let optionsRaw = `-${keys.map((x) => x.raw).join('')}${lastKey.raw}`;
       if (parsedValue) {
         optionsRaw += parsedValue.raw;
       }
@@ -259,7 +259,7 @@ export function parse(tokens: Token[], forceFlag: ForceFlag): AstNode[] {
   }
 
   if (debug.enabled) {
-    const objectNodes = nodes.map(node => ({ [node.type]: node.raw }));
+    const objectNodes = nodes.map((node) => ({ [node.type]: node.raw }));
     debug(`Parsed items:`, JSON.stringify(objectNodes));
   }
 
