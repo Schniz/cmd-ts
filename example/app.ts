@@ -58,7 +58,7 @@ const complex = command({
   },
   name: 'printer',
   description: 'Just prints the arguments',
-  handler: args => {
+  handler: (args) => {
     /** @export complex -> intOrString */
     const x = args.intOrString;
     console.log(`I got`, args, x);
@@ -75,7 +75,7 @@ const withStream = command({
   description: 'A simple `cat` clone',
   name: 'cat',
   aliases: ['read'],
-  handler: result => {
+  handler: (result) => {
     /** @export cat -> stream */
     const stream = result.stream;
     stream.pipe(process.stdout);
@@ -132,7 +132,7 @@ const withSubcommands = subcommands({
           env: 'GREETING_NAME',
         }),
       },
-      handler: result => {
+      handler: (result) => {
         const args = result;
         /** @export greet -> greeting */
         const greeting = args.greeting;

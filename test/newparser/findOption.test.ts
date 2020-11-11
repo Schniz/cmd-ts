@@ -12,7 +12,7 @@ test('finds options', () => {
 
   const options = findOption(nodes, { longNames: ['some'], shortNames: ['c'] });
 
-  const raw = options.map(x => ({ key: x.key, value: x.value?.node.raw }));
+  const raw = options.map((x) => ({ key: x.key, value: x.value?.node.raw }));
   expect(raw).toEqual([
     { key: 'some', value: 'arg' },
     { key: 'c' },
