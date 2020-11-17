@@ -4,9 +4,15 @@ import { PositionalArgument } from './newparser/parser';
 import { ProvidesHelp, Descriptive, Displayed } from './helpdoc';
 import { Type, HasType } from './type';
 import * as Result from './Result';
+import { string } from './types';
 
 type PositionalConfig<Decoder extends Type<string, any>> = HasType<Decoder> &
-  Displayed &
+  Partial<Displayed & Descriptive>;
+
+type PositionalParser<Decoder extends Type<string, any>> = ArgParser<
+  OutputOf<Decoder>
+> &
+  ProvidesHelp &
   Partial<Descriptive>;
 
 /**
@@ -17,16 +23,18 @@ type PositionalConfig<Decoder extends Type<string, any>> = HasType<Decoder> &
  *
  * @param config positional argument config
  */
-export function positional<Decoder extends Type<string, any>>(
+function fullPositional<Decoder extends Type<string, any>>(
   config: PositionalConfig<Decoder>
-): ArgParser<OutputOf<Decoder>> & ProvidesHelp & Partial<Descriptive> {
+): PositionalParser<Decoder> {
+  const displayName = config.displayName ?? config.type.displayName ?? 'arg';
+
   return {
     description: config.description ?? config.type.description,
     helpTopics() {
       return [
         {
           category: 'arguments',
-          usage: `<${config.displayName}>`,
+          usage: `<${displayName}>`,
           description:
             config.description ?? config.type.description ?? 'self explanatory',
           defaults: [],
@@ -50,7 +58,7 @@ export function positional<Decoder extends Type<string, any>>(
           errors: [
             {
               nodes: [],
-              message: `No value provided for ${config.displayName}`,
+              message: `No value provided for ${displayName}`,
             },
           ],
         });
@@ -73,4 +81,21 @@ export function positional<Decoder extends Type<string, any>>(
       return Result.ok(decoded.value);
     },
   };
+}
+
+type StringType = Type<string, string>;
+
+export function positional<Decoder extends Type<string, any>>(
+  config: HasType<Decoder> & Partial<Displayed & Descriptive>
+): PositionalParser<Decoder>;
+export function positional(
+  config?: Partial<HasType<never> & Displayed & Descriptive>
+): PositionalParser<StringType>;
+export function positional(
+  config?: Partial<HasType<any>> & Partial<Displayed & Descriptive>
+): PositionalParser<any> {
+  return fullPositional({
+    type: string,
+    ...config,
+  });
 }

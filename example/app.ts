@@ -26,6 +26,7 @@ const complex = command({
       displayName: 'pos1',
       type: Integer,
     }),
+    pos2: positional(),
     named1: option({
       type: Integer,
       short: 'n',
@@ -61,7 +62,11 @@ const complex = command({
   handler: (args) => {
     /** @export complex -> intOrString */
     const x = args.intOrString;
-    console.log(`I got`, args, x);
+
+    /** @export complex -> pos2 */
+    const pos2 = args.pos2;
+
+    console.log(`I got`, args, x, pos2);
   },
 });
 

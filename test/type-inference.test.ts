@@ -7,6 +7,7 @@ test('types are inferred correctly', () => {
   expect(types).toEqual({
     'cat -> stream': 'Stream',
     'complex -> intOrString': 'string | number',
+    'complex -> pos2': 'string',
     'greet -> greeting': 'string',
     'greet -> name': 'string',
     'greet -> noExclaim': 'boolean',

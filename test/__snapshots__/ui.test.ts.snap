@@ -43,6 +43,7 @@ exports[`help for complex command 1`] = `
 
 ARGUMENTS:
   <pos1>   - a number
+  <str>    - a string
   [...str] - a string
 
 OPTIONS:
