@@ -15,14 +15,6 @@ type PositionalParser<Decoder extends Type<string, any>> = ArgParser<
   ProvidesHelp &
   Partial<Descriptive>;
 
-/**
- * A positional command line argument.
- *
- * Decodes one argument that is not a flag or an option:
- * In `hello --key value world` we have 2 positional arguments — `hello` and `world`.
- *
- * @param config positional argument config
- */
 function fullPositional<Decoder extends Type<string, any>>(
   config: PositionalConfig<Decoder>
 ): PositionalParser<Decoder> {
@@ -85,6 +77,14 @@ function fullPositional<Decoder extends Type<string, any>>(
 
 type StringType = Type<string, string>;
 
+/**
+ * A positional command line argument.
+ *
+ * Decodes one argument that is not a flag or an option:
+ * In `hello --key value world` we have 2 positional arguments — `hello` and `world`.
+ *
+ * @param config positional argument config
+ */
 export function positional<Decoder extends Type<string, any>>(
   config: HasType<Decoder> & Partial<Displayed & Descriptive>
 ): PositionalParser<Decoder>;
