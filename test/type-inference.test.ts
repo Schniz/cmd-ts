@@ -9,6 +9,7 @@ test('types are inferred correctly', () => {
     'complex -> intOrString': 'string | number',
     'complex -> pos2': 'string',
     'complex -> optionWithoutType': 'string',
+    'complex -> boolWithoutType': 'boolean',
     'greet -> greeting': 'string',
     'greet -> name': 'string',
     'greet -> noExclaim': 'boolean',

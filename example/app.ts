@@ -56,6 +56,7 @@ const complex = command({
       type: boolean,
       long: 'boolean',
     }),
+    boolWithoutType: flag({ long: 'bool-without-type' }),
     rest: restPositionals({
       type: string,
     }),
@@ -69,10 +70,13 @@ const complex = command({
     /** @export complex -> pos2 */
     const pos2 = args.pos2;
 
+    /** @export complex -> boolWithoutType */
+    const boolWithoutType = args.boolWithoutType;
+
     /** @export complex -> optionWithoutType */
     const optionWithoutType = args.optionWithoutType;
 
-    console.log(`I got`, args, x, pos2, optionWithoutType);
+    console.log(`I got`, args, x, pos2, optionWithoutType, boolWithoutType);
   },
 });
 

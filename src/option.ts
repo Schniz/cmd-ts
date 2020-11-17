@@ -168,7 +168,9 @@ export function option<Decoder extends Type<string, any>>(
     AllOrNothing<Default<OutputOf<Decoder>>>
 ): ArgParser<OutputOf<Decoder>> & ProvidesHelp & Partial<Descriptive>;
 export function option(
-  config: LongDoc & Partial<HasType<never> & Descriptive & EnvDoc & ShortDoc>
+  config: LongDoc &
+    Partial<HasType<never> & Descriptive & EnvDoc & ShortDoc> &
+    AllOrNothing<Default<OutputOf<StringType>>>
 ): ArgParser<OutputOf<StringType>> & ProvidesHelp & Partial<Descriptive>;
 export function option(
   config: LongDoc &
