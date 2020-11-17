@@ -40,6 +40,9 @@ const complex = command({
       type: optional(string),
       long: 'optional-option',
     }),
+    optionWithoutType: option({
+      long: 'no-type-option',
+    }),
     optionWithDefault: option({
       long: 'optional-with-default',
       env: 'SOME_ENV_VAR',
@@ -66,7 +69,10 @@ const complex = command({
     /** @export complex -> pos2 */
     const pos2 = args.pos2;
 
-    console.log(`I got`, args, x, pos2);
+    /** @export complex -> optionWithoutType */
+    const optionWithoutType = args.optionWithoutType;
+
+    console.log(`I got`, args, x, pos2, optionWithoutType);
   },
 });
 

@@ -8,6 +8,7 @@ test('types are inferred correctly', () => {
     'cat -> stream': 'Stream',
     'complex -> intOrString': 'string | number',
     'complex -> pos2': 'string',
+    'complex -> optionWithoutType': 'string',
     'greet -> greeting': 'string',
     'greet -> name': 'string',
     'greet -> noExclaim': 'boolean',

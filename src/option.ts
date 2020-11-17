@@ -18,22 +18,14 @@ import chalk from 'chalk';
 import { Default } from './default';
 import { AllOrNothing } from './utils';
 import * as Result from './Result';
+import { string } from './types';
 
 type OptionConfig<Decoder extends Type<string, any>> = LongDoc &
   HasType<Decoder> &
   Partial<Descriptive & EnvDoc & ShortDoc> &
   AllOrNothing<Default<OutputOf<Decoder>>>;
 
-/**
- * Decodes an argument which is in the form of a key and a value, and allows parsing the following ways:
- *
- * - `--long=value` where `long` is the provided `long`
- * - `--long value` where `long` is the provided `long`
- * - `-s=value` where `s` is the provided `short`
- * - `-s value` where `s` is the provided `short`
- * @param config flag configurations
- */
-export function option<Decoder extends Type<string, any>>(
+function fullOption<Decoder extends Type<string, any>>(
   config: OptionConfig<Decoder>
 ): ArgParser<OutputOf<Decoder>> & ProvidesHelp & Partial<Descriptive> {
   return {
@@ -90,9 +82,9 @@ export function option<Decoder extends Type<string, any>>(
       const options = findOption(nodes, {
         longNames: [config.long],
         shortNames: config.short ? [config.short] : [],
-      }).filter(x => !visitedNodes.has(x));
+      }).filter((x) => !visitedNodes.has(x));
 
-      options.forEach(opt => visitedNodes.add(opt));
+      options.forEach((opt) => visitedNodes.add(opt));
 
       if (options.length > 1) {
         const error: ParsingError = {
@@ -156,4 +148,35 @@ export function option<Decoder extends Type<string, any>>(
       return Result.ok(decoded.value);
     },
   };
+}
+
+type StringType = Type<string, string>;
+
+/**
+ * Decodes an argument which is in the form of a key and a value, and allows parsing the following ways:
+ *
+ * - `--long=value` where `long` is the provided `long`
+ * - `--long value` where `long` is the provided `long`
+ * - `-s=value` where `s` is the provided `short`
+ * - `-s value` where `s` is the provided `short`
+ * @param config flag configurations
+ */
+export function option<Decoder extends Type<string, any>>(
+  config: LongDoc &
+    HasType<Decoder> &
+    Partial<Descriptive & EnvDoc & ShortDoc> &
+    AllOrNothing<Default<OutputOf<Decoder>>>
+): ArgParser<OutputOf<Decoder>> & ProvidesHelp & Partial<Descriptive>;
+export function option(
+  config: LongDoc & Partial<HasType<never> & Descriptive & EnvDoc & ShortDoc>
+): ArgParser<OutputOf<StringType>> & ProvidesHelp & Partial<Descriptive>;
+export function option(
+  config: LongDoc &
+    Partial<HasType<any>> &
+    Partial<Descriptive & EnvDoc & ShortDoc>
+): ArgParser<OutputOf<any>> & ProvidesHelp & Partial<Descriptive> {
+  return fullOption({
+    type: string,
+    ...config,
+  });
 }
