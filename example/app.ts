@@ -26,6 +26,7 @@ const complex = command({
       displayName: 'pos1',
       type: Integer,
     }),
+    pos2: positional(),
     named1: option({
       type: Integer,
       short: 'n',
@@ -38,6 +39,9 @@ const complex = command({
     optionalOption: option({
       type: optional(string),
       long: 'optional-option',
+    }),
+    optionWithoutType: option({
+      long: 'no-type-option',
     }),
     optionWithDefault: option({
       long: 'optional-with-default',
@@ -52,6 +56,7 @@ const complex = command({
       type: boolean,
       long: 'boolean',
     }),
+    boolWithoutType: flag({ long: 'bool-without-type' }),
     rest: restPositionals({
       type: string,
     }),
@@ -61,7 +66,17 @@ const complex = command({
   handler: (args) => {
     /** @export complex -> intOrString */
     const x = args.intOrString;
-    console.log(`I got`, args, x);
+
+    /** @export complex -> pos2 */
+    const pos2 = args.pos2;
+
+    /** @export complex -> boolWithoutType */
+    const boolWithoutType = args.boolWithoutType;
+
+    /** @export complex -> optionWithoutType */
+    const optionWithoutType = args.optionWithoutType;
+
+    console.log(`I got`, args, x, pos2, optionWithoutType, boolWithoutType);
   },
 });
 

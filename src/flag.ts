@@ -12,6 +12,7 @@ import chalk from 'chalk';
 import { Default } from './default';
 import { AllOrNothing } from './utils';
 import * as Result from './Result';
+import { boolean as booleanIdentity } from './types';
 
 type FlagConfig<Decoder extends Type<boolean, any>> = LongDoc &
   HasType<Decoder> &
@@ -34,16 +35,7 @@ export const boolean: Type<string, boolean> = {
   defaultValue: () => false,
 };
 
-/**
- * Decodes an argument which is in the form of a key and a boolean value, and allows parsing the following ways:
- *
- * - `--long` where `long` is the provided `long`
- * - `-s=value` where `s` is the provided `short`
- * Shorthand forms can be combined:
- * - `-abcd` will call all flags for the short forms of `a`, `b`, `c` and `d`.
- * @param config flag configurations
- */
-export function flag<Decoder extends Type<boolean, any>>(
+export function fullFlag<Decoder extends Type<boolean, any>>(
   config: FlagConfig<Decoder>
 ): ArgParser<OutputOf<Decoder>> &
   ProvidesHelp &
@@ -103,8 +95,8 @@ export function flag<Decoder extends Type<boolean, any>>(
       const options = findOption(nodes, {
         longNames: [config.long],
         shortNames: config.short ? [config.short] : [],
-      }).filter(x => !visitedNodes.has(x));
-      options.forEach(opt => visitedNodes.add(opt));
+      }).filter((x) => !visitedNodes.has(x));
+      options.forEach((opt) => visitedNodes.add(opt));
 
       if (options.length > 1) {
         return Result.err({
@@ -162,4 +154,40 @@ export function flag<Decoder extends Type<boolean, any>>(
       return decoded;
     },
   };
+}
+
+type BooleanType = Type<boolean, boolean>;
+
+/**
+ * Decodes an argument which is in the form of a key and a boolean value, and allows parsing the following ways:
+ *
+ * - `--long` where `long` is the provided `long`
+ * - `-s=value` where `s` is the provided `short`
+ * Shorthand forms can be combined:
+ * - `-abcd` will call all flags for the short forms of `a`, `b`, `c` and `d`.
+ * @param config flag configurations
+ */
+export function flag<Decoder extends Type<boolean, any>>(
+  config: FlagConfig<Decoder>
+): ArgParser<OutputOf<Decoder>> &
+  ProvidesHelp &
+  Register &
+  Partial<Descriptive>;
+export function flag(
+  config: LongDoc &
+    Partial<HasType<never> & ShortDoc & Descriptive & EnvDoc> &
+    AllOrNothing<Default<OutputOf<BooleanType>>>
+): ArgParser<OutputOf<BooleanType>> &
+  ProvidesHelp &
+  Register &
+  Partial<Descriptive>;
+export function flag(
+  config: LongDoc &
+    Partial<HasType<any> & ShortDoc & Descriptive & EnvDoc> &
+    AllOrNothing<Default<OutputOf<any>>>
+): ArgParser<OutputOf<any>> & ProvidesHelp & Register & Partial<Descriptive> {
+  return fullFlag({
+    type: booleanIdentity,
+    ...config,
+  });
 }

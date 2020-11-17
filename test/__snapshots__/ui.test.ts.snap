@@ -43,18 +43,21 @@ exports[`help for complex command 1`] = `
 
 ARGUMENTS:
   <pos1>   - a number
+  <str>    - a string
   [...str] - a string
 
 OPTIONS:
   --number, -n <number>         - a number
   --int-or-string <str>         - a string
   --optional-option <str>       - a string[2m [optional][22m
+  --no-type-option <str>        - a string
   --optional-with-default <str> - a string[2m [env: SOME_ENV_VAR][22m[2m [default: [3mHello[23m][22m
 
 FLAGS:
-  --boolean     - a boolean
-  --help, -h    - show help
-  --version, -v - print the version"
+  --boolean           - a boolean
+  --bool-without-type - a boolean
+  --help, -h          - show help
+  --version, -v       - print the version"
 `;
 
 exports[`help for composed subcommand 1`] = `
