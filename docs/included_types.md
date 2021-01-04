@@ -6,7 +6,7 @@ A simple `string => string` type. Useful for [`option`](./parsers/options.md) an
 
 ### `boolean`
 
-A simple `boolean => boolean` type. Useful for [`flag`](./parsers/options.md)
+A simple `boolean => boolean` type. Useful for [`flag`](./parsers/flags.md)
 
 ### `number`
 
