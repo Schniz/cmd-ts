@@ -24,7 +24,6 @@ test('too many arguments', async () => {
     '--this=will-be-an-error',
     'cat',
     path.relative(process.cwd(), path.join(__dirname, '../package.json')),
-    'also this',
     '--and-also-this',
   ]);
   expect(result.all).toMatchSnapshot();
@@ -32,9 +31,7 @@ test('too many arguments', async () => {
 });
 
 test('suggests a subcommand on typo', async () => {
-  const result = await runApp1([
-    'greek',
-  ]);
+  const result = await runApp1(['greek']);
   expect(result.all).toMatchSnapshot();
   expect(result.exitCode).toBe(1);
 });
@@ -95,7 +92,7 @@ test('subcommands with process.argv.slice(2)', async () => {
   const result = await runApp3(['--help']);
   expect(result.all).toMatchSnapshot();
   expect(result.exitCode).toBe(1);
-})
+});
 
 const runApp1 = app(path.join(__dirname, '../example/app.ts'));
 const runApp2 = app(path.join(__dirname, '../example/app2.ts'));
@@ -104,7 +101,7 @@ const runApp3 = app(path.join(__dirname, '../example/app3.ts'));
 function app(
   scriptPath: string
 ): (args: string[]) => Promise<ExecaReturnValue> {
-  return async args => {
+  return async (args) => {
     jest.setTimeout(10000);
     const result = await execa(
       path.join(__dirname, '../scripts/ts-node'),
