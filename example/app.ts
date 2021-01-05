@@ -57,9 +57,7 @@ const complex = command({
       long: 'boolean',
     }),
     boolWithoutType: flag({ long: 'bool-without-type' }),
-    rest: restPositionals({
-      type: string,
-    }),
+    rest: restPositionals(),
   },
   name: 'printer',
   description: 'Just prints the arguments',
@@ -76,13 +74,28 @@ const complex = command({
     /** @export complex -> optionWithoutType */
     const optionWithoutType = args.optionWithoutType;
 
-    console.log(`I got`, args, x, pos2, optionWithoutType, boolWithoutType);
+    /** @export complex -> rest */
+    const restPos = args.rest;
+
+    console.log(
+      `I got`,
+      args,
+      x,
+      pos2,
+      optionWithoutType,
+      boolWithoutType,
+      restPos
+    );
   },
 });
 
 const withStream = command({
   args: {
     stream: positional({
+      displayName: 'stream',
+      type: ReadStream,
+    }),
+    restStreams: restPositionals({
       displayName: 'stream',
       type: ReadStream,
     }),
@@ -93,7 +106,9 @@ const withStream = command({
   handler: (result) => {
     /** @export cat -> stream */
     const stream = result.stream;
-    stream.pipe(process.stdout);
+    /** @export cat -> restStreams */
+    const restStreams = result.restStreams;
+    [stream, ...restStreams].forEach((s) => s.pipe(process.stdout));
   },
 });
 

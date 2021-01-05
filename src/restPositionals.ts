@@ -9,6 +9,7 @@ import { PositionalArgument } from './newparser/parser';
 import { Type, HasType } from './type';
 import { ProvidesHelp, Displayed, Descriptive } from './helpdoc';
 import * as Result from './Result';
+import { string } from './types';
 
 type RestPositionalsConfig<Decoder extends Type<string, any>> = HasType<
   Decoder
@@ -20,7 +21,7 @@ type RestPositionalsConfig<Decoder extends Type<string, any>> = HasType<
  * Works best when it is the last item on the `command` construct, to be
  * used like the `...rest` operator in JS and TypeScript.
  */
-export function restPositionals<Decoder extends Type<string, any>>(
+function fullRestPositionals<Decoder extends Type<string, any>>(
   config: RestPositionalsConfig<Decoder>
 ): ArgParser<OutputOf<Decoder>[]> & ProvidesHelp {
   return {
@@ -73,4 +74,33 @@ export function restPositionals<Decoder extends Type<string, any>>(
       return Result.ok(results);
     },
   };
+}
+
+type StringType = Type<string, string>;
+
+type RestPositionalsParser<Decoder extends Type<string, any>> = ArgParser<
+  OutputOf<Decoder>[]
+> &
+  ProvidesHelp;
+
+/**
+ * Read all the positionals and decode them using the type provided.
+ * Works best when it is the last item on the `command` construct, to be
+ * used like the `...rest` operator in JS and TypeScript.
+ *
+ * @param config rest positionals argument config
+ */
+export function restPositionals<Decoder extends Type<string, any>>(
+  config: HasType<Decoder> & Partial<Displayed & Descriptive>
+): RestPositionalsParser<Decoder>;
+export function restPositionals(
+  config?: Partial<HasType<never> & Displayed & Descriptive>
+): RestPositionalsParser<StringType>;
+export function restPositionals(
+  config?: Partial<HasType<any>> & Partial<Displayed & Descriptive>
+): RestPositionalsParser<any> {
+  return fullRestPositionals({
+    type: string,
+    ...config,
+  });
 }
