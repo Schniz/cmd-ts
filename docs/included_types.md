@@ -16,6 +16,10 @@ A `string => number` type. Checks that the input is indeed a number or fails wit
 
 Takes a type and makes it nullable by providing a default value of `undefined`
 
+### `array(type)`
+
+Takes a type and turns it into an array of type, useful for [`multioption`](./parsers/options.md) and [`multiflag`](./parsers/flags.md).
+
 ### `union([types])`
 
 Tries to decode the types provided until it succeeds, or throws all the errors combined. There's an optional configuration to this function:
