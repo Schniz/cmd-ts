@@ -58,7 +58,7 @@
     "esm": "3.2.25",
     "execa": "5.0.0",
     "fs-extra": "9.1.0",
-    "husky": "4.3.8",
+    "husky": "5.0.9",
     "infer-types": "0.0.2",
     "jest": "26.6.3",
     "jest-junit": "12.0.0",
