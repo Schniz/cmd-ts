@@ -173,7 +173,11 @@ export function command<
           partialValue: resultObject,
         });
       } else {
-        return Result.ok({ value: resultObject, nodes: resultNodes });
+        return Result.ok({
+          value: resultObject,
+          nodes: resultNodes,
+          generatedFromDefault: false,
+        });
       }
     },
     async run(context) {
@@ -188,6 +192,7 @@ export function command<
       return Result.ok({
         value: await this.handler(parsed.value.value),
         nodes: [],
+        generatedFromDefault: false,
       });
     },
   };

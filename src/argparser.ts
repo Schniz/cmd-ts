@@ -28,7 +28,11 @@ export type ParseContext = {
   hotPath?: string[];
 };
 
-export type SuccessfulParse<Into> = { value: Into; nodes: AstNode[] };
+export type SuccessfulParse<Into> = {
+  value: Into;
+  nodes: AstNode[];
+  generatedFromDefault: boolean;
+};
 
 export type ParsingResult<Into> = Result<FailedParse, SuccessfulParse<Into>>;
 

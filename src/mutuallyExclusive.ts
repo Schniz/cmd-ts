@@ -54,6 +54,7 @@ export function mutuallyExclusive<OptionBag extends BaseOptionBag>(
                 name,
                 value: result.value.value,
               },
+              generatedFromDefault: result.value.generatedFromDefault,
             });
           } else {
             return Result.err(result.error);
@@ -63,8 +64,11 @@ export function mutuallyExclusive<OptionBag extends BaseOptionBag>(
 
       const allResults = await Promise.all(promises);
       const allOkResults = allResults.filter(Result.isOk);
+      const allOkThatAreNotDefault = allOkResults.filter(
+        (x) => !x.value.generatedFromDefault
+      );
 
-      if (allOkResults.length > 1) {
+      if (allOkThatAreNotDefault.length > 1) {
         return Result.err<FailedParse>({
           errors: [
             {
@@ -86,7 +90,7 @@ export function mutuallyExclusive<OptionBag extends BaseOptionBag>(
         });
       }
 
-      return allOkResults[0];
+      return allOkThatAreNotDefault[0] ?? allOkResults[0];
     },
   };
 }

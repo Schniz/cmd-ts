@@ -70,7 +70,11 @@ function fullPositional<Decoder extends Type<string, any>>(
         });
       }
 
-      return Result.ok({ value: decoded.value, nodes: [positional] });
+      return Result.ok({
+        value: decoded.value,
+        nodes: [positional],
+        generatedFromDefault: false,
+      });
     },
   };
 }

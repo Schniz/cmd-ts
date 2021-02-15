@@ -138,6 +138,7 @@ exports[`subcommands with process.argv.slice(2) 1`] = `
 where [3m<subcommand>[23m can be one of:
 
 [2m- [22msub1
+[2m- [22mdeploy
 
 [2mFor more help, try running \`[33msubcmds <subcommand> --help[39m\`[22m"
 `;

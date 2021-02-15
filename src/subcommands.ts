@@ -163,6 +163,9 @@ export function subcommands<
           command: parsed.value.value,
         },
         nodes: [...parsed.value.nodes, ...parsed.value.nodes],
+        generatedFromDefault:
+          parsedCommand.value.generatedFromDefault ||
+          parsed.value.generatedFromDefault,
       });
     },
     async run(context): Promise<ParsingResult<RunnerOutput<Commands>>> {
@@ -190,6 +193,7 @@ export function subcommands<
             command: parsedSubcommand.value.value,
             value: commandRun.value.value,
           },
+          generatedFromDefault: parsedSubcommand.value.generatedFromDefault,
           nodes: [...parsedSubcommand.value.nodes, ...commandRun.value.nodes],
         });
       }

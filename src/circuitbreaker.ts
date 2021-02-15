@@ -83,9 +83,17 @@ export function createCircuitBreaker(
       }
 
       if (help.value?.value) {
-        return Result.ok({ value: 'help', nodes: help.value.nodes });
+        return Result.ok({
+          value: 'help',
+          nodes: help.value.nodes,
+          generatedFromDefault: help.value.generatedFromDefault,
+        });
       } else if (version?.value?.value) {
-        return Result.ok({ value: 'version', nodes: version.value.nodes });
+        return Result.ok({
+          value: 'version',
+          nodes: version.value.nodes,
+          generatedFromDefault: version.value.generatedFromDefault,
+        });
       } else {
         return Result.err({
           errors: [

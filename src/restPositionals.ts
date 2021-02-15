@@ -50,11 +50,13 @@ function fullRestPositionals<Decoder extends Type<string, any>>(
       const results: SuccessfulParse<OutputOf<Decoder>[]> = {
         value: [],
         nodes: [],
+        generatedFromDefault: true,
       };
       let errors: ParsingError[] = [];
 
       for (const positional of positionals) {
         visitedNodes.add(positional);
+        results.generatedFromDefault = false;
         const decoded = await Result.safeAsync(
           config.type.from(positional.raw)
         );

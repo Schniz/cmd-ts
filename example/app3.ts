@@ -6,6 +6,7 @@ import {
   string,
   run,
   number,
+  flag,
 } from '../src';
 
 const sub1 = command({
@@ -23,10 +24,24 @@ const sub1 = command({
   },
 });
 
+const deploy = command({
+  name: 'deploy',
+  args: {
+    where: mutuallyExclusive({
+      staging: flag({ long: 'staging' }),
+      production: flag({ long: 'production' }),
+    }),
+  },
+  handler: ({ where }) => {
+    console.log(`deploying to`, where);
+  },
+});
+
 const nested = subcommands({
   name: 'subcmds',
   cmds: {
     sub1,
+    deploy,
   },
 });
 
