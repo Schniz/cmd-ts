@@ -1,6 +1,6 @@
 import {
   subcommands,
-  eitherParser,
+  mutuallyExclusive,
   command,
   option,
   string,
@@ -12,14 +12,14 @@ const sub1 = command({
   name: 'sub1',
   args: {
     name: option({ type: string, long: 'name' }),
-    eithers: eitherParser(
-      option({ long: 'nick' }),
-      option({ long: 'age', type: number })
-    ),
+    mutually: mutuallyExclusive({
+      nickname: option({ long: 'nick' }),
+      age: option({ long: 'age', type: number }),
+    }),
   },
-  handler: ({ name, eithers }) => {
+  handler: ({ name, mutually }) => {
     console.log({ name });
-    console.log({ eithers });
+    console.log({ mutually });
   },
 });
 

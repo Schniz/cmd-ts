@@ -17,4 +17,4 @@
   - [Building a Custom Parser](./parsers/custom.md)
 ---
 # Advanced Combinators
-- [eitherParser](./parsers/eitherParser.md)
+- [mutuallyExclusive](./parsers/mutuallyExclusive.md)

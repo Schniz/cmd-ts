@@ -18,4 +18,4 @@ export { multiflag } from './multiflag';
 export { multioption } from './multioption';
 export { union } from './union';
 export { oneOf } from './oneOf';
-export { eitherParser } from './eitherParser';
+export { mutuallyExclusive } from './mutuallyExclusive';

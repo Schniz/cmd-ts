@@ -95,7 +95,12 @@ test('subcommands with process.argv.slice(2)', async () => {
 });
 
 test('eitherParser throws a nice error', async () => {
-  const result = await runApp3(['sub1', '--age=10', '--nick=dude']);
+  const result = await runApp3([
+    'sub1',
+    '--age=10',
+    '--name=gal',
+    '--nick=dude',
+  ]);
   expect(result.all).toMatchSnapshot();
   expect(result.exitCode).toBe(1);
 });
