@@ -53,3 +53,18 @@ export function optional<T extends Type<any, any>>(
     },
   };
 }
+
+/**
+ * Transforms any type into an array, useful for `multioption` and `multiflag`.
+ */
+
+export function array<T extends Type<any, any>>(
+  t: T
+): Type<InputOf<T>[], OutputOf<T>[]> {
+  return {
+    ...t,
+    async from(inputs: InputOf<T>[]): Promise<OutputOf<T>[]> {
+      return Promise.all(inputs.map((input) => t.from(input)));
+    },
+  };
+}
