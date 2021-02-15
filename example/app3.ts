@@ -1,12 +1,25 @@
-import { subcommands, command, option, string, run } from '../src';
+import {
+  subcommands,
+  eitherParser,
+  command,
+  option,
+  string,
+  run,
+  number,
+} from '../src';
 
 const sub1 = command({
   name: 'sub1',
   args: {
     name: option({ type: string, long: 'name' }),
+    eithers: eitherParser(
+      option({ long: 'nick' }),
+      option({ long: 'age', type: number })
+    ),
   },
-  handler: ({ name }) => {
+  handler: ({ name, eithers }) => {
     console.log({ name });
+    console.log({ eithers });
   },
 });
 

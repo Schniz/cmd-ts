@@ -49,23 +49,26 @@ export function subcommands<
   const circuitbreaker = createCircuitBreaker(!!config.version);
   const type: From<string, keyof Commands> = {
     async from(str) {
-      const commands = Object.entries(config.cmds)
-        .map(([name, cmd]) => {
-          return {
-            cmdName: name as keyof Commands,
-            names: [name, ...(cmd.aliases ?? [])],
-          };
-        });
-      const cmd = commands
-        .find(x => x.names.includes(str));
+      const commands = Object.entries(config.cmds).map(([name, cmd]) => {
+        return {
+          cmdName: name as keyof Commands,
+          names: [name, ...(cmd.aliases ?? [])],
+        };
+      });
+      const cmd = commands.find((x) => x.names.includes(str));
       if (cmd) {
         return cmd.cmdName;
       }
       let errorMessage = `Not a valid subcommand name`;
 
-      const closeOptions = didYouMean(str, flatMap(commands, x => x.names));
+      const closeOptions = didYouMean(
+        str,
+        flatMap(commands, (x) => x.names)
+      );
       if (closeOptions) {
-        const option = Array.isArray(closeOptions) ? closeOptions[0] : closeOptions;
+        const option = Array.isArray(closeOptions)
+          ? closeOptions[0]
+          : closeOptions;
         errorMessage += `\nDid you mean ${chalk.italic(option)}?`;
       }
 
@@ -83,7 +86,7 @@ export function subcommands<
     version: config.version,
     description: config.description,
     name: config.name,
-    handler: value => {
+    handler: (value) => {
       const cmd = config.cmds[value.command];
       return cmd.handler(value.args);
     },
@@ -141,9 +144,9 @@ export function subcommands<
         });
       }
 
-      context.hotPath?.push(parsed.value as string);
+      context.hotPath?.push(parsed.value.value as string);
 
-      const cmd = config.cmds[parsed.value];
+      const cmd = config.cmds[parsed.value.value];
       const parsedCommand = await cmd.parse(context);
       if (Result.isErr(parsedCommand)) {
         return Result.err({
@@ -155,8 +158,11 @@ export function subcommands<
         });
       }
       return Result.ok({
-        args: parsedCommand.value,
-        command: parsed.value,
+        value: {
+          args: parsedCommand.value.value,
+          command: parsed.value.value,
+        },
+        nodes: [...parsed.value.nodes, ...parsed.value.nodes],
       });
     },
     async run(context): Promise<ParsingResult<RunnerOutput<Commands>>> {
@@ -173,15 +179,18 @@ export function subcommands<
         return Result.err({ ...parsedSubcommand.error, partialValue: {} });
       }
 
-      context.hotPath?.push(parsedSubcommand.value as string);
+      context.hotPath?.push(parsedSubcommand.value.value as string);
 
-      const cmd = config.cmds[parsedSubcommand.value];
+      const cmd = config.cmds[parsedSubcommand.value.value];
       const commandRun = await cmd.run(context);
 
       if (Result.isOk(commandRun)) {
         return Result.ok({
-          command: parsedSubcommand.value,
-          value: commandRun.value,
+          value: {
+            command: parsedSubcommand.value.value,
+            value: commandRun.value.value,
+          },
+          nodes: [...parsedSubcommand.value.nodes, ...commandRun.value.nodes],
         });
       }
 

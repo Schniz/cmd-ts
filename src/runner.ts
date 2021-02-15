@@ -62,7 +62,7 @@ export async function runSafely<R extends Runner<any, any>>(
         into: 'stderr',
       });
     } else {
-      return ok(result.value);
+      return ok(result.value.value);
     }
   } catch (e) {
     if (e instanceof Exit) {

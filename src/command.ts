@@ -68,7 +68,7 @@ export function command<
     helpTopics() {
       return flatMap(
         Object.values(config.args).concat([circuitbreaker]),
-        x => x.helpTopics?.() ?? []
+        (x) => x.helpTopics?.() ?? []
       );
     },
     printHelp(context) {
@@ -90,7 +90,7 @@ export function command<
         lines.push(chalk.dim('> ') + config.description);
       }
 
-      const usageBreakdown = groupBy(this.helpTopics(), x => x.category);
+      const usageBreakdown = groupBy(this.helpTopics(), (x) => x.category);
 
       for (const [category, helpTopics] of entries(usageBreakdown)) {
         lines.push('');
@@ -124,6 +124,7 @@ export function command<
         context.hotPath.push(config.name);
       }
 
+      const resultNodes: AstNode[] = [];
       const resultObject = {} as Output<Arguments>;
       const errors: ParsingError[] = [];
 
@@ -132,7 +133,8 @@ export function command<
         if (Result.isErr(result)) {
           errors.push(...result.error.errors);
         } else {
-          resultObject[argName] = result.value;
+          resultNodes.push.apply(resultNodes, result.value.nodes);
+          resultObject[argName] = result.value.value;
         }
       }
 
@@ -171,7 +173,7 @@ export function command<
           partialValue: resultObject,
         });
       } else {
-        return Result.ok(resultObject);
+        return Result.ok({ value: resultObject, nodes: resultNodes });
       }
     },
     async run(context) {
@@ -183,7 +185,10 @@ export function command<
         return Result.err(parsed.error);
       }
 
-      return Result.ok(await this.handler(parsed.value));
+      return Result.ok({
+        value: await this.handler(parsed.value.value),
+        nodes: [],
+      });
     },
   };
 }

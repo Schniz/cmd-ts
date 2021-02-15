@@ -27,6 +27,15 @@ Along the following error:
 [31m[1mhint: [22m[39mfor more information, try '[33msubcmds greet --help[39m'"
 `;
 
+exports[`eitherParser throws a nice error 1`] = `
+"[31m[1merror: [22m[39mfound [33m2[39m errors
+
+  [31m[1m1.[22m[39m [31mNo value provided for --name[39m
+  [31m[1m2.[22m[39m [31mGot two conflicting arguments[39m
+
+[31m[1mhint: [22m[39mfor more information, try '[33msubcmds sub1 --help[39m'"
+`;
+
 exports[`failures in defaultValue 1`] = `
 "[31m[1merror: [22m[39mfound [33m3[39m errors
 

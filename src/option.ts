@@ -109,7 +109,7 @@ function fullOption<Decoder extends Type<string, any>>(
         envPrefix = `env[${chalk.italic(config.env)}]: `;
       } else if (!option && typeof defaultValueFn === 'function') {
         try {
-          return Result.ok(defaultValueFn());
+          return Result.ok({ value: defaultValueFn(), nodes: [] });
         } catch (e) {
           const message = `Default value not found for '--${config.long}': ${e.message}`;
           return Result.err({
@@ -145,7 +145,7 @@ function fullOption<Decoder extends Type<string, any>>(
         });
       }
 
-      return Result.ok(decoded.value);
+      return Result.ok({ value: decoded.value, nodes: [option] });
     },
   };
 }

@@ -3,6 +3,7 @@ import {
   ParsingResult,
   ParseContext,
   ParsingError,
+  SuccessfulParse,
 } from './argparser';
 import { OutputOf } from './from';
 import { PositionalArgument } from './newparser/parser';
@@ -11,10 +12,9 @@ import { ProvidesHelp, Displayed, Descriptive } from './helpdoc';
 import * as Result from './Result';
 import { string } from './types';
 
-type RestPositionalsConfig<Decoder extends Type<string, any>> = HasType<
-  Decoder
-> &
-  Partial<Displayed & Descriptive>;
+type RestPositionalsConfig<
+  Decoder extends Type<string, any>
+> = HasType<Decoder> & Partial<Displayed & Descriptive>;
 
 /**
  * Read all the positionals and decode them using the type provided.
@@ -47,7 +47,10 @@ function fullRestPositionals<Decoder extends Type<string, any>>(
           node.type === 'positionalArgument' && !visitedNodes.has(node)
       );
 
-      const results: OutputOf<Decoder>[] = [];
+      const results: SuccessfulParse<OutputOf<Decoder>[]> = {
+        value: [],
+        nodes: [],
+      };
       let errors: ParsingError[] = [];
 
       for (const positional of positionals) {
@@ -56,7 +59,8 @@ function fullRestPositionals<Decoder extends Type<string, any>>(
           config.type.from(positional.raw)
         );
         if (Result.isOk(decoded)) {
-          results.push(decoded.value);
+          results.value.push(decoded.value);
+          results.nodes.push(positional);
         } else {
           errors.push({
             nodes: [positional],

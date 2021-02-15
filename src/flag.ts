@@ -121,7 +121,7 @@ export function fullFlag<Decoder extends Type<boolean, any>>(
         typeof config.type.defaultValue === 'function'
       ) {
         try {
-          return Result.ok(config.type.defaultValue());
+          return Result.ok({ value: config.type.defaultValue(), nodes: [] });
         } catch (e) {
           const message = `Default value not found for '--${config.long}': ${e.message}`;
           return Result.err({
@@ -151,7 +151,7 @@ export function fullFlag<Decoder extends Type<boolean, any>>(
         });
       }
 
-      return decoded;
+      return Result.ok({ value: decoded.value, nodes: options });
     },
   };
 }

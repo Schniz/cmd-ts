@@ -28,7 +28,9 @@ export type ParseContext = {
   hotPath?: string[];
 };
 
-export type ParsingResult<Into> = Result<FailedParse, Into>;
+export type SuccessfulParse<Into> = { value: Into; nodes: AstNode[] };
+
+export type ParsingResult<Into> = Result<FailedParse, SuccessfulParse<Into>>;
 
 export type RegisterOptions = {
   forceFlagLongNames: Set<string>;

@@ -3,6 +3,7 @@ import { tokenize } from '../src/newparser/tokenizer';
 import { parse } from '../src/newparser/parser';
 import { boolean } from '../src/types';
 import * as Result from '../src/Result';
+import { SuccessfulParse } from '../src/argparser';
 
 test('fails on incompatible value', async () => {
   const argv = `--hello=world`;
@@ -65,7 +66,7 @@ test('defaults to false', async () => {
     visitedNodes: new Set(),
   });
 
-  await expect(result).resolves.toEqual(Result.ok(false));
+  await expect(result).resolves.toEqual(Result.ok({ value: false, nodes: [] }));
 });
 
 test('allows short arguments', async () => {
@@ -93,5 +94,17 @@ test('allows short arguments', async () => {
     visitedNodes: new Set(),
   });
 
-  await expect(result).resolves.toEqual(Result.ok(true));
+  await expect(result).resolves.toEqual(
+    Result.ok<SuccessfulParse<boolean>>({
+      value: true,
+      nodes: [
+        {
+          index: 2,
+          key: 'b',
+          raw: 'b',
+          type: 'shortOption',
+        },
+      ],
+    })
+  );
 });
