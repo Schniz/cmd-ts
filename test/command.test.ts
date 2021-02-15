@@ -40,6 +40,7 @@ test('merges options, positionals and flags', async () => {
   });
   const result = await cmd.parse({ nodes, visitedNodes: new Set() });
   const expected: typeof result = Result.ok({
+    generatedFromDefault: false,
     value: {
       positionals: ['first', 'second', 'third'],
       option: 666,
@@ -186,6 +187,7 @@ test('succeeds when rest is quoted', async () => {
 
   await expect(result).resolves.toEqual(
     Result.ok({
+      generatedFromDefault: false,
       value: {
         positionals: [
           'positional',

@@ -66,7 +66,9 @@ test('defaults to false', async () => {
     visitedNodes: new Set(),
   });
 
-  await expect(result).resolves.toEqual(Result.ok({ value: false, nodes: [] }));
+  await expect(result).resolves.toEqual(
+    Result.ok({ value: false, nodes: [], generatedFromDefault: true })
+  );
 });
 
 test('allows short arguments', async () => {
@@ -97,6 +99,7 @@ test('allows short arguments', async () => {
   await expect(result).resolves.toEqual(
     Result.ok<SuccessfulParse<boolean>>({
       value: true,
+      generatedFromDefault: false,
       nodes: [
         {
           index: 2,

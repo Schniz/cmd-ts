@@ -55,6 +55,7 @@ test('chooses one subcommand', async () => {
   });
   const result = await subcmds.parse({ nodes, visitedNodes: new Set() });
   const expected: typeof result = Result.ok({
+    generatedFromDefault: false,
     value: {
       args: {
         name: 'Gal',
@@ -84,6 +85,7 @@ test('chooses the other subcommand', async () => {
   });
   const result = await subcmds.parse({ nodes, visitedNodes: new Set() });
   const expected: typeof result = Result.ok({
+    generatedFromDefault: false,
     value: {
       command: 'howdy',
       args: {
@@ -148,6 +150,7 @@ test('fails for a subcommand argument parsing issue', async () => {
       command: {
         nodes: expect.any(Array),
         value: 'greeter',
+        generatedFromDefault: false,
       },
       args: {
         greeting: 'Hello',

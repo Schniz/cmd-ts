@@ -50,6 +50,10 @@ test('succeeds when all unused positional decode successfuly', async () => {
   const result = argparser.parse({ nodes, visitedNodes });
 
   await expect(result).resolves.toEqual(
-    Result.ok({ value: [10, 20, 40], nodes: expect.any(Array) })
+    Result.ok({
+      value: [10, 20, 40],
+      nodes: expect.any(Array),
+      generatedFromDefault: false,
+    })
   );
 });
