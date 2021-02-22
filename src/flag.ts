@@ -13,6 +13,7 @@ import { Default } from './default';
 import { AllOrNothing } from './utils';
 import * as Result from './Result';
 import { boolean as booleanIdentity } from './types';
+import { getEnvVar } from './getEnvVar';
 
 type FlagConfig<Decoder extends Type<boolean, any>> = LongDoc &
   HasType<Decoder> &
@@ -53,10 +54,8 @@ export function fullFlag<Decoder extends Type<boolean, any>>(
       const defaults: string[] = [];
 
       if (config.env) {
-        const env =
-          process.env[config.env] === undefined
-            ? ''
-            : `=${chalk.italic(process.env[config.env])}`;
+        const envVar = getEnvVar(config.env);
+        const env = envVar === undefined ? '' : `=${chalk.italic(envVar)}`;
         defaults.push(`env: ${config.env}${env}`);
       }
 
@@ -109,7 +108,7 @@ export function fullFlag<Decoder extends Type<boolean, any>>(
         });
       }
 
-      const valueFromEnv = config.env ? process.env[config.env] : undefined;
+      const valueFromEnv = config.env ? getEnvVar(config.env) : undefined;
       let rawValue: string;
       let envPrefix = '';
 

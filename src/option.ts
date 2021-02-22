@@ -19,6 +19,7 @@ import { Default } from './default';
 import { AllOrNothing } from './utils';
 import * as Result from './Result';
 import { string } from './types';
+import { getEnvVar } from './getEnvVar';
 
 type OptionConfig<Decoder extends Type<string, any>> = LongDoc &
   HasType<Decoder> &
@@ -41,10 +42,8 @@ function fullOption<Decoder extends Type<string, any>>(
       const defaults: string[] = [];
 
       if (config.env) {
-        const env =
-          process.env[config.env] === undefined
-            ? ''
-            : `=${chalk.italic(process.env[config.env])}`;
+        const envVar = getEnvVar(config.env);
+        const env = envVar === undefined ? '' : `=${chalk.italic(envVar)}`;
         defaults.push(`env: ${config.env}${env}`);
       }
 
@@ -95,7 +94,7 @@ function fullOption<Decoder extends Type<string, any>>(
         return Result.err({ errors: [error] });
       }
 
-      const valueFromEnv = config.env ? process.env[config.env] : undefined;
+      const valueFromEnv = config.env ? getEnvVar(config.env) : undefined;
 
       const option = options[0];
       let rawValue: string;

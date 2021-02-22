@@ -10,6 +10,8 @@ Not all command line arguments are strings, but for some reason, our CLI parsers
 
 🌲 Nested subcommands, composable API
 
+🦕 Deno support
+
 ### Basic usage
 
 ```ts
@@ -34,6 +36,14 @@ const cmd = command({
 });
 
 run(cmd, process.argv.slice(2));
+```
+
+### Deno Support
+
+```ts
+import { command, ... } from 'https://cdn.skypack.dev/cmd-ts';
+
+// this should work!
 ```
 
 #### `command(arguments)`

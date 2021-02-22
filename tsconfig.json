@@ -1,5 +1,5 @@
 {
-  "include": ["src"],
+  "include": ["src", "./external-types.d.ts"],
   "exclude": ["dist"],
   "compilerOptions": {
     "target": "es2018",
@@ -23,6 +23,6 @@
     "moduleResolution": "node",
     "jsx": "react",
     "esModuleInterop": true,
-    "declaration": true,
-  },
+    "declaration": true
+  }
 }
