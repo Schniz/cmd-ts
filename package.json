@@ -47,8 +47,8 @@
     "@types/jest": "26.0.20",
     "@types/node-fetch": "2.5.8",
     "@types/request": "2.48.5",
-    "@typescript-eslint/eslint-plugin": "4.15.1",
-    "@typescript-eslint/parser": "4.15.1",
+    "@typescript-eslint/eslint-plugin": "4.15.2",
+    "@typescript-eslint/parser": "4.15.2",
     "cargo-mdbook": "0.4.4",
     "docs-ts": "0.6.3",
     "eslint": "7.20.0",
@@ -58,7 +58,7 @@
     "esm": "3.2.25",
     "execa": "5.0.0",
     "fs-extra": "9.1.0",
-    "husky": "5.1.0",
+    "husky": "5.1.1",
     "infer-types": "0.0.2",
     "jest": "26.6.3",
     "jest-junit": "12.0.0",
@@ -66,8 +66,8 @@
     "prettier": "2.2.1",
     "request": "2.88.2",
     "tempy": "1.0.0",
-    "typedoc": "0.20.27",
-    "typescript": "4.1.5"
+    "typedoc": "0.20.28",
+    "typescript": "4.2.2"
   },
   "peerDependencies": {}
 }
