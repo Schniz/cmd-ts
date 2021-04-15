@@ -49,6 +49,7 @@ ARGUMENTS:
 OPTIONS:
   --number, -n <number>         - a number
   --int-or-string <str>         - a string
+  --float-or-string <str>       - a string
   --optional-option <str>       - a string[2m [optional][22m
   --no-type-option <str>        - a string
   --optional-with-default <str> - a string[2m [env: SOME_ENV_VAR][22m[2m [default: [3mHello[23m][22m
