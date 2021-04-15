@@ -17,6 +17,7 @@ import {
   restPositionals,
   extendType,
   union,
+  number,
 } from '../src';
 
 const complex = command({
@@ -35,6 +36,10 @@ const complex = command({
     intOrString: option({
       type: union([Integer, string]),
       long: 'int-or-string',
+    }),
+    floatOrString: option({
+      type: union([number, string]),
+      long: 'float-or-string',
     }),
     optionalOption: option({
       type: optional(string),
@@ -65,6 +70,9 @@ const complex = command({
     /** @export complex -> intOrString */
     const x = args.intOrString;
 
+    /** @export complex -> floatOrString */
+    const y = args.floatOrString;
+
     /** @export complex -> pos2 */
     const pos2 = args.pos2;
 
@@ -81,6 +89,7 @@ const complex = command({
       `I got`,
       args,
       x,
+      y,
       pos2,
       optionWithoutType,
       boolWithoutType,
