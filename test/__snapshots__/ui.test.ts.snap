@@ -27,6 +27,16 @@ Along the following error:
 [31m[1mhint: [22m[39mfor more information, try '[33msubcmds greet --help[39m'"
 `;
 
+exports[`eitherParser throws a nice error 1`] = `
+"[31m[1merror: [22m[39mfound [33m1[39m error
+
+  [2msub1[22m [31m--age=10[39m [2m--name=gal[22m [31m--nick=dude[39m
+[31m       [1m^[22m Got conflicting arguments[39m
+
+
+[31m[1mhint: [22m[39mfor more information, try '[33msubcmds sub1 --help[39m'"
+`;
+
 exports[`failures in defaultValue 1`] = `
 "[31m[1merror: [22m[39mfound [33m3[39m errors
 
@@ -129,6 +139,7 @@ exports[`subcommands with process.argv.slice(2) 1`] = `
 where [3m<subcommand>[23m can be one of:
 
 [2m- [22msub1
+[2m- [22mdeploy
 
 [2mFor more help, try running \`[33msubcmds <subcommand> --help[39m\`[22m"
 `;

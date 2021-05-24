@@ -15,3 +15,6 @@
   - [Subcommands](./parsers/subcommands.md)
   - [Binary](./parsers/binary.md)
   - [Building a Custom Parser](./parsers/custom.md)
+---
+# Advanced Combinators
+- [mutuallyExclusive](./parsers/mutuallyExclusive.md)

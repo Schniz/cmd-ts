@@ -18,7 +18,7 @@ const cmd = command({
     }),
     flag: flag({ type: boolean, long: 'flag' }),
   },
-  handler: _ => {},
+  handler: (_) => {},
 });
 
 test('merges options, positionals and flags', async () => {
@@ -40,10 +40,14 @@ test('merges options, positionals and flags', async () => {
   });
   const result = await cmd.parse({ nodes, visitedNodes: new Set() });
   const expected: typeof result = Result.ok({
-    positionals: ['first', 'second', 'third'],
-    option: 666,
-    secondOption: 'works-too',
-    flag: true,
+    generatedFromDefault: false,
+    value: {
+      positionals: ['first', 'second', 'third'],
+      option: 666,
+      secondOption: 'works-too',
+      flag: true,
+    },
+    nodes: expect.any(Array),
   });
 
   expect(result).toEqual(expected);
@@ -75,11 +79,11 @@ test('fails if an argument fail to parse', async () => {
     Result.err({
       errors: [
         {
-          nodes: nodes.filter(x => x.raw.startsWith('--option')),
+          nodes: nodes.filter((x) => x.raw.startsWith('--option')),
           message: 'Not a number',
         },
         {
-          nodes: nodes.filter(x => x.raw.startsWith('--flag')),
+          nodes: nodes.filter((x) => x.raw.startsWith('--flag')),
           message: `expected value to be either "true" or "false". got: "fails-too"`,
         },
       ],
@@ -97,7 +101,7 @@ test('fails if providing unknown arguments', async () => {
     args: {
       positionals: restPositionals({ type: string }),
     },
-    handler: _ => {},
+    handler: (_) => {},
   });
   const argv = `okay --option=failing alright --another=fail`.split(' ');
   const tokens = tokenize(argv);
@@ -124,7 +128,7 @@ test('fails if providing unknown arguments', async () => {
         {
           message: 'Unknown arguments',
           nodes: nodes.filter(
-            node =>
+            (node) =>
               node.raw.startsWith('--option') ||
               node.raw.startsWith('--another')
           ),
@@ -142,7 +146,7 @@ test('should fail run when an async handler fails', async () => {
   const cmd = command({
     name: 'my command',
     args: {},
-    handler: async _ => {
+    handler: async (_) => {
       throw error;
     },
   });
@@ -183,13 +187,17 @@ test('succeeds when rest is quoted', async () => {
 
   await expect(result).resolves.toEqual(
     Result.ok({
-      positionals: [
-        'positional',
-        '--restPositionals --trailing-comma all {{scripts,src}/**/*.{js,ts},{scripts,src}/*.{js,ts},*.{js,ts}}',
-      ],
-      option: 666,
-      secondOption: 'works-too',
-      flag: false,
+      generatedFromDefault: false,
+      value: {
+        positionals: [
+          'positional',
+          '--restPositionals --trailing-comma all {{scripts,src}/**/*.{js,ts},{scripts,src}/*.{js,ts},*.{js,ts}}',
+        ],
+        option: 666,
+        secondOption: 'works-too',
+        flag: false,
+      },
+      nodes: expect.any(Array),
     })
   );
 });

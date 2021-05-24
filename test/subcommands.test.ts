@@ -17,7 +17,7 @@ const greeter = command({
     exclaim: flag({ type: boolean, long: 'exclaim', short: 'e' }),
     greeting: option({ type: string, long: 'greeting', short: 'g' }),
   },
-  handler: x => {
+  handler: (x) => {
     logMock('greeter', x);
   },
 });
@@ -27,7 +27,7 @@ const howdyPrinter = command({
   args: {
     name: positional({ type: string, displayName: 'name' }),
   },
-  handler: x => {
+  handler: (x) => {
     logMock('howdy', x);
   },
 });
@@ -55,12 +55,16 @@ test('chooses one subcommand', async () => {
   });
   const result = await subcmds.parse({ nodes, visitedNodes: new Set() });
   const expected: typeof result = Result.ok({
-    args: {
-      name: 'Gal',
-      exclaim: true,
-      greeting: 'Hello',
+    generatedFromDefault: false,
+    value: {
+      args: {
+        name: 'Gal',
+        exclaim: true,
+        greeting: 'Hello',
+      },
+      command: 'greeter',
     },
-    command: 'greeter',
+    nodes: expect.any(Array),
   });
 
   expect(result).toEqual(expected);
@@ -81,10 +85,14 @@ test('chooses the other subcommand', async () => {
   });
   const result = await subcmds.parse({ nodes, visitedNodes: new Set() });
   const expected: typeof result = Result.ok({
-    command: 'howdy',
-    args: {
-      name: 'joe',
+    generatedFromDefault: false,
+    value: {
+      command: 'howdy',
+      args: {
+        name: 'joe',
+      },
     },
+    nodes: expect.any(Array),
   });
 
   expect(result).toEqual(expected);
@@ -107,7 +115,7 @@ test('fails when using unknown subcommand', async () => {
   const expected: typeof result = Result.err({
     errors: [
       {
-        nodes: nodes.filter(x => x.raw === 'how'),
+        nodes: nodes.filter((x) => x.raw === 'how'),
         message: `Not a valid subcommand name`,
       },
     ],
@@ -134,12 +142,16 @@ test('fails for a subcommand argument parsing issue', async () => {
   const expected = Result.err({
     errors: [
       {
-        nodes: nodes.filter(x => x.raw.includes('hell-no')),
+        nodes: nodes.filter((x) => x.raw.includes('hell-no')),
         message: `expected value to be either "true" or "false". got: "hell-no"`,
       },
     ],
     partialValue: {
-      command: 'greeter',
+      command: {
+        nodes: expect.any(Array),
+        value: 'greeter',
+        generatedFromDefault: false,
+      },
       args: {
         greeting: 'Hello',
         name: 'Gal',
