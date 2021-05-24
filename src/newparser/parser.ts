@@ -1,5 +1,6 @@
 import { Token } from './tokenizer';
 import createDebugger from 'debug';
+import type { RegisterOptions } from '../argparser';
 
 const debug = createDebugger('cmd-ts:parser');
 
@@ -47,51 +48,18 @@ interface ForcePositional extends BaseAstNode<'forcePositional'> {
 }
 
 /**
- * A weird thing about command line interfaces is that they are not consistent without some context.
- * Consider the following argument list: `my-app --server start`
- *
- * Should we parse it as `[positional my-app] [option --server start]`
- * or should we parse it as `[positional my-app] [flag --server] [positional start]`?
- *
- * The answer is — it depends. A good command line utility has the context to know which key is a flag
- * and which is an option that can take a value. We aim to be a good command line utility library, so
- * we need to have the ability to provide this context.
- *
- * This is the small object that has this context.
- */
-type ForceFlag = {
-  /**
-   * Short keys that we will force to read as flags
-   */
-  shortFlagKeys: Set<string>;
-  /**
-   * Long keys that we will force to read as flags
-   */
-  longFlagKeys: Set<string>;
-
-  /**
-   * Short keys that we will force to read as options
-   */
-  shortOptionKeys: Set<string>;
-  /**
-   * Long keys that we will force to read as options
-   */
-  longOptionKeys: Set<string>;
-};
-
-/**
  * Create an AST from a token list
  *
  * @param tokens A token list, coming from `tokenizer.ts`
  * @param forceFlag Keys to force as flag. {@see ForceFlag} to read more about it.
  */
-export function parse(tokens: Token[], forceFlag: ForceFlag): AstNode[] {
+export function parse(tokens: Token[], forceFlag: RegisterOptions): AstNode[] {
   if (debug.enabled) {
     const registered = {
-      shortFlags: [...forceFlag.shortFlagKeys],
-      longFlags: [...forceFlag.longFlagKeys],
-      shortOptions: [...forceFlag.shortOptionKeys],
-      longOptions: [...forceFlag.longOptionKeys],
+      shortFlags: [...forceFlag.forceFlagShortNames],
+      longFlags: [...forceFlag.forceFlagLongNames],
+      shortOptions: [...forceFlag.forceOptionShortNames],
+      longOptions: [...forceFlag.forceOptionLongNames],
     };
     debug(`Registered:`, JSON.stringify(registered));
   }
@@ -172,10 +140,10 @@ export function parse(tokens: Token[], forceFlag: ForceFlag): AstNode[] {
       const parsedValue = parseOptionValue({
         key,
         delimiterToken: nextToken,
-        forceFlag: forceFlag.longFlagKeys,
+        forceFlag: forceFlag.forceFlagLongNames,
         getToken,
         peekToken,
-        forceOption: forceFlag.longOptionKeys,
+        forceOption: forceFlag.forceOptionLongNames,
       });
       let raw = `--${key}`;
 
@@ -219,8 +187,8 @@ export function parse(tokens: Token[], forceFlag: ForceFlag): AstNode[] {
       const parsedValue = parseOptionValue({
         key: lastKey.raw,
         delimiterToken: nextToken,
-        forceFlag: forceFlag.shortFlagKeys,
-        forceOption: forceFlag.shortOptionKeys,
+        forceFlag: forceFlag.forceFlagShortNames,
+        forceOption: forceFlag.forceOptionShortNames,
         getToken,
         peekToken,
       });

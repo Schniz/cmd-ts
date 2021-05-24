@@ -30,6 +30,19 @@ export type ParseContext = {
 
 export type ParsingResult<Into> = Result<FailedParse, Into>;
 
+/**
+ * A weird thing about command line interfaces is that they are not consistent without some context.
+ * Consider the following argument list: `my-app --server start`
+ *
+ * Should we parse it as `[positional my-app] [option --server start]`
+ * or should we parse it as `[positional my-app] [flag --server] [positional start]`?
+ *
+ * The answer is — it depends. A good command line utility has the context to know which key is a flag
+ * and which is an option that can take a value. We aim to be a good command line utility library, so
+ * we need to have the ability to provide this context.
+ *
+ * This is the small object that has this context.
+ */
 export type RegisterOptions = {
   forceFlagLongNames: Set<string>;
   forceFlagShortNames: Set<string>;

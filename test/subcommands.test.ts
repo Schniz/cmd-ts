@@ -7,6 +7,7 @@ import { command } from '../src/command';
 import { subcommands } from '../src/subcommands';
 import { string, boolean } from './test-types';
 import * as Result from '../src/Result';
+import { createRegisterOptions } from './createRegisterOptions';
 
 const logMock = jest.fn();
 
@@ -17,7 +18,7 @@ const greeter = command({
     exclaim: flag({ type: boolean, long: 'exclaim', short: 'e' }),
     greeting: option({ type: string, long: 'greeting', short: 'g' }),
   },
-  handler: x => {
+  handler: (x) => {
     logMock('greeter', x);
   },
 });
@@ -27,7 +28,7 @@ const howdyPrinter = command({
   args: {
     name: positional({ type: string, displayName: 'name' }),
   },
-  handler: x => {
+  handler: (x) => {
     logMock('howdy', x);
   },
 });
@@ -43,16 +44,9 @@ const subcmds = subcommands({
 test('chooses one subcommand', async () => {
   const argv = `greeter Gal -eg Hello`.split(' ');
   const tokens = tokenize(argv);
-  const longOptionKeys = new Set<string>();
-  const shortOptionKeys = new Set<string>();
-  subcmds.register({
-    forceFlagLongNames: longOptionKeys,
-    forceFlagShortNames: shortOptionKeys,
-  });
-  const nodes = parse(tokens, {
-    longFlagKeys: longOptionKeys,
-    shortFlagKeys: shortOptionKeys,
-  });
+  const registerOptions = createRegisterOptions();
+  subcmds.register(registerOptions);
+  const nodes = parse(tokens, registerOptions);
   const result = await subcmds.parse({ nodes, visitedNodes: new Set() });
   const expected: typeof result = Result.ok({
     args: {
@@ -69,16 +63,9 @@ test('chooses one subcommand', async () => {
 test('chooses the other subcommand', async () => {
   const argv = `howdy joe`.split(' ');
   const tokens = tokenize(argv);
-  const longOptionKeys = new Set<string>();
-  const shortOptionKeys = new Set<string>();
-  subcmds.register({
-    forceFlagLongNames: longOptionKeys,
-    forceFlagShortNames: shortOptionKeys,
-  });
-  const nodes = parse(tokens, {
-    longFlagKeys: longOptionKeys,
-    shortFlagKeys: shortOptionKeys,
-  });
+  const registerOptions = createRegisterOptions();
+  subcmds.register(registerOptions);
+  const nodes = parse(tokens, registerOptions);
   const result = await subcmds.parse({ nodes, visitedNodes: new Set() });
   const expected: typeof result = Result.ok({
     command: 'howdy',
@@ -93,21 +80,14 @@ test('chooses the other subcommand', async () => {
 test('fails when using unknown subcommand', async () => {
   const argv = `--hello yes how are you joe`.split(' ');
   const tokens = tokenize(argv);
-  const longOptionKeys = new Set<string>();
-  const shortOptionKeys = new Set<string>();
-  subcmds.register({
-    forceFlagLongNames: longOptionKeys,
-    forceFlagShortNames: shortOptionKeys,
-  });
-  const nodes = parse(tokens, {
-    longFlagKeys: longOptionKeys,
-    shortFlagKeys: shortOptionKeys,
-  });
+  const registerOptions = createRegisterOptions();
+  subcmds.register(registerOptions);
+  const nodes = parse(tokens, registerOptions);
   const result = await subcmds.parse({ nodes, visitedNodes: new Set() });
   const expected: typeof result = Result.err({
     errors: [
       {
-        nodes: nodes.filter(x => x.raw === 'how'),
+        nodes: nodes.filter((x) => x.raw === 'how'),
         message: `Not a valid subcommand name`,
       },
     ],
@@ -120,21 +100,14 @@ test('fails when using unknown subcommand', async () => {
 test('fails for a subcommand argument parsing issue', async () => {
   const argv = `greeter Gal -g Hello --exclaim=hell-no`.split(' ');
   const tokens = tokenize(argv);
-  const longOptionKeys = new Set<string>();
-  const shortOptionKeys = new Set<string>();
-  subcmds.register({
-    forceFlagLongNames: longOptionKeys,
-    forceFlagShortNames: shortOptionKeys,
-  });
-  const nodes = parse(tokens, {
-    longFlagKeys: longOptionKeys,
-    shortFlagKeys: shortOptionKeys,
-  });
+  const registerOptions = createRegisterOptions();
+  subcmds.register(registerOptions);
+  const nodes = parse(tokens, registerOptions);
   const result = await subcmds.parse({ nodes, visitedNodes: new Set() });
   const expected = Result.err({
     errors: [
       {
-        nodes: nodes.filter(x => x.raw.includes('hell-no')),
+        nodes: nodes.filter((x) => x.raw.includes('hell-no')),
         message: `expected value to be either "true" or "false". got: "hell-no"`,
       },
     ],

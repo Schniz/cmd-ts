@@ -43,20 +43,17 @@ export async function runSafely<R extends Runner<any, any>>(
   const longOptionKeys = new Set<string>();
   const shortOptionKeys = new Set<string>();
   const hotPath: string[] = [];
-  ap.register({
+  const registerContext = {
     forceFlagShortNames: shortFlagKeys,
     forceFlagLongNames: longFlagKeys,
     forceOptionShortNames: shortOptionKeys,
     forceOptionLongNames: longOptionKeys,
-  });
+  };
+
+  ap.register(registerContext);
 
   const tokens = tokenize(strings);
-  const nodes = parse(tokens, {
-    longFlagKeys,
-    shortFlagKeys,
-    longOptionKeys,
-    shortOptionKeys,
-  });
+  const nodes = parse(tokens, registerContext);
 
   try {
     const result = await ap.run({ nodes, visitedNodes: new Set(), hotPath });

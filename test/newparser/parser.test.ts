@@ -1,12 +1,10 @@
 import { tokenize } from '../../src/newparser/tokenizer';
 import { parse } from '../../src/newparser/parser';
+import { createRegisterOptions } from '../createRegisterOptions';
 
 test('dash in the middle of a word', () => {
   const tokens = tokenize(['hello', 'world', 'you-know', 'my', 'friend']);
-  const tree = parse(tokens, {
-    longFlagKeys: new Set(),
-    shortFlagKeys: new Set(),
-  });
+  const tree = parse(tokens, createRegisterOptions());
   expect(tree).toMatchInlineSnapshot(`
     Array [
       Object {
@@ -43,10 +41,7 @@ test('welp', () => {
     ' '
   );
   const tokens = tokenize(argv);
-  const tree = parse(tokens, {
-    longFlagKeys: new Set(),
-    shortFlagKeys: new Set(),
-  });
+  const tree = parse(tokens, createRegisterOptions());
   expect(tree).toMatchInlineSnapshot(`
     Array [
       Object {

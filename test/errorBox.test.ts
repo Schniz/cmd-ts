@@ -5,15 +5,13 @@ import { errorBox } from '../src/errorBox';
 import { option } from '../src/option';
 import { number } from './test-types';
 import * as Result from '../src/Result';
+import { createRegisterOptions } from './createRegisterOptions';
 
 test('works for multiple nodes', async () => {
   const argv = `hello world --some arg --flag --some another --flag --this-is=option -abcde=f -abcde`;
 
   const tokens = tokenize(argv.split(' '));
-  const tree = parse(tokens, {
-    longFlagKeys: new Set(),
-    shortFlagKeys: new Set(),
-  });
+  const tree = parse(tokens, createRegisterOptions());
 
   const opt = option({
     type: number,
@@ -37,10 +35,7 @@ test('works for a short flag', async () => {
   const argv = `hello world -fn not_a_number hey`;
 
   const tokens = tokenize(argv.split(' '));
-  const tree = parse(tokens, {
-    longFlagKeys: new Set(),
-    shortFlagKeys: new Set(),
-  });
+  const tree = parse(tokens, createRegisterOptions());
 
   const opt = option({
     type: number,
@@ -65,10 +60,7 @@ test('works for a single node', async () => {
   const argv = `hello world --flag --some not_a_number --flag --this-is=option -abcde=f -abcde`;
 
   const tokens = tokenize(argv.split(' '));
-  const tree = parse(tokens, {
-    longFlagKeys: new Set(),
-    shortFlagKeys: new Set(),
-  });
+  const tree = parse(tokens, createRegisterOptions());
 
   const opt = option({
     type: number,
@@ -92,10 +84,7 @@ test('works when no nodes', async () => {
   const argv = `hello world --flag --flag --this-is=option -abcde=f -abcde`;
 
   const tokens = tokenize(argv.split(' '));
-  const tree = parse(tokens, {
-    longFlagKeys: new Set(),
-    shortFlagKeys: new Set(),
-  });
+  const tree = parse(tokens, createRegisterOptions());
 
   const opt = option({
     type: number,
