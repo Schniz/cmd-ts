@@ -38,19 +38,22 @@ export async function runSafely<R extends Runner<any, any>>(
   ap: R,
   strings: string[]
 ): Promise<Result<Exit, Into<R>>> {
+  const longFlagKeys = new Set<string>();
+  const shortFlagKeys = new Set<string>();
   const longOptionKeys = new Set<string>();
   const shortOptionKeys = new Set<string>();
   const hotPath: string[] = [];
-  ap.register({
-    forceFlagShortNames: shortOptionKeys,
-    forceFlagLongNames: longOptionKeys,
-  });
+  const registerContext = {
+    forceFlagShortNames: shortFlagKeys,
+    forceFlagLongNames: longFlagKeys,
+    forceOptionShortNames: shortOptionKeys,
+    forceOptionLongNames: longOptionKeys,
+  };
+
+  ap.register(registerContext);
 
   const tokens = tokenize(strings);
-  const nodes = parse(tokens, {
-    longFlagKeys: longOptionKeys,
-    shortFlagKeys: shortOptionKeys,
-  });
+  const nodes = parse(tokens, registerContext);
 
   try {
     const result = await ap.run({ nodes, visitedNodes: new Set(), hotPath });

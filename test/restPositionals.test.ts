@@ -3,14 +3,12 @@ import { tokenize } from '../src/newparser/tokenizer';
 import { parse, AstNode } from '../src/newparser/parser';
 import { number } from './test-types';
 import * as Result from '../src/Result';
+import { createRegisterOptions } from './createRegisterOptions';
 
 test('fails on specific positional', async () => {
   const argv = `10 20 --mamma mia hello 40`;
   const tokens = tokenize(argv.split(' '));
-  const nodes = parse(tokens, {
-    shortFlagKeys: new Set(),
-    longFlagKeys: new Set(),
-  });
+  const nodes = parse(tokens, createRegisterOptions());
   const argparser = restPositionals({
     type: number,
   });
@@ -21,7 +19,7 @@ test('fails on specific positional', async () => {
     Result.err({
       errors: [
         {
-          nodes: nodes.filter(x => x.raw === 'hello'),
+          nodes: nodes.filter((x) => x.raw === 'hello'),
           message: 'Not a number',
         },
       ],
@@ -32,16 +30,13 @@ test('fails on specific positional', async () => {
 test('succeeds when all unused positional decode successfuly', async () => {
   const argv = `10 20 --mamma mia hello 40`;
   const tokens = tokenize(argv.split(' '));
-  const nodes = parse(tokens, {
-    shortFlagKeys: new Set(),
-    longFlagKeys: new Set(),
-  });
+  const nodes = parse(tokens, createRegisterOptions());
   const argparser = restPositionals({
     type: number,
   });
 
   const visitedNodes = new Set<AstNode>();
-  const alreadyUsedNode = nodes.find(x => x.raw === 'hello');
+  const alreadyUsedNode = nodes.find((x) => x.raw === 'hello');
   if (!alreadyUsedNode) {
     throw new Error('Node `hello` not found. please rewrite the find function');
   }

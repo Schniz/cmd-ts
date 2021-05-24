@@ -6,6 +6,7 @@ import { parse } from '../src/newparser/parser';
 import { command } from '../src/command';
 import { number, string, boolean } from './test-types';
 import * as Result from '../src/Result';
+import { createRegisterOptions } from './createRegisterOptions';
 
 const cmd = command({
   name: 'My command',
@@ -18,26 +19,20 @@ const cmd = command({
     }),
     flag: flag({ type: boolean, long: 'flag' }),
   },
-  handler: _ => {},
+  handler: (_) => {},
 });
 
 test('merges options, positionals and flags', async () => {
-  const argv = `first --option=666 second --second-option works-too --flag third`.split(
-    ' '
-  );
+  const argv =
+    `first --option=666 second --second-option works-too --flag third`.split(
+      ' '
+    );
   const tokens = tokenize(argv);
 
-  const longOptionKeys = new Set<string>();
-  const shortOptionKeys = new Set<string>();
-  cmd.register({
-    forceFlagLongNames: longOptionKeys,
-    forceFlagShortNames: shortOptionKeys,
-  });
+  const registerOptions = createRegisterOptions();
+  cmd.register(registerOptions);
 
-  const nodes = parse(tokens, {
-    longFlagKeys: longOptionKeys,
-    shortFlagKeys: shortOptionKeys,
-  });
+  const nodes = parse(tokens, registerOptions);
   const result = await cmd.parse({ nodes, visitedNodes: new Set() });
   const expected: typeof result = Result.ok({
     positionals: ['first', 'second', 'third'],
@@ -50,22 +45,17 @@ test('merges options, positionals and flags', async () => {
 });
 
 test('fails if an argument fail to parse', async () => {
-  const argv = `first --option=hello second --second-option works-too --flag=fails-too third`.split(
-    ' '
-  );
+  const argv =
+    `first --option=hello second --second-option works-too --flag=fails-too third`.split(
+      ' '
+    );
   const tokens = tokenize(argv);
 
-  const longOptionKeys = new Set<string>();
-  const shortOptionKeys = new Set<string>();
-  cmd.register({
-    forceFlagLongNames: longOptionKeys,
-    forceFlagShortNames: shortOptionKeys,
-  });
+  const registerOptions = createRegisterOptions();
 
-  const nodes = parse(tokens, {
-    longFlagKeys: longOptionKeys,
-    shortFlagKeys: shortOptionKeys,
-  });
+  cmd.register(registerOptions);
+
+  const nodes = parse(tokens, registerOptions);
   const result = cmd.parse({
     nodes,
     visitedNodes: new Set(),
@@ -75,11 +65,11 @@ test('fails if an argument fail to parse', async () => {
     Result.err({
       errors: [
         {
-          nodes: nodes.filter(x => x.raw.startsWith('--option')),
+          nodes: nodes.filter((x) => x.raw.startsWith('--option')),
           message: 'Not a number',
         },
         {
-          nodes: nodes.filter(x => x.raw.startsWith('--flag')),
+          nodes: nodes.filter((x) => x.raw.startsWith('--flag')),
           message: `expected value to be either "true" or "false". got: "fails-too"`,
         },
       ],
@@ -97,22 +87,15 @@ test('fails if providing unknown arguments', async () => {
     args: {
       positionals: restPositionals({ type: string }),
     },
-    handler: _ => {},
+    handler: (_) => {},
   });
   const argv = `okay --option=failing alright --another=fail`.split(' ');
   const tokens = tokenize(argv);
 
-  const longOptionKeys = new Set<string>();
-  const shortOptionKeys = new Set<string>();
-  cmd.register({
-    forceFlagLongNames: longOptionKeys,
-    forceFlagShortNames: shortOptionKeys,
-  });
+  const registerOptions = createRegisterOptions();
+  cmd.register(registerOptions);
 
-  const nodes = parse(tokens, {
-    longFlagKeys: longOptionKeys,
-    shortFlagKeys: shortOptionKeys,
-  });
+  const nodes = parse(tokens, registerOptions);
   const result = await cmd.parse({
     nodes,
     visitedNodes: new Set(),
@@ -124,7 +107,7 @@ test('fails if providing unknown arguments', async () => {
         {
           message: 'Unknown arguments',
           nodes: nodes.filter(
-            node =>
+            (node) =>
               node.raw.startsWith('--option') ||
               node.raw.startsWith('--another')
           ),
@@ -142,7 +125,7 @@ test('should fail run when an async handler fails', async () => {
   const cmd = command({
     name: 'my command',
     args: {},
-    handler: async _ => {
+    handler: async (_) => {
       throw error;
     },
   });
@@ -166,16 +149,9 @@ test('succeeds when rest is quoted', async () => {
     '--',
     '--restPositionals --trailing-comma all {{scripts,src}/**/*.{js,ts},{scripts,src}/*.{js,ts},*.{js,ts}}',
   ]);
-  const longOptionKeys = new Set<string>();
-  const shortOptionKeys = new Set<string>();
-  cmd.register({
-    forceFlagLongNames: longOptionKeys,
-    forceFlagShortNames: shortOptionKeys,
-  });
-  const nodes = parse(tokens, {
-    longFlagKeys: longOptionKeys,
-    shortFlagKeys: shortOptionKeys,
-  });
+  const registerOptions = createRegisterOptions();
+  cmd.register(registerOptions);
+  const nodes = parse(tokens, registerOptions);
   const result = cmd.parse({
     nodes,
     visitedNodes: new Set(),

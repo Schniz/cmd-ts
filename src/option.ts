@@ -74,7 +74,12 @@ function fullOption<Decoder extends Type<string, any>>(
         },
       ];
     },
-    register(_opts) {},
+    register(opts) {
+      opts.forceOptionLongNames.add(config.long);
+      if (config.short) {
+        opts.forceOptionShortNames.add(config.short);
+      }
+    },
     async parse({
       nodes,
       visitedNodes,
