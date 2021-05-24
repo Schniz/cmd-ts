@@ -38,7 +38,12 @@ export function multioption<Decoder extends Type<string[], any>>(
         },
       ];
     },
-    register(_opts) {},
+    register(opts) {
+      opts.forceOptionLongNames.add(config.long);
+      if (config.short) {
+        opts.forceOptionShortNames.add(config.short);
+      }
+    },
     async parse({
       nodes,
       visitedNodes,
@@ -46,7 +51,7 @@ export function multioption<Decoder extends Type<string[], any>>(
       const options = findOption(nodes, {
         longNames: [config.long],
         shortNames: config.short ? [config.short] : [],
-      }).filter(x => !visitedNodes.has(x));
+      }).filter((x) => !visitedNodes.has(x));
 
       for (const option of options) {
         visitedNodes.add(option);

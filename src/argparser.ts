@@ -33,6 +33,8 @@ export type ParsingResult<Into> = Result<FailedParse, Into>;
 export type RegisterOptions = {
   forceFlagLongNames: Set<string>;
   forceFlagShortNames: Set<string>;
+  forceOptionLongNames: Set<string>;
+  forceOptionShortNames: Set<string>;
 };
 
 export type Register = {

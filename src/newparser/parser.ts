@@ -68,6 +68,15 @@ type ForceFlag = {
    * Long keys that we will force to read as flags
    */
   longFlagKeys: Set<string>;
+
+  /**
+   * Short keys that we will force to read as options
+   */
+  shortOptionKeys: Set<string>;
+  /**
+   * Long keys that we will force to read as options
+   */
+  longOptionKeys: Set<string>;
 };
 
 /**
@@ -78,12 +87,13 @@ type ForceFlag = {
  */
 export function parse(tokens: Token[], forceFlag: ForceFlag): AstNode[] {
   if (debug.enabled) {
-    debug(
-      `Registered short flags: ${JSON.stringify([...forceFlag.shortFlagKeys])}`
-    );
-    debug(
-      `Registered long flags: ${JSON.stringify([...forceFlag.longFlagKeys])}`
-    );
+    const registered = {
+      shortFlags: [...forceFlag.shortFlagKeys],
+      longFlags: [...forceFlag.longFlagKeys],
+      shortOptions: [...forceFlag.shortOptionKeys],
+      longOptions: [...forceFlag.longOptionKeys],
+    };
+    debug(`Registered:`, JSON.stringify(registered));
   }
 
   const nodes: AstNode[] = [];
@@ -165,6 +175,7 @@ export function parse(tokens: Token[], forceFlag: ForceFlag): AstNode[] {
         forceFlag: forceFlag.longFlagKeys,
         getToken,
         peekToken,
+        forceOption: forceFlag.longOptionKeys,
       });
       let raw = `--${key}`;
 
@@ -209,6 +220,7 @@ export function parse(tokens: Token[], forceFlag: ForceFlag): AstNode[] {
         key: lastKey.raw,
         delimiterToken: nextToken,
         forceFlag: forceFlag.shortFlagKeys,
+        forceOption: forceFlag.shortOptionKeys,
         getToken,
         peekToken,
       });
@@ -272,10 +284,13 @@ function parseOptionValue(opts: {
   peekToken(): Token | undefined;
   key: string;
   forceFlag: Set<string>;
+  forceOption: Set<string>;
 }): OptionValue | undefined {
-  let { getToken, delimiterToken, forceFlag, key } = opts;
+  let { getToken, delimiterToken, forceFlag, key, forceOption } = opts;
+  const shouldReadKeyAsOption = forceOption.has(key);
   const shouldReadKeyAsFlag =
-    forceFlag.has(key) || opts.peekToken()?.type !== 'char';
+    !shouldReadKeyAsOption &&
+    (forceFlag.has(key) || opts.peekToken()?.type !== 'char');
 
   if (!delimiterToken || (delimiterToken.raw !== '=' && shouldReadKeyAsFlag)) {
     return;
