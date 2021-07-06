@@ -1762,10 +1762,10 @@ dir-glob@^3.0.1:
   dependencies:
     path-type "^4.0.0"
 
-docs-ts@0.6.4:
-  version "0.6.4"
-  resolved "https://registry.yarnpkg.com/docs-ts/-/docs-ts-0.6.4.tgz#84b78fb36b8025e1bd31bf6e41cf59430b21b99e"
-  integrity sha512-hw4bG/Wpg6O4bMFXlM/JC7vn3sn4x+VeBw0x5So1wREAKcX/7fOdo3+SDZjg12OhtO88nY2C6Q/Pz5qAUkbneQ==
+docs-ts@0.6.10:
+  version "0.6.10"
+  resolved "https://registry.yarnpkg.com/docs-ts/-/docs-ts-0.6.10.tgz#cd80052e8e1dc701db64b1a2271827b5092dda74"
+  integrity sha512-DTX9c5AJ92ojMOKqqvwF8t77C8Gdgs9FPB8seymHs+F+Wl6aapc3ZkHUM+p8o+jwcBmPoihxssdK903dfwQ1JQ==
   dependencies:
     chalk "^2.4.2"
     doctrine "^3.0.0"
