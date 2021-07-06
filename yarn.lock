@@ -758,10 +758,10 @@
   resolved "https://registry.yarnpkg.com/@types/didyoumean/-/didyoumean-1.2.0.tgz#e597a710fc6b18fe3ed6cdac17772f8fb51a07c1"
   integrity sha512-3QMjBOgPEXaOkhfQxiGgzn6JpofPSi8Z0RmQq65FIpZv4kCPT/jvYiYrwqaUrfiHZmwwRvyYJjJmoKopbvLPQw==
 
-"@types/fs-extra@9.0.8":
-  version "9.0.8"
-  resolved "https://registry.yarnpkg.com/@types/fs-extra/-/fs-extra-9.0.8.tgz#32c3c07ddf8caa5020f84b5f65a48470519f78ba"
-  integrity sha512-bnlTVTwq03Na7DpWxFJ1dvnORob+Otb8xHyUqUWhqvz/Ksg8+JXPlR52oeMSZ37YEOa5PyccbgUNutiQdi13TA==
+"@types/fs-extra@9.0.12":
+  version "9.0.12"
+  resolved "https://registry.yarnpkg.com/@types/fs-extra/-/fs-extra-9.0.12.tgz#9b8f27973df8a7a3920e8461517ebf8a7d4fdfaf"
+  integrity sha512-I+bsBr67CurCGnSenZZ7v94gd3tc3+Aj2taxMT4yu4ABLuOgOjeFxX3dokG24ztSRg5tnT00sL8BszO7gSMoIw==
   dependencies:
     "@types/node" "*"
 
