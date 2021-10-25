@@ -44,7 +44,7 @@
     "@types/debug": "4.1.5",
     "@types/didyoumean": "1.2.0",
     "@types/fs-extra": "9.0.8",
-    "@types/jest": "26.0.20",
+    "@types/jest": "27.0.2",
     "@types/node-fetch": "2.5.8",
     "@types/request": "2.48.7",
     "@typescript-eslint/eslint-plugin": "4.24.0",
