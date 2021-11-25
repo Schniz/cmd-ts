@@ -68,7 +68,7 @@ export function command<
     helpTopics() {
       return flatMap(
         Object.values(config.args).concat([circuitbreaker]),
-        x => x.helpTopics?.() ?? []
+        (x) => x.helpTopics?.() ?? []
       );
     },
     printHelp(context) {
@@ -90,7 +90,7 @@ export function command<
         lines.push(chalk.dim('> ') + config.description);
       }
 
-      const usageBreakdown = groupBy(this.helpTopics(), x => x.category);
+      const usageBreakdown = groupBy(this.helpTopics(), (x) => x.category);
 
       for (const [category, helpTopics] of entries(usageBreakdown)) {
         lines.push('');
@@ -175,8 +175,8 @@ export function command<
       }
     },
     async run(context) {
-      const parsed = await this.parse(context);
       const breaker = await circuitbreaker.parse(context);
+      const parsed = await this.parse(context);
       handleCircuitBreaker(context, this, breaker);
 
       if (Result.isErr(parsed)) {
