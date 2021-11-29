@@ -7,7 +7,7 @@ const cmd = command({
   },
   name: 'hi',
   handler({ scriptName, everythingElse }) {
-    console.log({ scriptName, everythingElse });
+    console.log(JSON.stringify({ scriptName, everythingElse }));
   },
 });
 
