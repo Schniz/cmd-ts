@@ -1,5 +1,5 @@
-import execa, { ExecaReturnValue } from 'execa';
 import path from 'path';
+import { app } from './util';
 
 test('help for subcommands', async () => {
   const result = await runApp1(['--help']);
@@ -97,23 +97,3 @@ test('subcommands with process.argv.slice(2)', async () => {
 const runApp1 = app(path.join(__dirname, '../example/app.ts'));
 const runApp2 = app(path.join(__dirname, '../example/app2.ts'));
 const runApp3 = app(path.join(__dirname, '../example/app3.ts'));
-
-function app(
-  scriptPath: string
-): (args: string[]) => Promise<ExecaReturnValue> {
-  return async (args) => {
-    jest.setTimeout(10000);
-    const result = await execa(
-      path.join(__dirname, '../scripts/ts-node'),
-      [scriptPath, ...args],
-      {
-        all: true,
-        reject: false,
-        env: {
-          FORCE_COLOR: 'true',
-        },
-      }
-    );
-    return result;
-  };
-}

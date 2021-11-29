@@ -18,3 +18,4 @@ export { multiflag } from './multiflag';
 export { multioption } from './multioption';
 export { union } from './union';
 export { oneOf } from './oneOf';
+export { rest } from './rest';
