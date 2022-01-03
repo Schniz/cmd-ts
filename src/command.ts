@@ -29,6 +29,7 @@ type CommandConfig<
 > = {
   args: Arguments;
   version?: string;
+  helpShortIdentifier?: string;
   name: string;
   description?: string;
   handler: Handler;
@@ -57,7 +58,7 @@ export function command<
   Runner<Output<Arguments>, ReturnType<Handler>> &
   Partial<Versioned & Descriptive & Aliased> {
   const argEntries = entries(config.args);
-  const circuitbreaker = createCircuitBreaker(!!config.version);
+  const circuitbreaker = createCircuitBreaker(!!config.version, config.helpShortIdentifier); 
 
   return {
     name: config.name,

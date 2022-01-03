@@ -40,13 +40,14 @@ export function subcommands<
 >(config: {
   name: string;
   version?: string;
+  helpShortIdentifier?: string;
   cmds: Commands;
   description?: string;
 }): ArgParser<Output<Commands>> &
   Named &
   Partial<Descriptive & Versioned> &
   Runner<Output<Commands>, RunnerOutput<Commands>> {
-  const circuitbreaker = createCircuitBreaker(!!config.version);
+  const circuitbreaker = createCircuitBreaker(!!config.version, config.helpShortIdentifier);
   const type: From<string, keyof Commands> = {
     async from(str) {
       const commands = Object.entries(config.cmds)

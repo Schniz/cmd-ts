@@ -7,9 +7,9 @@ import { Exit } from './effects';
 
 type CircuitBreaker = 'help' | 'version';
 
-export const helpFlag = flag({
+export const createHelpFlag = (short: string) => flag({
   long: 'help',
-  short: 'h',
+  short,
   type: boolean,
   description: 'show help',
 });
@@ -48,8 +48,10 @@ export function handleCircuitBreaker(
  * anywhere in your argument list, you'll see the version and the help for the closest command
  */
 export function createCircuitBreaker(
-  withVersion: boolean
+  withVersion: boolean,
+  helpShortIdentifier: string = 'h'
 ): ArgParser<CircuitBreaker> & ProvidesHelp & Register {
+  const helpFlag = createHelpFlag(helpShortIdentifier)
   return {
     register(opts) {
       helpFlag.register(opts);
