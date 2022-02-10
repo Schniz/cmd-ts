@@ -26,7 +26,7 @@ const cmd = command({
       type: string,
     }),
   },
-  handler: args => {
+  handler: (args) => {
     args.message; // string
     args.number; // number
     console.log(args);
@@ -38,7 +38,7 @@ run(cmd, process.argv.slice(2));
 
 #### `command(arguments)`
 
-Creates a CLI command. Returns either a parsing error, or an object where every argument provided gets the value with the correct type, along with a special `_` key that contains the "rest" of the positional arguments.
+Creates a CLI command.
 
 ### Decoding custom types from strings
 
