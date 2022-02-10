@@ -1,5 +1,26 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`allows positional arguments expects the correct order 1`] = `
+"[31m[1merror: [22m[39mfound [33m1[39m error
+
+  [2msub2[22m [31mhello[39m
+[31m       [1m^[22m Not a number[39m
+
+
+[31m[1mhint: [22m[39mfor more information, try '[33msubcmds sub2 --help[39m'"
+`;
+
+exports[`allows positional arguments help shows them 1`] = `
+"[1msubcmds sub2[22m
+
+ARGUMENTS:
+  [number] - a number[2m [optional][22m
+  [str]    - a string[2m [default: [3manonymous[23m][22m
+
+FLAGS:
+  --help, -h - show help"
+`;
+
 exports[`asynchronous type conversion works for failures 1`] = `
 "[31m[1merror: [22m[39mfound [33m1[39m error
 
@@ -129,6 +150,7 @@ exports[`subcommands with process.argv.slice(2) 1`] = `
 where [3m<subcommand>[23m can be one of:
 
 [2m- [22msub1
+[2m- [22msub2
 
 [2mFor more help, try running \`[33msubcmds <subcommand> --help[39m\`[22m"
 `;
