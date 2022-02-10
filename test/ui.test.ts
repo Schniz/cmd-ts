@@ -102,8 +102,10 @@ test('allows optional positionals (in help)', async () => {
 
 test('allows optional positionals', async () => {
   const result = await runApp3(['sub2']);
-  expect(result.all).toMatchSnapshot();
-  expect(result.exitCode).toBe(1);
+  expect(result.all).toMatchInlineSnapshot(
+    `"{ name: undefined, age: undefined }"`
+  );
+  expect(result.exitCode).toBe(0);
 });
 
 const runApp1 = app(path.join(__dirname, '../example/app.ts'));

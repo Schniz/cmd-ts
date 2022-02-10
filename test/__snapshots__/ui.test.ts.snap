@@ -11,8 +11,6 @@ FLAGS:
   --help, -h - show help"
 `;
 
-exports[`allows optional positionals 1`] = `"{ name: undefined, age: undefined }"`;
-
 exports[`asynchronous type conversion works for failures 1`] = `
 "[31m[1merror: [22m[39mfound [33m1[39m error
 
