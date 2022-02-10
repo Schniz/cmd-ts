@@ -1,13 +1,16 @@
 {
   "name": "cmd-ts",
-  "version": "0.8.0",
+  "version": "0.10.0",
   "homepage": "https://cmd-ts.now.sh",
   "license": "MIT",
   "author": "Gal Schlezinger",
   "main": "dist/cjs/index.js",
   "typings": "dist/cjs/index.d.ts",
   "module": "dist/esm/index.js",
-  "files": ["dist", "batteries"],
+  "files": [
+    "dist",
+    "batteries"
+  ],
   "scripts": {
     "build": "tsc && tsc --project ./tsconfig.esm.json",
     "lint": "eslint src/**/*.ts test/**/*.ts example/**/*.ts ./.eslintrc.js",
