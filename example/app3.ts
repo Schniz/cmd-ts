@@ -1,4 +1,13 @@
-import { subcommands, command, option, string, run } from '../src';
+import {
+  subcommands,
+  command,
+  option,
+  string,
+  run,
+  positional,
+  number,
+  optional,
+} from '../src';
 
 const sub1 = command({
   name: 'sub1',
@@ -10,10 +19,22 @@ const sub1 = command({
   },
 });
 
+const sub2 = command({
+  name: 'sub2',
+  args: {
+    age: positional({ type: optional(number) }),
+    name: positional({ type: optional(string) }),
+  },
+  handler({ name, age }) {
+    console.log({ name, age });
+  },
+});
+
 const nested = subcommands({
   name: 'subcmds',
   cmds: {
     sub1,
+    sub2,
   },
 });
 

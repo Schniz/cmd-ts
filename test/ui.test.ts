@@ -94,6 +94,18 @@ test('subcommands with process.argv.slice(2)', async () => {
   expect(result.exitCode).toBe(1);
 });
 
+test('allows optional positionals (in help)', async () => {
+  const result = await runApp3(['sub2', '--help']);
+  expect(result.all).toMatchSnapshot();
+  expect(result.exitCode).toBe(1);
+});
+
+test('allows optional positionals', async () => {
+  const result = await runApp3(['sub2']);
+  expect(result.all).toMatchSnapshot();
+  expect(result.exitCode).toBe(1);
+});
+
 const runApp1 = app(path.join(__dirname, '../example/app.ts'));
 const runApp2 = app(path.join(__dirname, '../example/app2.ts'));
 const runApp3 = app(path.join(__dirname, '../example/app3.ts'));

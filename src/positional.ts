@@ -5,9 +5,13 @@ import { ProvidesHelp, Descriptive, Displayed } from './helpdoc';
 import { Type, HasType } from './type';
 import * as Result from './Result';
 import { string } from './types';
+import { AllOrNothing } from './utils';
+import { Default } from './default';
+import chalk from 'chalk';
 
 type PositionalConfig<Decoder extends Type<string, any>> = HasType<Decoder> &
-  Partial<Displayed & Descriptive>;
+  Partial<Displayed & Descriptive> &
+  AllOrNothing<Default<OutputOf<Decoder>>>;
 
 type PositionalParser<Decoder extends Type<string, any>> = ArgParser<
   OutputOf<Decoder>
@@ -23,13 +27,33 @@ function fullPositional<Decoder extends Type<string, any>>(
   return {
     description: config.description ?? config.type.description,
     helpTopics() {
+      const defaults: string[] = [];
+      const defaultValueFn = config.defaultValue ?? config.type.defaultValue;
+
+      if (defaultValueFn) {
+        try {
+          const defaultValue = defaultValueFn();
+          if (
+            config.defaultValueIsSerializable ??
+            config.type.defaultValueIsSerializable
+          ) {
+            defaults.push('default: ' + chalk.italic(defaultValue));
+          } else {
+            defaults.push('optional');
+          }
+        } catch (e) {}
+      }
+
+      const usage =
+        defaults.length > 0 ? `[${displayName}]` : `<${displayName}>`;
+
       return [
         {
           category: 'arguments',
-          usage: `<${displayName}>`,
+          usage,
           description:
             config.description ?? config.type.description ?? 'self explanatory',
-          defaults: [],
+          defaults,
         },
       ];
     },
@@ -43,17 +67,23 @@ function fullPositional<Decoder extends Type<string, any>>(
           node.type === 'positionalArgument' && !visitedNodes.has(node)
       );
 
-      const positional = positionals[0];
+      const defaultValueFn = config.defaultValue ?? config.type.defaultValue;
+
+      let positional = positionals[0];
 
       if (!positional) {
-        return Result.err({
-          errors: [
-            {
-              nodes: [],
-              message: `No value provided for ${displayName}`,
-            },
-          ],
-        });
+        if (defaultValueFn) {
+          return Result.ok(defaultValueFn());
+        } else {
+          return Result.err({
+            errors: [
+              {
+                nodes: [],
+                message: `No value provided for ${displayName}`,
+              },
+            ],
+          });
+        }
       }
 
       visitedNodes.add(positional);

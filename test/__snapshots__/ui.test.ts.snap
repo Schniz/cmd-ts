@@ -1,5 +1,18 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`allows optional positionals (in help) 1`] = `
+"[1msubcmds sub2[22m
+
+ARGUMENTS:
+  [number] - a number[2m [optional][22m
+  [str]    - a string[2m [optional][22m
+
+FLAGS:
+  --help, -h - show help"
+`;
+
+exports[`allows optional positionals 1`] = `"{ name: undefined, age: undefined }"`;
+
 exports[`asynchronous type conversion works for failures 1`] = `
 "[31m[1merror: [22m[39mfound [33m1[39m error
 
@@ -129,6 +142,7 @@ exports[`subcommands with process.argv.slice(2) 1`] = `
 where [3m<subcommand>[23m can be one of:
 
 [2m- [22msub1
+[2m- [22msub2
 
 [2mFor more help, try running \`[33msubcmds <subcommand> --help[39m\`[22m"
 `;
