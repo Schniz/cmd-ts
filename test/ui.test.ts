@@ -94,18 +94,34 @@ test('subcommands with process.argv.slice(2)', async () => {
   expect(result.exitCode).toBe(1);
 });
 
-test('allows optional positionals (in help)', async () => {
-  const result = await runApp3(['sub2', '--help']);
-  expect(result.all).toMatchSnapshot();
-  expect(result.exitCode).toBe(1);
-});
+describe('allows positional arguments', () => {
+  test('help shows them', async () => {
+    const result = await runApp3(['sub2', '--help']);
+    expect(result.all).toMatchSnapshot();
+    expect(result.exitCode).toBe(1);
+  });
 
-test('allows optional positionals', async () => {
-  const result = await runApp3(['sub2']);
-  expect(result.all).toMatchInlineSnapshot(
-    `"{ name: undefined, age: undefined }"`
-  );
-  expect(result.exitCode).toBe(0);
+  test('no positionals => all default', async () => {
+    const result = await runApp3(['sub2']);
+    expect(result.all).toMatchInlineSnapshot(
+      `"{ name: 'anonymous', age: undefined }"`
+    );
+    expect(result.exitCode).toBe(0);
+  });
+
+  test('expects the correct order', async () => {
+    // should fail because we get an age first and `hello` is not a number
+    const result = await runApp3(['sub2', 'hello']);
+    expect(result.all).toMatchSnapshot();
+    expect(result.exitCode).toBe(1);
+  });
+
+  test('can take all the arguments', async () => {
+    // should fail because we get an age first and `hello` is not a number
+    const result = await runApp3(['sub2', '10', 'ben']);
+    expect(result.all).toMatchInlineSnapshot(`"{ name: 'ben', age: 10 }"`);
+    expect(result.exitCode).toBe(0);
+  });
 });
 
 const runApp1 = app(path.join(__dirname, '../example/app.ts'));

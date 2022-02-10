@@ -23,7 +23,13 @@ const sub2 = command({
   name: 'sub2',
   args: {
     age: positional({ type: optional(number) }),
-    name: positional({ type: optional(string) }),
+    name: positional({
+      type: {
+        ...string,
+        defaultValue: () => 'anonymous',
+        defaultValueIsSerializable: true,
+      },
+    }),
   },
   handler({ name, age }) {
     console.log({ name, age });
