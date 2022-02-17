@@ -111,9 +111,9 @@ export function errorBox(
 
   if (number > 1) {
     if (withNoHighlight.length === 1) {
-      errorMessages.push('Along the following error:');
+      errorMessages.push('Along with the following error:');
     } else if (withNoHighlight.length > 1) {
-      errorMessages.push('Along the following errors:');
+      errorMessages.push('Along with the following errors:');
     }
   }
 

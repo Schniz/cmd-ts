@@ -42,7 +42,7 @@ exports[`composes errors 1`] = `
   [2msubcmds[22m [2mgreet[22m [2m--times=not-a-number[22m [31mnot-capitalized[39m
 [31m                                     [1m^[22m name must be capitalized[39m
 
-Along the following error:
+Along with the following error:
   [31m[1m3.[22m[39m [31mNo value provided for --greeting[39m
 
 [31m[1mhint: [22m[39mfor more information, try '[33msubcmds greet --help[39m'"
@@ -136,7 +136,7 @@ exports[`multiline error 1`] = `
 [31m                [1m^[22m Woah, we're half way there[39m
 [31m                  Woah! living on a prayer![39m
 
-Along the following error:
+Along with the following error:
   [31m[1m2.[22m[39m [31mNo value provided for --greeting[39m
 
 [31m[1mhint: [22m[39mfor more information, try '[33msubcmds greet --help[39m'"
