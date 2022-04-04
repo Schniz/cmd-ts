@@ -16,7 +16,7 @@
     "lint": "eslint src/**/*.ts test/**/*.ts example/**/*.ts ./.eslintrc.js",
     "now-build": "mdbook build --dest-dir=public",
     "start": "yarn build --watch",
-    "prepublishOnly": "yarn build && yarn test",
+    "prepublishOnly": "rm -rf dist && yarn build && yarn test",
     "test": "jest",
     "ts-node": "./scripts/ts-node"
   },
