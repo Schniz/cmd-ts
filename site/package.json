@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "dev": "next dev",
-    "build": "next build"
+    "build": "next build",
+    "vercel-build": "yarn && yarn build"
   },
   "license": "MIT",
   "dependencies": {
