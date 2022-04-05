@@ -14,7 +14,6 @@
   "scripts": {
     "build": "tsc && tsc --project ./tsconfig.esm.json",
     "lint": "eslint src/**/*.ts test/**/*.ts example/**/*.ts ./.eslintrc.js",
-    "now-build": "mdbook build --dest-dir=public",
     "start": "yarn build --watch",
     "prepublishOnly": "rm -rf dist && yarn build && yarn test",
     "test": "jest",
@@ -49,7 +48,6 @@
     "@types/request": "2.48.7",
     "@typescript-eslint/eslint-plugin": "4.24.0",
     "@typescript-eslint/parser": "4.24.0",
-    "cargo-mdbook": "0.4.4",
     "docs-ts": "0.6.4",
     "eslint": "7.27.0",
     "eslint-config-prettier": "7.2.0",

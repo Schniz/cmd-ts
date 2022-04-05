@@ -1,6 +1,0 @@
-[book]
-authors = ["Gal Schlezinger"]
-language = "en"
-multilingual = false
-src = "docs"
-title = "cmd-ts"
