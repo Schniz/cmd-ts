@@ -54,11 +54,11 @@ const cmd = command({
 - `defaultValue`: A function that returns a default value for the option
 - `defaultValueIsSerializable`: Whether to print the defaultValue as a string in the help docs.
 
-## `multioptions`
+## `multioption`
 
 Parses multiple or zero options. Accepts a `Type` from `string[]` to any value, letting you do the conversion yourself.
 
-> **Note:** using `multioptions` will drop all the contextual errors. Every error on the type conversion will show up as if all of the options were errored. This is a higher level with less granularity.
+> **Note:** using `multioption` will drop all the contextual errors. Every error on the type conversion will show up as if all of the options were errored. This is a higher level with less granularity.
 
 This parser will fail to parse if:
 
