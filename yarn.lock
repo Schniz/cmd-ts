@@ -1554,11 +1554,6 @@ caniuse-lite@^1.0.30001265:
   resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001269.tgz#3a71bee03df627364418f9fd31adfc7aa1cc2d56"
   integrity sha512-UOy8okEVs48MyHYgV+RdW1Oiudl1H6KolybD6ZquD0VcrPSgj25omXO1S7rDydjpqaISCwA8Pyx+jUQKZwWO5w==
 
-cargo-mdbook@0.4.4:
-  version "0.4.4"
-  resolved "https://registry.yarnpkg.com/cargo-mdbook/-/cargo-mdbook-0.4.4.tgz#9c10ffa2ea426eb3807d6f26b934aeb12dad85ff"
-  integrity sha512-7yhF0MM3mbkVau/j0TXt+jcW+5CFdfUTBLhMTJV4mkAjBkSDKRQaHRVmqivP1h1oUW9G52zFWkfBL8XrW7TADA==
-
 caseless@~0.12.0:
   version "0.12.0"
   resolved "https://registry.npmjs.org/caseless/-/caseless-0.12.0.tgz#1b681c21ff84033c826543090689420d187151dc"

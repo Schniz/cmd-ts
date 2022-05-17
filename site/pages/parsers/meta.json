@@ -1,0 +1,10 @@
+{
+  "index": "Introduction",
+  "positionals": "Positional Arguments",
+  "options": "Options",
+  "flags": "Flags",
+  "command": "Command",
+  "subcommands": "Subcommands",
+  "binary": "Binary",
+  "custom": "Building a Custom Parser"
+}
