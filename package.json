@@ -18,7 +18,9 @@
     "start": "yarn build --watch",
     "prepublishOnly": "rm -rf dist && yarn build && yarn test",
     "test": "jest",
-    "ts-node": "./scripts/ts-node"
+    "ts-node": "./scripts/ts-node",
+    "changeset:version": "changeset version",
+    "changeset:publish": "changeset publish"
   },
   "husky": {
     "hooks": {
