@@ -122,7 +122,7 @@ export function fullFlag<Decoder extends Type<boolean, any>>(
       ) {
         try {
           return Result.ok(config.type.defaultValue());
-        } catch (e) {
+        } catch (e: any) {
           const message = `Default value not found for '--${config.long}': ${e.message}`;
           return Result.err({
             errors: [{ message, nodes: [] }],

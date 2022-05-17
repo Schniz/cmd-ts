@@ -5,7 +5,6 @@ module.exports = {
   extends: [
     'plugin:@typescript-eslint/base',
     'plugin:import/errors',
-    'prettier/@typescript-eslint',
     'plugin:prettier/recommended',
     'plugin:import/typescript',
   ],
