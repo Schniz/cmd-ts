@@ -6,7 +6,7 @@ specifiers:
   '@types/debug': 4.1.7
   '@types/didyoumean': 1.2.0
   '@types/fs-extra': 9.0.13
-  '@types/node-fetch': 2.5.8
+  '@types/node-fetch': 2.6.1
   '@types/request': 2.48.8
   '@typescript-eslint/eslint-plugin': 5.24.0
   '@typescript-eslint/parser': 5.24.0
@@ -45,7 +45,7 @@ devDependencies:
   '@types/debug': 4.1.7
   '@types/didyoumean': 1.2.0
   '@types/fs-extra': 9.0.13
-  '@types/node-fetch': 2.5.8
+  '@types/node-fetch': 2.6.1
   '@types/request': 2.48.8
   '@typescript-eslint/eslint-plugin': 5.24.0_b7082f82c31c8938795d79ce8f1e88a5
   '@typescript-eslint/parser': 5.24.0_eslint@8.15.0+typescript@4.6.4
@@ -594,8 +594,8 @@ packages:
     resolution: {integrity: sha512-iiUgKzV9AuaEkZqkOLDIvlQiL6ltuZd9tGcW3gwpnX8JbuiuhFlEGmmFXEXkN50Cvq7Os88IY2v0dkDqXYWVgA==}
     dev: true
 
-  /@types/node-fetch/2.5.8:
-    resolution: {integrity: sha512-fbjI6ja0N5ZA8TV53RUqzsKNkl9fv8Oj3T7zxW7FGv1GSH7gwJaNF8dzCjrqKaxKeUpTz4yT1DaJFq/omNpGfw==}
+  /@types/node-fetch/2.6.1:
+    resolution: {integrity: sha512-oMqjURCaxoSIsHSr1E47QHzbmzNR5rK8McHuNb11BOM9cHcIK3Avy0s/b2JlXHoQGTYS3NsvWzV1M0iK7l0wbA==}
     dependencies:
       '@types/node': 17.0.34
       form-data: 3.0.1
