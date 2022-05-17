@@ -12,7 +12,7 @@ export { command } from './command';
 export { flag } from './flag';
 export { option } from './option';
 export { positional } from './positional';
-export { dryRun, runSafely, run, Runner } from './runner';
+export { dryRun, runSafely, run, parse, Runner } from './runner';
 export { restPositionals } from './restPositionals';
 export { multiflag } from './multiflag';
 export { multioption } from './multioption';
