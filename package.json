@@ -61,7 +61,7 @@
     "fs-extra": "10.1.0",
     "husky": "8.0.1",
     "infer-types": "0.0.2",
-    "node-fetch": "2.6.1",
+    "node-fetch": "2.6.7",
     "prettier": "2.6.2",
     "request": "2.88.2",
     "tempy": "3.0.0",
