@@ -1,3 +1,4 @@
+import { test, expect } from 'vitest';
 import { getTypes } from 'infer-types';
 import path from 'path';
 

@@ -1,3 +1,4 @@
+import { test, vitest, expect } from 'vitest';
 import { flag } from '../src/flag';
 import { option } from '../src/option';
 import { positional } from '../src/positional';
@@ -9,7 +10,7 @@ import { string, boolean } from './test-types';
 import * as Result from '../src/Result';
 import { createRegisterOptions } from './createRegisterOptions';
 
-const logMock = jest.fn();
+const logMock = vitest.fn();
 
 const greeter = command({
   name: 'greeter',

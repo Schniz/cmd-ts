@@ -1,3 +1,4 @@
+import { it, describe, expect } from 'vitest';
 import { padNoAnsi, AllOrNothing } from '../src/utils';
 import stripAnsi from 'strip-ansi';
 import chalk from 'chalk';

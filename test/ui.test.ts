@@ -1,3 +1,4 @@
+import { test, expect, describe } from 'vitest';
 import path from 'path';
 import { app } from './util';
 

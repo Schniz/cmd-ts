@@ -1,3 +1,4 @@
+import { test, expect } from 'vitest';
 import { flag } from '../src/flag';
 import { option } from '../src/option';
 import { restPositionals } from '../src/restPositionals';
