@@ -51,7 +51,7 @@ export async function safeAsync<O>(
   try {
     const value = await promise;
     return ok(value);
-  } catch (e) {
+  } catch (e: any) {
     return err(e);
   }
 }

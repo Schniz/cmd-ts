@@ -115,7 +115,7 @@ function fullOption<Decoder extends Type<string, any>>(
       } else if (!option && typeof defaultValueFn === 'function') {
         try {
           return Result.ok(defaultValueFn());
-        } catch (e) {
+        } catch (e: any) {
           const message = `Default value not found for '--${config.long}': ${e.message}`;
           return Result.err({
             errors: [
