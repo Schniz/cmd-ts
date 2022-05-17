@@ -51,7 +51,7 @@
     "@typescript-eslint/eslint-plugin": "4.24.0",
     "@typescript-eslint/parser": "4.24.0",
     "cargo-mdbook": "0.4.4",
-    "docs-ts": "0.6.4",
+    "docs-ts": "0.6.10",
     "eslint": "7.27.0",
     "eslint-config-prettier": "7.2.0",
     "eslint-plugin-import": "2.23.3",
