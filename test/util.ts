@@ -1,4 +1,4 @@
-import execa, { ExecaReturnValue } from 'execa';
+import { execa, ExecaReturnValue } from 'execa';
 import path from 'path';
 
 export function app(
