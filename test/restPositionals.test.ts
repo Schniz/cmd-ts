@@ -1,3 +1,4 @@
+import { test, expect } from 'vitest';
 import { restPositionals } from '../src/restPositionals';
 import { tokenize } from '../src/newparser/tokenizer';
 import { parse, AstNode } from '../src/newparser/parser';

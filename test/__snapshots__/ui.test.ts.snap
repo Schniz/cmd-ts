@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1
 
-exports[`allows positional arguments expects the correct order 1`] = `
+exports[`allows positional arguments > expects the correct order 1`] = `
 "[31m[1merror: [22m[39mfound [33m1[39m error
 
   [2msub2[22m [31mhello[39m
@@ -10,7 +10,7 @@ exports[`allows positional arguments expects the correct order 1`] = `
 [31m[1mhint: [22m[39mfor more information, try '[33msubcmds sub2 --help[39m'"
 `;
 
-exports[`allows positional arguments help shows them 1`] = `
+exports[`allows positional arguments > help shows them 1`] = `
 "[1msubcmds sub2[22m
 
 ARGUMENTS:

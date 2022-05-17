@@ -1,3 +1,4 @@
+import { test, expect } from 'vitest';
 import { tokenize } from '../../src/newparser/tokenizer';
 import { parse } from '../../src/newparser/parser';
 import { findOption } from '../../src/newparser/findOption';

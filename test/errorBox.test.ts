@@ -1,3 +1,4 @@
+import { test, expect } from 'vitest';
 import chalk from 'chalk';
 import { tokenize } from '../src/newparser/tokenizer';
 import { parse } from '../src/newparser/parser';

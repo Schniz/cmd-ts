@@ -1,3 +1,4 @@
+import { test, expect } from 'vitest';
 import { createCmd } from '../example/negative-numbers';
 import { runSafely } from '../src';
 
