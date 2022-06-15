@@ -34,7 +34,7 @@ This parser will fail to parse if:
 ```ts
 import { command, boolean, flag } from 'cmd-ts';
 
-const myFlag = option({
+const myFlag = flag({
   type: boolean,
   long: 'my-flag',
   short: 'f',
