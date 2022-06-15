@@ -48,11 +48,11 @@
     "@types/fs-extra": "9.0.13",
     "@types/node-fetch": "2.6.1",
     "@types/request": "2.48.8",
-    "@typescript-eslint/eslint-plugin": "5.25.0",
-    "@typescript-eslint/parser": "5.25.0",
+    "@typescript-eslint/eslint-plugin": "5.28.0",
+    "@typescript-eslint/parser": "5.28.0",
     "cargo-mdbook": "0.4.4",
     "docs-ts": "0.6.10",
-    "eslint": "8.15.0",
+    "eslint": "8.17.0",
     "eslint-config-prettier": "8.5.0",
     "eslint-plugin-import": "2.26.0",
     "eslint-plugin-prettier": "4.0.0",
@@ -62,11 +62,11 @@
     "husky": "8.0.1",
     "infer-types": "0.0.2",
     "node-fetch": "2.6.7",
-    "prettier": "2.6.2",
+    "prettier": "2.7.0",
     "request": "2.88.2",
     "tempy": "3.0.0",
     "typedoc": "0.22.15",
-    "typescript": "4.6.4",
-    "vitest": "^0.12.6"
+    "typescript": "4.7.3",
+    "vitest": "0.15.0"
   }
 }
