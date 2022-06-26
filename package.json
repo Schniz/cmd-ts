@@ -62,7 +62,7 @@
     "husky": "8.0.1",
     "infer-types": "0.0.2",
     "node-fetch": "2.6.7",
-    "prettier": "2.7.0",
+    "prettier": "2.7.1",
     "request": "2.88.2",
     "tempy": "3.0.0",
     "typedoc": "0.22.18",
