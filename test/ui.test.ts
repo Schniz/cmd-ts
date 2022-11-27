@@ -37,6 +37,18 @@ test('suggests a subcommand on typo', async () => {
   expect(result.exitCode).toBe(1);
 });
 
+test('displays subcommand help if no arguments passed', async () => {
+  const result = await runApp1([]);
+  expect(result.all).toMatchSnapshot();
+  expect(result.exitCode).toBe(1);
+});
+
+test('displays nested subcommand help if no arguments passed', async () => {
+  const result = await runApp1(['composed']);
+  expect(result.all).toMatchSnapshot();
+  expect(result.exitCode).toBe(1);
+});
+
 test('composes errors', async () => {
   const result = await runApp1([
     'greet',

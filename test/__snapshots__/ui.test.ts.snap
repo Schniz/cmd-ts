@@ -48,6 +48,31 @@ Along with the following error:
 [31m[1mhint: [22m[39mfor more information, try '[33msubcmds greet --help[39m'"
 `;
 
+exports[`displays nested subcommand help if no arguments passed 1`] = `
+"[1msubcmds composed[3m <subcommand>[23m[22m
+[2m> [22ma nested subcommand
+
+where [3m<subcommand>[23m can be one of:
+
+[2m- [22mcat - A simple \`cat\` clone [2m[alias: read][22m
+
+[2mFor more help, try running \`[33msubcmds composed <subcommand> --help[39m\`[22m"
+`;
+
+exports[`displays subcommand help if no arguments passed 1`] = `
+"[1msubcmds[3m <subcommand>[23m[22m
+[2m> [22mAn awesome subcommand app!
+
+where [3m<subcommand>[23m can be one of:
+
+[2m- [22mcomplex - Just prints the arguments
+[2m- [22mcat - A simple \`cat\` clone [2m[alias: read][22m
+[2m- [22mgreet - greet a person
+[2m- [22mcomposed - a nested subcommand
+
+[2mFor more help, try running \`[33msubcmds <subcommand> --help[39m\`[22m"
+`;
+
 exports[`failures in defaultValue 1`] = `
 "[31m[1merror: [22m[39mfound [33m3[39m errors
 
