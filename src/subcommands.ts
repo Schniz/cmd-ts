@@ -79,6 +79,22 @@ export function subcommands<
     type,
   });
 
+  function normalizeContext(context: ParseContext) {
+    if (context.hotPath?.length === 0) {
+      context.hotPath.push(config.name);
+    }
+
+    // Called without any arguments? We default to subcommand help.
+    if (!context.nodes.some((n) => !context.visitedNodes.has(n))) {
+      context.nodes.push({
+        type: 'longOption',
+        index: 0,
+        key: 'help',
+        raw: '--help',
+      });
+    }
+  }
+
   return {
     version: config.version,
     description: config.description,
@@ -129,9 +145,7 @@ export function subcommands<
     async parse(
       context: ParseContext
     ): Promise<ParsingResult<Output<Commands>>> {
-      if (context.hotPath?.length === 0) {
-        context.hotPath.push(config.name);
-      }
+      normalizeContext(context);
       const parsed = await subcommand.parse(context);
 
       if (Result.isErr(parsed)) {
@@ -160,10 +174,7 @@ export function subcommands<
       });
     },
     async run(context): Promise<ParsingResult<RunnerOutput<Commands>>> {
-      if (context.hotPath?.length === 0) {
-        context.hotPath.push(config.name);
-      }
-
+      normalizeContext(context);
       const parsedSubcommand = await subcommand.parse(context);
 
       if (Result.isErr(parsedSubcommand)) {
