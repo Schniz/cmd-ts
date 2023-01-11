@@ -4,7 +4,7 @@ import { inspect } from 'util';
 /**
  * A union of literals. When you want to take an exact enum value.
  */
-export function oneOf<T extends string>(literals: T[]): Type<string, T> {
+export function oneOf<T extends string>(literals: readonly T[]): Type<string, T> {
   const examples = literals.map(x => inspect(x)).join(', ');
   return {
     async from(str) {
