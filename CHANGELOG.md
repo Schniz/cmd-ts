@@ -1,5 +1,15 @@
 # cmd-ts
 
+## 0.12.0
+
+### Minor Changes
+
+- 2f651de: Display help when calling subcommands without any arguments
+
+### Patch Changes
+
+- e05e433: Allow readonly T[] in oneOf
+
 ## 0.11.0
 
 ### Minor Changes
