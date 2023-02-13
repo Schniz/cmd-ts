@@ -63,10 +63,6 @@ function fullRestPositionals<Decoder extends Type<string, any>>(
         }
       }
 
-      nodes
-        .filter((x) => x.type === 'forcePositional')
-        .forEach((x) => visitedNodes.add(x));
-
       if (errors.length > 0) {
         return Result.err({
           errors,
