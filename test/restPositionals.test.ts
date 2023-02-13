@@ -2,7 +2,7 @@ import { test, expect } from 'vitest';
 import { restPositionals } from '../src/restPositionals';
 import { tokenize } from '../src/newparser/tokenizer';
 import { parse, AstNode } from '../src/newparser/parser';
-import { number } from './test-types';
+import { number, string } from './test-types';
 import * as Result from '../src/Result';
 import { createRegisterOptions } from './createRegisterOptions';
 
@@ -46,4 +46,24 @@ test('succeeds when all unused positional decode successfuly', async () => {
   const result = argparser.parse({ nodes, visitedNodes });
 
   await expect(result).resolves.toEqual(Result.ok([10, 20, 40]));
+});
+
+test(`works with forcePositional`, async () => {
+  const argv = `--mamma mia -- --hello 40`;
+  const tokens = tokenize(argv.split(' '));
+  const nodes = parse(tokens, createRegisterOptions());
+  const argparser = restPositionals({
+    type: string,
+  });
+
+  const visitedNodes = new Set<AstNode>();
+
+  const result = await argparser.parse({ nodes, visitedNodes });
+
+  const visitedNodesAfterParsing = [...visitedNodes];
+  expect(visitedNodesAfterParsing.map((x) => x.type)).toContain<
+    AstNode['type']
+  >('forcePositional');
+
+  expect(result).toEqual(Result.ok(['--hello', '40']));
 });

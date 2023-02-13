@@ -11,10 +11,8 @@ import { ProvidesHelp, Displayed, Descriptive } from './helpdoc';
 import * as Result from './Result';
 import { string } from './types';
 
-type RestPositionalsConfig<Decoder extends Type<string, any>> = HasType<
-  Decoder
-> &
-  Partial<Displayed & Descriptive>;
+type RestPositionalsConfig<Decoder extends Type<string, any>> =
+  HasType<Decoder> & Partial<Displayed & Descriptive>;
 
 /**
  * Read all the positionals and decode them using the type provided.
@@ -64,6 +62,10 @@ function fullRestPositionals<Decoder extends Type<string, any>>(
           });
         }
       }
+
+      nodes
+        .filter((x) => x.type === 'forcePositional')
+        .forEach((x) => visitedNodes.add(x));
 
       if (errors.length > 0) {
         return Result.err({
