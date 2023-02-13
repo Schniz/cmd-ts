@@ -117,7 +117,7 @@ export function parse(tokens: Token[], forceFlag: RegisterOptions): AstNode[] {
     if (currentToken.type === 'longPrefix') {
       let nextToken = getToken();
 
-      if (nextToken?.type === 'argumentDivider') {
+      if (nextToken?.type === 'argumentDivider' || !nextToken) {
         nodes.push({
           type: 'forcePositional',
           index: currentToken.index,
