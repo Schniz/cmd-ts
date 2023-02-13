@@ -1,5 +1,11 @@
 # cmd-ts
 
+## 0.12.1
+
+### Patch Changes
+
+- 5867a13: Allow dangling forcePositionals
+
 ## 0.12.0
 
 ### Minor Changes
