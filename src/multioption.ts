@@ -3,6 +3,7 @@ import {
   ParsingResult,
   ParseContext,
   ParsingError,
+  Register,
 } from './argparser';
 import { OutputOf } from './from';
 import { findOption } from './newparser/findOption';
@@ -10,10 +11,12 @@ import { ProvidesHelp, LongDoc, ShortDoc, Descriptive } from './helpdoc';
 import { Type, HasType } from './type';
 import { AstNode } from './newparser/parser';
 import * as Result from './Result';
+import { Default } from './default';
+import chalk from 'chalk';
 
 type MultiOptionConfig<Decoder extends Type<string[], any>> = HasType<Decoder> &
   LongDoc &
-  Partial<ShortDoc & Descriptive>;
+  Partial<ShortDoc & Descriptive & Default<OutputOf<Decoder>>>;
 
 /**
  * Like `option`, but can accept multiple options, and expects a decoder from a list of strings.
@@ -21,7 +24,7 @@ type MultiOptionConfig<Decoder extends Type<string[], any>> = HasType<Decoder> &
  */
 export function multioption<Decoder extends Type<string[], any>>(
   config: MultiOptionConfig<Decoder>
-): ArgParser<OutputOf<Decoder>> & ProvidesHelp {
+): ArgParser<OutputOf<Decoder>> & ProvidesHelp & Register {
   return {
     helpTopics() {
       const displayName = config.type.displayName ?? 'value';
@@ -29,11 +32,30 @@ export function multioption<Decoder extends Type<string[], any>>(
       if (config.short) {
         usage += `, -${config.short}=<${displayName}>`;
       }
+
+      const defaults: string[] = [];
+
+      const defaultValueFn = config.defaultValue ?? config.type.defaultValue;
+
+      if (defaultValueFn) {
+        try {
+          const defaultValue = defaultValueFn();
+          if (
+            config.defaultValueIsSerializable ??
+            config.type.defaultValueIsSerializable
+          ) {
+            defaults.push('default: ' + chalk.italic(defaultValue));
+          } else {
+            defaults.push('[...optional]');
+          }
+        } catch (e) {}
+      }
+
       return [
         {
           category: 'options',
           usage,
-          defaults: [],
+          defaults,
           description: config.description ?? 'self explanatory',
         },
       ];
@@ -52,6 +74,24 @@ export function multioption<Decoder extends Type<string[], any>>(
         longNames: [config.long],
         shortNames: config.short ? [config.short] : [],
       }).filter((x) => !visitedNodes.has(x));
+
+      const defaultValueFn = config.defaultValue ?? config.type.defaultValue;
+
+      if (options.length === 0 && typeof defaultValueFn === 'function') {
+        try {
+          return Result.ok(defaultValueFn());
+        } catch (e: any) {
+          const message = `Default value not found for '--${config.long}': ${e.message}`;
+          return Result.err({
+            errors: [
+              {
+                nodes: [],
+                message,
+              },
+            ],
+          });
+        }
+      }
 
       for (const option of options) {
         visitedNodes.add(option);
