@@ -100,3 +100,23 @@ test('fails when no option is provided and applying default value fails', async 
     })
   );
 });
+
+test('fallsback to `[]` when no options and no defaultValue are provided', async () => {
+  const argv = '';
+  const tokens = tokenize(argv.split(' '));
+  const argparser = multioption({
+    type: array(string),
+    long: 'hello',
+    description: 'description',
+  });
+  const registerOptions = createRegisterOptions();
+  argparser.register(registerOptions);
+  const nodes = parse(tokens, registerOptions);
+
+  const result = argparser.parse({
+    nodes,
+    visitedNodes: new Set(),
+  });
+
+  await expect(result).resolves.toEqual(Result.ok([]));
+});
