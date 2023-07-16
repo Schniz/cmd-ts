@@ -81,7 +81,7 @@ export function multioption<Decoder extends Type<string[], any>>(
         try {
           return Result.ok(defaultValueFn());
         } catch (e: any) {
-          const message = `Default value not found for '--${config.long}': ${e.message}`;
+          const message = `Failed to resolve default value for '--${config.long}': ${e.message}`;
           return Result.err({
             errors: [
               {
