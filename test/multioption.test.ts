@@ -94,7 +94,7 @@ test('fails when no option is provided and applying default value fails', async 
       errors: [
         {
           nodes: [],
-          message: `Default value not found for '--hello': its too hot outside, stay inside sweetheart!`,
+          message: `Failed to resolve default value for '--hello': its too hot outside, stay inside sweetheart!`,
         },
       ],
     })
