@@ -76,7 +76,7 @@ test('fails when no option is provided and applying default value fails', async 
     type: array(string),
     long: 'hello',
     defaultValue: () => {
-      throw new Error('its too hot outside, stay inside muthafucka!');
+      throw new Error('its too hot outside, stay inside sweetheart!');
     },
     description: 'description',
   });
@@ -94,7 +94,7 @@ test('fails when no option is provided and applying default value fails', async 
       errors: [
         {
           nodes: [],
-          message: `Default value not found for '--hello': its too hot outside, stay inside muthafucka!`,
+          message: `Default value not found for '--hello': its too hot outside, stay inside sweetheart!`,
         },
       ],
     })
