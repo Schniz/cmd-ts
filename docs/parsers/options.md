@@ -72,3 +72,5 @@ This parser will fail to parse if:
 - `short`: The short form key
 - `description`: A short description regarding the option
 - `displayName`: A short description regarding the option
+- `defaultValue`: A function that returns a default value for the option array in case no options were provided. If not provided, the default value will be an empty array.
+- `defaultValueIsSerializable`: Whether to print the defaultValue as a string in the help docs.
