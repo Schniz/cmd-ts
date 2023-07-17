@@ -1,5 +1,11 @@
 # cmd-ts
 
+## 0.13.0
+
+### Minor Changes
+
+- dfeafc8: add `defaultValue` configuration @ `multioption`
+
 ## 0.12.1
 
 ### Patch Changes
