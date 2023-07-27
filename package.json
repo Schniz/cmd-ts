@@ -57,7 +57,7 @@
     "eslint-plugin-import": "2.26.0",
     "eslint-plugin-prettier": "4.2.1",
     "esm": "3.2.25",
-    "execa": "6.1.0",
+    "execa": "7.2.0",
     "fs-extra": "10.1.0",
     "husky": "8.0.1",
     "infer-types": "0.0.2",

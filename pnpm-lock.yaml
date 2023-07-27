@@ -20,7 +20,7 @@ specifiers:
   eslint-plugin-import: 2.26.0
   eslint-plugin-prettier: 4.2.1
   esm: 3.2.25
-  execa: 6.1.0
+  execa: 7.2.0
   fs-extra: 10.1.0
   husky: 8.0.1
   infer-types: 0.0.2
@@ -56,7 +56,7 @@ devDependencies:
   eslint-plugin-import: 2.26.0_b89cdaebe14035fdef207790f31a15d2
   eslint-plugin-prettier: 4.2.1_370b9998364e21a2d582909b8d493e2e
   esm: 3.2.25
-  execa: 6.1.0
+  execa: 7.2.0
   fs-extra: 10.1.0
   husky: 8.0.1
   infer-types: 0.0.2
@@ -1819,13 +1819,13 @@ packages:
     engines: {node: '>=0.10.0'}
     dev: true
 
-  /execa/6.1.0:
-    resolution: {integrity: sha512-QVWlX2e50heYJcCPG0iWtf8r0xjEYfz/OYLGDYH+IyjWezzPNxz63qNFOu0l4YftGWuizFVZHHs8PrLU5p2IDA==}
-    engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
+  /execa/7.2.0:
+    resolution: {integrity: sha512-UduyVP7TLB5IcAQl+OzLyLcS/l32W/GLg+AhHJ+ow40FOk2U3SAllPwR44v4vmdFwIWqpdwxxpQbF1n5ta9seA==}
+    engines: {node: ^14.18.0 || ^16.14.0 || >=18.0.0}
     dependencies:
       cross-spawn: 7.0.3
       get-stream: 6.0.1
-      human-signals: 3.0.1
+      human-signals: 4.3.1
       is-stream: 3.0.0
       merge-stream: 2.0.0
       npm-run-path: 5.1.0
@@ -2253,9 +2253,9 @@ packages:
     resolution: {integrity: sha512-UNopramDEhHJD+VR+ehk8rOslwSfByxPIZyJRfV739NDhN5LF1fa1MqnzKm2lGTQRjNrjK19Q5fhkgIfjlVUKw==}
     dev: true
 
-  /human-signals/3.0.1:
-    resolution: {integrity: sha512-rQLskxnM/5OCldHo+wNXbpVgDn5A17CUoKX+7Sokwaknlq7CdSnphy0W39GU8dw59XiCXmFXDg4fRuckQRKewQ==}
-    engines: {node: '>=12.20.0'}
+  /human-signals/4.3.1:
+    resolution: {integrity: sha512-nZXjEF2nbo7lIw3mgYjItAfgQXog3OjJogSbKa2CQIIvSGWcKgeJnQlNXip6NglNzYH45nSRiEVimMvYL8DDqQ==}
+    engines: {node: '>=14.18.0'}
     dev: true
 
   /husky/8.0.1:
