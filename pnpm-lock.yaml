@@ -5,7 +5,7 @@ specifiers:
   '@swc-node/register': 1.5.1
   '@types/debug': 4.1.7
   '@types/didyoumean': 1.2.0
-  '@types/fs-extra': 9.0.13
+  '@types/fs-extra': 11.0.4
   '@types/node-fetch': 2.6.2
   '@types/request': 2.48.8
   '@typescript-eslint/eslint-plugin': 5.30.7
@@ -21,7 +21,7 @@ specifiers:
   eslint-plugin-prettier: 4.2.1
   esm: 3.2.25
   execa: 6.1.0
-  fs-extra: 10.1.0
+  fs-extra: 11.2.0
   husky: 8.0.1
   infer-types: 0.0.2
   node-fetch: 2.6.7
@@ -44,7 +44,7 @@ devDependencies:
   '@swc-node/register': 1.5.1_typescript@4.7.4
   '@types/debug': 4.1.7
   '@types/didyoumean': 1.2.0
-  '@types/fs-extra': 9.0.13
+  '@types/fs-extra': 11.0.4
   '@types/node-fetch': 2.6.2
   '@types/request': 2.48.8
   '@typescript-eslint/eslint-plugin': 5.30.7_f59730a40ab520cf82d095906622871f
@@ -57,7 +57,7 @@ devDependencies:
   eslint-plugin-prettier: 4.2.1_370b9998364e21a2d582909b8d493e2e
   esm: 3.2.25
   execa: 6.1.0
-  fs-extra: 10.1.0
+  fs-extra: 11.2.0
   husky: 8.0.1
   infer-types: 0.0.2
   node-fetch: 2.6.7
@@ -563,9 +563,10 @@ packages:
     resolution: {integrity: sha512-3QMjBOgPEXaOkhfQxiGgzn6JpofPSi8Z0RmQq65FIpZv4kCPT/jvYiYrwqaUrfiHZmwwRvyYJjJmoKopbvLPQw==}
     dev: true
 
-  /@types/fs-extra/9.0.13:
-    resolution: {integrity: sha512-nEnwB++1u5lVDM2UI4c1+5R+FYaKfaAzS4OococimjVm3nQw3TuzH5UNsocrcTBbhnerblyHj4A49qXbIiZdpA==}
+  /@types/fs-extra/11.0.4:
+    resolution: {integrity: sha512-yTbItCNreRooED33qjunPthRcSjERP1r4MqCZc7wv0u2sUkzTFp45tgUfS5+r7FrZPdmCCNflLhVSP/o+SemsQ==}
     dependencies:
+      '@types/jsonfile': 6.1.4
       '@types/node': 17.0.34
     dev: true
 
@@ -581,6 +582,12 @@ packages:
 
   /@types/json5/0.0.29:
     resolution: {integrity: sha512-dRLjCWHYg4oaA77cxO64oO+7JwCwnIzkZPdrrC71jQmQtlhM556pwKo5bUzqvZndkVbeFLIIi+9TC40JNF5hNQ==}
+    dev: true
+
+  /@types/jsonfile/6.1.4:
+    resolution: {integrity: sha512-D5qGUYwjvnNNextdU59/+fI+spnwtTFmyQP0h+PfIOSkNfpU6AOICUOkm4i0OnSk+NyjdPJrxCDro0sJsWlRpQ==}
+    dependencies:
+      '@types/node': 17.0.34
     dev: true
 
   /@types/minimatch/3.0.5:
@@ -2010,9 +2017,9 @@ packages:
     resolution: {integrity: sha512-oxvgqUYR6O9VkKXrxkJ0NOyU0FrE705MeqgBUMEPWyTu6Pwn768cJbHChw2XOBlgFLKfIHxjr2OOBFpv2mUGZw==}
     dev: true
 
-  /fs-extra/10.1.0:
-    resolution: {integrity: sha512-oRXApq54ETRj4eMiFzGnHWGy+zo5raudjuxN0b8H7s/RU2oW0Wvsx9O0ACRN/kRq9E8Vu/ReskGB5o3ji+FzHQ==}
-    engines: {node: '>=12'}
+  /fs-extra/11.2.0:
+    resolution: {integrity: sha512-PmDi3uwK5nFuXh7XDTlVnS17xJS7vW36is2+w3xcv8SVxiB4NyATf4ctkVY5bkSjX0Y4nbvZCq1/EjtEyr9ktw==}
+    engines: {node: '>=14.14'}
     dependencies:
       graceful-fs: 4.2.10
       jsonfile: 6.1.0
