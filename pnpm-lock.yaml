@@ -16,7 +16,7 @@ specifiers:
   didyoumean: ^1.2.2
   docs-ts: 0.6.10
   eslint: 8.20.0
-  eslint-config-prettier: 8.5.0
+  eslint-config-prettier: 9.1.0
   eslint-plugin-import: 2.26.0
   eslint-plugin-prettier: 4.2.1
   esm: 3.2.25
@@ -52,9 +52,9 @@ devDependencies:
   cargo-mdbook: 0.4.4
   docs-ts: 0.6.10_prettier@2.7.1+typescript@4.7.4
   eslint: 8.20.0
-  eslint-config-prettier: 8.5.0_eslint@8.20.0
+  eslint-config-prettier: 9.1.0_eslint@8.20.0
   eslint-plugin-import: 2.26.0_b89cdaebe14035fdef207790f31a15d2
-  eslint-plugin-prettier: 4.2.1_370b9998364e21a2d582909b8d493e2e
+  eslint-plugin-prettier: 4.2.1_1cc3ac9a1955b4604d06b666239fee9e
   esm: 3.2.25
   execa: 6.1.0
   fs-extra: 10.1.0
@@ -1598,8 +1598,8 @@ packages:
     engines: {node: '>=10'}
     dev: true
 
-  /eslint-config-prettier/8.5.0_eslint@8.20.0:
-    resolution: {integrity: sha512-obmWKLUNCnhtQRKc+tmnYuQl0pFU1ibYJQ5BGhTVB08bHe9wC8qUeG7c08dj9XX+AuPj1YSGSQIHl1pnDHZR0Q==}
+  /eslint-config-prettier/9.1.0_eslint@8.20.0:
+    resolution: {integrity: sha512-NSWl5BFQWEPi1j4TjVNItzYV7dZXZ+wP6I6ZhrBGpChQhZRUaElihE9uRRkcbRnNb76UMKDF3r+WTmNcGPKsqw==}
     hasBin: true
     peerDependencies:
       eslint: '>=7.0.0'
@@ -1673,7 +1673,7 @@ packages:
       - supports-color
     dev: true
 
-  /eslint-plugin-prettier/4.2.1_370b9998364e21a2d582909b8d493e2e:
+  /eslint-plugin-prettier/4.2.1_1cc3ac9a1955b4604d06b666239fee9e:
     resolution: {integrity: sha512-f/0rXLXUt0oFYs8ra4w49wYZBG5GKZpAYsJSm6rnYL5uVDjd+zowwMwVZHnAjf4edNrKpCDYfXDgmRE/Ak7QyQ==}
     engines: {node: '>=12.0.0'}
     peerDependencies:
@@ -1685,7 +1685,7 @@ packages:
         optional: true
     dependencies:
       eslint: 8.20.0
-      eslint-config-prettier: 8.5.0_eslint@8.20.0
+      eslint-config-prettier: 9.1.0_eslint@8.20.0
       prettier: 2.7.1
       prettier-linter-helpers: 1.0.0
     dev: true

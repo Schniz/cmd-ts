@@ -53,7 +53,7 @@
     "cargo-mdbook": "0.4.4",
     "docs-ts": "0.6.10",
     "eslint": "8.20.0",
-    "eslint-config-prettier": "8.5.0",
+    "eslint-config-prettier": "9.1.0",
     "eslint-plugin-import": "2.26.0",
     "eslint-plugin-prettier": "4.2.1",
     "esm": "3.2.25",
