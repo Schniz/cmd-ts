@@ -6,7 +6,7 @@ specifiers:
   '@types/debug': 4.1.7
   '@types/didyoumean': 1.2.0
   '@types/fs-extra': 9.0.13
-  '@types/node-fetch': 2.6.2
+  '@types/node-fetch': 2.6.11
   '@types/request': 2.48.8
   '@typescript-eslint/eslint-plugin': 5.30.7
   '@typescript-eslint/parser': 5.30.7
@@ -45,7 +45,7 @@ devDependencies:
   '@types/debug': 4.1.7
   '@types/didyoumean': 1.2.0
   '@types/fs-extra': 9.0.13
-  '@types/node-fetch': 2.6.2
+  '@types/node-fetch': 2.6.11
   '@types/request': 2.48.8
   '@typescript-eslint/eslint-plugin': 5.30.7_f59730a40ab520cf82d095906622871f
   '@typescript-eslint/parser': 5.30.7_eslint@8.20.0+typescript@4.7.4
@@ -595,11 +595,11 @@ packages:
     resolution: {integrity: sha512-iiUgKzV9AuaEkZqkOLDIvlQiL6ltuZd9tGcW3gwpnX8JbuiuhFlEGmmFXEXkN50Cvq7Os88IY2v0dkDqXYWVgA==}
     dev: true
 
-  /@types/node-fetch/2.6.2:
-    resolution: {integrity: sha512-DHqhlq5jeESLy19TYhLakJ07kNumXWjcDdxXsLUMJZ6ue8VZJj4kLPQVE/2mdHh3xZziNF1xppu5lwmS53HR+A==}
+  /@types/node-fetch/2.6.11:
+    resolution: {integrity: sha512-24xFj9R5+rfQJLRyM56qh+wnVSYhyXC2tkoBndtY0U+vubqNsYXGjufB2nn8Q6gt0LrARwL6UBtMCSVCwl4B1g==}
     dependencies:
       '@types/node': 17.0.34
-      form-data: 3.0.1
+      form-data: 4.0.0
     dev: true
 
   /@types/node/12.20.52:
@@ -1997,8 +1997,8 @@ packages:
       mime-types: 2.1.35
     dev: true
 
-  /form-data/3.0.1:
-    resolution: {integrity: sha512-RHkBKtLWUVwd7SqRIvCZMEvAMoGUp0XU+seQiZejj0COz3RI3hWP4sCv3gZWWLjJTd7rGwcsF5eKZGii0r/hbg==}
+  /form-data/4.0.0:
+    resolution: {integrity: sha512-ETEklSGi5t0QMZuiXoA/Q6vcnxcLQP5vdugSpuAyi6SVGi2clPPp+xgEhuMaHC+zGgn31Kd235W35f7Hykkaww==}
     engines: {node: '>= 6'}
     dependencies:
       asynckit: 0.4.0
