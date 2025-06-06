@@ -20,10 +20,10 @@ import { Runner } from './runner';
 import { createCircuitBreaker, handleCircuitBreaker } from './circuitbreaker';
 import * as Result from './Result';
 
-type ArgTypes = Record<string, ArgParser<any> & Partial<ProvidesHelp>>;
-type HandlerFunc<Args extends ArgTypes> = (args: Output<Args>) => any;
+export type ArgTypes = Record<string, ArgParser<any> & Partial<ProvidesHelp>>;
+export type HandlerFunc<Args extends ArgTypes> = (args: Output<Args>) => any;
 
-type CommandConfig<
+export type CommandConfig<
   Arguments extends ArgTypes,
   Handler extends HandlerFunc<Arguments>
 > = {
@@ -35,7 +35,7 @@ type CommandConfig<
   aliases?: string[];
 };
 
-type Output<Args extends ArgTypes> = {
+export type Output<Args extends ArgTypes> = {
   [key in keyof Args]: ParsingInto<Args[key]>;
 };
 

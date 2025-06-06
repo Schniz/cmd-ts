@@ -8,7 +8,7 @@ export { subcommands } from './subcommands';
 export { Type, extendType } from './type';
 export * from './types';
 export { binary } from './binary';
-export { command } from './command';
+export * from './command';
 export { flag } from './flag';
 export { option } from './option';
 export { positional } from './positional';
