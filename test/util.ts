@@ -1,12 +1,11 @@
 import { execa, ExecaReturnValue } from 'execa';
-import path from 'path';
 
 export function app(
   scriptPath: string
 ): (args: string[]) => Promise<ExecaReturnValue> {
   return async (args) => {
     const result = await execa(
-      path.join(__dirname, '../scripts/ts-node'),
+      require.resolve('tsx/cli'),
       [scriptPath, ...args],
       {
         all: true,
