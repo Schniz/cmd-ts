@@ -40,8 +40,8 @@ importers:
         specifier: 2.6.2
         version: 2.6.2
       '@types/request':
-        specifier: 2.48.8
-        version: 2.48.8
+        specifier: 2.48.12
+        version: 2.48.12
       '@typescript-eslint/eslint-plugin':
         specifier: 5.30.7
         version: 5.30.7(@typescript-eslint/parser@5.30.7(eslint@8.20.0)(typescript@4.7.4))(eslint@8.20.0)(typescript@4.7.4)
@@ -515,8 +515,8 @@ packages:
   '@types/normalize-package-data@2.4.4':
     resolution: {integrity: sha512-37i+OaWTh9qeK4LSHPsyRC7NahnGotNuZvjLSgcPzblpHB3rrCJxAOgI5gCdKm7coonsaX1Of0ILiTcnZjbfxA==}
 
-  '@types/request@2.48.8':
-    resolution: {integrity: sha512-whjk1EDJPcAR2kYHRbFl/lKeeKYTi05A15K9bnLInCVroNDCtXce57xKdI0/rQaA3K+6q0eFyUBPmqfSndUZdQ==}
+  '@types/request@2.48.12':
+    resolution: {integrity: sha512-G3sY+NpsA9jnwm0ixhAFQSJ3Q9JkpLZpJbI3GMv0mIAT0y3mRabYeINzal5WOChIiaTEGQYlHOKgkaM9EisWHw==}
 
   '@types/semver@6.2.7':
     resolution: {integrity: sha512-blctEWbzUFzQx799RZjzzIdBJOXmE37YYEyDtKkx5Dg+V7o/zyyAxLPiI98A2jdTtDgxZleMdfV+7p8WbRJ1OQ==}
@@ -3270,7 +3270,7 @@ snapshots:
 
   '@types/normalize-package-data@2.4.4': {}
 
-  '@types/request@2.48.8':
+  '@types/request@2.48.12':
     dependencies:
       '@types/caseless': 0.12.5
       '@types/node': 22.15.30
