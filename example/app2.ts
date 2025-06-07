@@ -1,13 +1,13 @@
 #!/usr/bin/env YARN_SILENT=1 yarn ts-node
 
 import {
-	run,
+	type Type,
 	boolean,
-	option,
-	Type,
-	flag,
-	extendType,
 	command,
+	extendType,
+	flag,
+	option,
+	run,
 	string,
 } from "../src";
 

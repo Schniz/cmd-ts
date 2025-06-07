@@ -1,4 +1,4 @@
-import chalk, { Chalk } from "chalk";
+import chalk, { type Chalk } from "chalk";
 
 let mode: "chalk" | "tags" | "disabled" = "chalk";
 

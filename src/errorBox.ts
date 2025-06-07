@@ -1,8 +1,8 @@
-import { ParsingError } from "./argparser";
 import chalk from "chalk";
-import { AstNode } from "./newparser/parser";
-import { padNoAnsi, enumerate } from "./utils";
 import stripAnsi from "strip-ansi";
+import type { ParsingError } from "./argparser";
+import type { AstNode } from "./newparser/parser";
+import { enumerate, padNoAnsi } from "./utils";
 
 type HighlightResult = { colorized: string; errorIndex: number };
 
@@ -67,9 +67,10 @@ export function errorBox(
 	errors: ParsingError[],
 	breadcrumbs: string[],
 ): string {
-	let withHighlight: { message: string; highlighted?: HighlightResult }[] = [];
+	const withHighlight: { message: string; highlighted?: HighlightResult }[] =
+		[];
 
-	let errorMessages: string[] = [];
+	const errorMessages: string[] = [];
 
 	for (const error of errors) {
 		const highlighted = highlight(nodes, error);

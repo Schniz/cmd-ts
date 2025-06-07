@@ -1,15 +1,15 @@
-import {
+import * as Result from "./Result";
+import type {
 	ArgParser,
-	ParsingResult,
 	ParseContext,
 	ParsingError,
+	ParsingResult,
 } from "./argparser";
-import { From, OutputOf } from "./from";
-import { findOption } from "./newparser/findOption";
-import { ProvidesHelp, LongDoc, Descriptive, ShortDoc } from "./helpdoc";
 import { boolean } from "./flag";
-import { HasType } from "./type";
-import * as Result from "./Result";
+import type { From, OutputOf } from "./from";
+import type { Descriptive, LongDoc, ProvidesHelp, ShortDoc } from "./helpdoc";
+import { findOption } from "./newparser/findOption";
+import type { HasType } from "./type";
 
 type MultiFlagConfig<Decoder extends From<boolean[], any>> = HasType<Decoder> &
 	LongDoc &

@@ -1,18 +1,23 @@
-import { ArgParser, ParsingResult, ParseContext, Register } from "./argparser";
-import { findOption } from "./newparser/findOption";
-import {
-	ProvidesHelp,
-	Descriptive,
-	ShortDoc,
-	LongDoc,
-	EnvDoc,
-} from "./helpdoc";
-import { Type, extendType, OutputOf, HasType } from "./type";
 import chalk from "chalk";
-import { Default } from "./default";
-import { AllOrNothing } from "./utils";
 import * as Result from "./Result";
+import type {
+	ArgParser,
+	ParseContext,
+	ParsingResult,
+	Register,
+} from "./argparser";
+import type { Default } from "./default";
+import type {
+	Descriptive,
+	EnvDoc,
+	LongDoc,
+	ProvidesHelp,
+	ShortDoc,
+} from "./helpdoc";
+import { findOption } from "./newparser/findOption";
+import { type HasType, type OutputOf, type Type, extendType } from "./type";
 import { boolean as booleanIdentity } from "./types";
+import type { AllOrNothing } from "./utils";
 
 type FlagConfig<Decoder extends Type<boolean, any>> = LongDoc &
 	HasType<Decoder> &

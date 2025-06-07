@@ -1,10 +1,10 @@
 import { identity } from "../src/from";
-import { Type } from "../src/type";
-import { InputOf, OutputOf } from "../src/from";
+import type { InputOf, OutputOf } from "../src/from";
+import type { Type } from "../src/type";
 
 export const number: Type<string, number> = {
 	async from(str) {
-		const decoded = parseInt(str, 10);
+		const decoded = Number.parseInt(str, 10);
 
 		if (Number.isNaN(decoded)) {
 			throw new Error("Not a number");

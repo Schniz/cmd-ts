@@ -1,7 +1,7 @@
-import { it, describe, expect } from "vitest";
-import { padNoAnsi, AllOrNothing } from "../src/utils";
-import stripAnsi from "strip-ansi";
 import chalk from "chalk";
+import stripAnsi from "strip-ansi";
+import { describe, expect, it } from "vitest";
+import { type AllOrNothing, padNoAnsi } from "../src/utils";
 
 describe("padNoAnsi", () => {
 	it("pads start", () => {

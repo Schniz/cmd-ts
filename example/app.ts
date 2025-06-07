@@ -2,23 +2,23 @@
 
 /* istanbul ignore file */
 
-import { Integer, ReadStream } from "./test-types";
 import {
-	command,
-	subcommands,
-	run,
 	binary,
-	string,
 	boolean,
-	flag,
-	option,
-	positional,
-	optional,
-	restPositionals,
+	command,
 	extendType,
-	union,
+	flag,
 	number,
+	option,
+	optional,
+	positional,
+	restPositionals,
+	run,
+	string,
+	subcommands,
+	union,
 } from "../src";
+import { Integer, ReadStream } from "./test-types";
 
 const complex = command({
 	version: "6.6.6-alpha",

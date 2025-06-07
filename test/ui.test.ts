@@ -1,5 +1,5 @@
-import { test, expect, describe } from "vitest";
 import path from "path";
+import { describe, expect, test } from "vitest";
 import { app } from "./util";
 
 test("help for subcommands", async () => {

@@ -1,6 +1,6 @@
-import { From, OutputOf, InputOf, FromFn } from "./from";
-import { Descriptive, Displayed } from "./helpdoc";
-import { Default } from "./default";
+import type { Default } from "./default";
+import type { From, FromFn, InputOf, OutputOf } from "./from";
+import type { Descriptive, Displayed } from "./helpdoc";
 
 export { identity, OutputOf, InputOf } from "./from";
 

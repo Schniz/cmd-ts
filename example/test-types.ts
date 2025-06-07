@@ -1,10 +1,10 @@
 /* istanbul ignore file */
 
-import { Stream } from "stream";
-import { stat, pathExists, createReadStream } from "fs-extra";
-import fetch from "node-fetch";
+import type { Stream } from "stream";
 import URL from "url";
-import { Type, extendType, number } from "../src";
+import { createReadStream, pathExists, stat } from "fs-extra";
+import fetch from "node-fetch";
+import { type Type, extendType, number } from "../src";
 
 export const Integer: Type<string, number> = extendType(number, {
 	async from(n) {

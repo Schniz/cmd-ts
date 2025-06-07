@@ -1,6 +1,6 @@
+import * as Result from "./Result";
 import type { ArgParser } from "./argparser";
 import type { Descriptive, Displayed, ProvidesHelp } from "./helpdoc";
-import * as Result from "./Result";
 
 export function rest(
 	config?: Partial<Displayed & Descriptive>,

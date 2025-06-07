@@ -1,12 +1,12 @@
-import { test, expect } from "vitest";
 import chalk from "chalk";
-import { tokenize } from "../src/newparser/tokenizer";
-import { parse } from "../src/newparser/parser";
-import { errorBox } from "../src/errorBox";
-import { option } from "../src/option";
-import { number } from "./test-types";
+import { expect, test } from "vitest";
 import * as Result from "../src/Result";
+import { errorBox } from "../src/errorBox";
+import { parse } from "../src/newparser/parser";
+import { tokenize } from "../src/newparser/tokenizer";
+import { option } from "../src/option";
 import { createRegisterOptions } from "./createRegisterOptions";
+import { number } from "./test-types";
 
 test("works for multiple nodes", async () => {
 	const argv = `hello world --some arg --flag --some another --flag --this-is=option -abcde=f -abcde`;

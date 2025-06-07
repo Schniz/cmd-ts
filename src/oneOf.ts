@@ -1,5 +1,5 @@
-import { Type } from "./type";
 import { inspect } from "util";
+import type { Type } from "./type";
 
 /**
  * A union of literals. When you want to take an exact enum value.

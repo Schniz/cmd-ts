@@ -1,24 +1,24 @@
 import chalk from "chalk";
-import {
-	ParsingInto,
+import * as Result from "./Result";
+import type {
 	ArgParser,
-	ParsingError,
-	ParsingResult,
 	ParseContext,
+	ParsingError,
+	ParsingInto,
+	ParsingResult,
 } from "./argparser";
-import { AstNode } from "./newparser/parser";
-import {
+import { createCircuitBreaker, handleCircuitBreaker } from "./circuitbreaker";
+import type {
+	Aliased,
+	Descriptive,
+	Named,
 	PrintHelp,
 	ProvidesHelp,
 	Versioned,
-	Named,
-	Descriptive,
-	Aliased,
 } from "./helpdoc";
-import { padNoAnsi, entries, groupBy, flatMap } from "./utils";
-import { Runner } from "./runner";
-import { createCircuitBreaker, handleCircuitBreaker } from "./circuitbreaker";
-import * as Result from "./Result";
+import type { AstNode } from "./newparser/parser";
+import type { Runner } from "./runner";
+import { entries, flatMap, groupBy, padNoAnsi } from "./utils";
 
 type ArgTypes = Record<string, ArgParser<any> & Partial<ProvidesHelp>>;
 type HandlerFunc<Args extends ArgTypes> = (args: Output<Args>) => any;

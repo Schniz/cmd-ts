@@ -1,6 +1,6 @@
-import { test, expect } from "vitest";
+import { expect, test } from "vitest";
+import { type AstNode, parse } from "../../src/newparser/parser";
 import { tokenize } from "../../src/newparser/tokenizer";
-import { AstNode, parse } from "../../src/newparser/parser";
 import { createRegisterOptions } from "../createRegisterOptions";
 
 test("dash in the middle of a word", () => {

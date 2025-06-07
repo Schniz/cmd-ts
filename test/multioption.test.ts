@@ -1,10 +1,10 @@
 import { expect, test } from "vitest";
-import { array, string } from "../src/types";
-import { multioption } from "../src/multioption";
-import { tokenize } from "../src/newparser/tokenizer";
-import { createRegisterOptions } from "./createRegisterOptions";
-import { parse } from "../src/newparser/parser";
 import * as Result from "../src/Result";
+import { multioption } from "../src/multioption";
+import { parse } from "../src/newparser/parser";
+import { tokenize } from "../src/newparser/tokenizer";
+import { array, string } from "../src/types";
+import { createRegisterOptions } from "./createRegisterOptions";
 
 test("applies default value when no option is provided", async () => {
 	const argv = "";

@@ -1,10 +1,10 @@
-import { test, expect } from "vitest";
-import { restPositionals } from "../src/restPositionals";
-import { tokenize } from "../src/newparser/tokenizer";
-import { parse, AstNode } from "../src/newparser/parser";
-import { number } from "./test-types";
+import { expect, test } from "vitest";
 import * as Result from "../src/Result";
+import { type AstNode, parse } from "../src/newparser/parser";
+import { tokenize } from "../src/newparser/tokenizer";
+import { restPositionals } from "../src/restPositionals";
 import { createRegisterOptions } from "./createRegisterOptions";
+import { number } from "./test-types";
 
 test("fails on specific positional", async () => {
 	const argv = `10 20 --mamma mia hello 40`;

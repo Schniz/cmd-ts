@@ -1,14 +1,14 @@
-import {
-	subcommands,
-	command,
-	option,
-	string,
-	run,
-	positional,
-	number,
-	optional,
-} from "../src";
 import { inspect } from "node:util";
+import {
+	command,
+	number,
+	option,
+	optional,
+	positional,
+	run,
+	string,
+	subcommands,
+} from "../src";
 
 const sub1 = command({
 	name: "sub1",

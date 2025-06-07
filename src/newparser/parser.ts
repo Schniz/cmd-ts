@@ -1,6 +1,6 @@
-import { Token } from "./tokenizer";
 import createDebugger from "debug";
 import type { RegisterOptions } from "../argparser";
+import type { Token } from "./tokenizer";
 
 const debug = createDebugger("cmd-ts:parser");
 
@@ -162,7 +162,7 @@ export function parse(tokens: Token[], forceFlag: RegisterOptions): AstNode[] {
 		}
 
 		if (currentToken.type === "shortPrefix") {
-			let keys: Token[] = [];
+			const keys: Token[] = [];
 			let nextToken = getToken();
 
 			if (nextToken?.type === "argumentDivider" || !nextToken) {
@@ -254,7 +254,7 @@ function parseOptionValue(opts: {
 	forceFlag: Set<string>;
 	forceOption: Set<string>;
 }): OptionValue | undefined {
-	let { getToken, delimiterToken, forceFlag, key, forceOption } = opts;
+	const { getToken, delimiterToken, forceFlag, key, forceOption } = opts;
 	const shouldReadKeyAsOption = forceOption.has(key);
 	const shouldReadKeyAsFlag =
 		!shouldReadKeyAsOption &&

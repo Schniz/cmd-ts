@@ -1,10 +1,15 @@
-import { PrintHelp, Versioned } from "./helpdoc";
-import { ArgParser, ParseContext, ParsingResult, Register } from "./argparser";
-import { tokenize } from "./newparser/tokenizer";
-import { AstNode, parse as doParse } from "./newparser/parser";
-import { errorBox } from "./errorBox";
-import { err, ok, Result, isErr } from "./Result";
+import { type Result, err, isErr, ok } from "./Result";
+import type {
+	ArgParser,
+	ParseContext,
+	ParsingResult,
+	Register,
+} from "./argparser";
 import { Exit } from "./effects";
+import { errorBox } from "./errorBox";
+import type { PrintHelp, Versioned } from "./helpdoc";
+import { type AstNode, parse as doParse } from "./newparser/parser";
+import { tokenize } from "./newparser/tokenizer";
 
 export type Handling<Values, Result> = { handler: (values: Values) => Result };
 

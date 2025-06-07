@@ -1,4 +1,4 @@
-import { command, rest, binary, run, positional } from "../src";
+import { binary, command, positional, rest, run } from "../src";
 
 const cmd = command({
 	args: {

@@ -1,14 +1,14 @@
-import {
+import * as Result from "./Result";
+import type {
 	ArgParser,
-	ParsingResult,
 	ParseContext,
 	ParsingError,
+	ParsingResult,
 } from "./argparser";
-import { OutputOf } from "./from";
-import { PositionalArgument } from "./newparser/parser";
-import { Type, HasType } from "./type";
-import { ProvidesHelp, Displayed, Descriptive } from "./helpdoc";
-import * as Result from "./Result";
+import type { OutputOf } from "./from";
+import type { Descriptive, Displayed, ProvidesHelp } from "./helpdoc";
+import type { PositionalArgument } from "./newparser/parser";
+import type { HasType, Type } from "./type";
 import { string } from "./types";
 
 type RestPositionalsConfig<Decoder extends Type<string, any>> =
@@ -46,7 +46,7 @@ function fullRestPositionals<Decoder extends Type<string, any>>(
 			);
 
 			const results: OutputOf<Decoder>[] = [];
-			let errors: ParsingError[] = [];
+			const errors: ParsingError[] = [];
 
 			for (const positional of positionals) {
 				visitedNodes.add(positional);

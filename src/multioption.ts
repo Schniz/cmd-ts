@@ -1,18 +1,18 @@
-import {
+import chalk from "chalk";
+import * as Result from "./Result";
+import type {
 	ArgParser,
-	ParsingResult,
 	ParseContext,
 	ParsingError,
+	ParsingResult,
 	Register,
 } from "./argparser";
-import { OutputOf } from "./from";
+import type { Default } from "./default";
+import type { OutputOf } from "./from";
+import type { Descriptive, LongDoc, ProvidesHelp, ShortDoc } from "./helpdoc";
 import { findOption } from "./newparser/findOption";
-import { ProvidesHelp, LongDoc, ShortDoc, Descriptive } from "./helpdoc";
-import { Type, HasType } from "./type";
-import { AstNode } from "./newparser/parser";
-import * as Result from "./Result";
-import { Default } from "./default";
-import chalk from "chalk";
+import type { AstNode } from "./newparser/parser";
+import type { HasType, Type } from "./type";
 
 type MultiOptionConfig<Decoder extends Type<string[], any>> = HasType<Decoder> &
 	LongDoc &

@@ -1,24 +1,24 @@
-import {
+import chalk from "chalk";
+import * as Result from "./Result";
+import type {
 	ArgParser,
+	ParseContext,
 	ParsingError,
 	ParsingResult,
-	ParseContext,
 } from "./argparser";
-import { OutputOf } from "./from";
-import { findOption } from "./newparser/findOption";
-import {
-	ProvidesHelp,
+import type { Default } from "./default";
+import type { OutputOf } from "./from";
+import type {
 	Descriptive,
-	LongDoc,
 	EnvDoc,
+	LongDoc,
+	ProvidesHelp,
 	ShortDoc,
 } from "./helpdoc";
-import { Type, HasType } from "./type";
-import chalk from "chalk";
-import { Default } from "./default";
-import { AllOrNothing } from "./utils";
-import * as Result from "./Result";
+import { findOption } from "./newparser/findOption";
+import type { HasType, Type } from "./type";
 import { string } from "./types";
+import type { AllOrNothing } from "./utils";
 
 type OptionConfig<Decoder extends Type<string, any>> = LongDoc &
 	HasType<Decoder> &

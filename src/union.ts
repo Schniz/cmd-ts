@@ -1,6 +1,6 @@
-import { Type, fromFn, typeDef } from "./type";
-import { OutputOf, InputOf, FromFn, From } from "./from";
 import * as Result from "./Result";
+import type { From, FromFn, InputOf, OutputOf } from "./from";
+import { type Type, fromFn, typeDef } from "./type";
 
 type Any<A = any> = FromFn<A, any> | From<A, any>;
 

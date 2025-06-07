@@ -1,4 +1,4 @@
-import { execa, ExecaReturnValue } from "execa";
+import { type ExecaReturnValue, execa } from "execa";
 
 export function app(
 	scriptPath: string,

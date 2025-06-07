@@ -1,4 +1,4 @@
-import { AstNode, LongOption, ShortOption } from "./parser";
+import type { AstNode, LongOption, ShortOption } from "./parser";
 
 type Option = LongOption | ShortOption;
 

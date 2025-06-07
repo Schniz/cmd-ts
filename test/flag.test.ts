@@ -1,9 +1,9 @@
-import { test, expect } from "vitest";
-import { flag } from "../src/flag";
-import { tokenize } from "../src/newparser/tokenizer";
-import { parse } from "../src/newparser/parser";
-import { boolean } from "../src/types";
+import { expect, test } from "vitest";
 import * as Result from "../src/Result";
+import { flag } from "../src/flag";
+import { parse } from "../src/newparser/parser";
+import { tokenize } from "../src/newparser/tokenizer";
+import { boolean } from "../src/types";
 import { createRegisterOptions } from "./createRegisterOptions";
 
 test("fails on incompatible value", async () => {

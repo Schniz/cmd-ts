@@ -1,7 +1,7 @@
-import { test, expect } from "vitest";
-import { tokenize } from "../../src/newparser/tokenizer";
-import { parse } from "../../src/newparser/parser";
+import { expect, test } from "vitest";
 import { findOption } from "../../src/newparser/findOption";
+import { parse } from "../../src/newparser/parser";
+import { tokenize } from "../../src/newparser/tokenizer";
 import { createRegisterOptions } from "../createRegisterOptions";
 
 test("finds options", () => {

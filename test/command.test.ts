@@ -1,13 +1,13 @@
-import { test, expect } from "vitest";
+import { expect, test } from "vitest";
+import * as Result from "../src/Result";
+import { command } from "../src/command";
 import { flag } from "../src/flag";
+import { parse } from "../src/newparser/parser";
+import { tokenize } from "../src/newparser/tokenizer";
 import { option } from "../src/option";
 import { restPositionals } from "../src/restPositionals";
-import { tokenize } from "../src/newparser/tokenizer";
-import { parse } from "../src/newparser/parser";
-import { command } from "../src/command";
-import { number, string, boolean } from "./test-types";
-import * as Result from "../src/Result";
 import { createRegisterOptions } from "./createRegisterOptions";
+import { boolean, number, string } from "./test-types";
 
 const cmd = command({
 	name: "My command",

@@ -24,7 +24,7 @@ export type Token =
  * @param strings arguments, based on `process.argv`
  */
 export function tokenize(strings: string[]): Token[] {
-	let tokens: Token[] = [];
+	const tokens: Token[] = [];
 	let overallIndex = 0;
 
 	const push = (token: Token) => {
