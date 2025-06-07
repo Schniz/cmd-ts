@@ -43,7 +43,7 @@
   "devDependencies": {
     "@changesets/cli": "2.23.2",
     "@swc-node/register": "1.5.1",
-    "@types/debug": "4.1.7",
+    "@types/debug": "4.1.12",
     "@types/didyoumean": "1.2.0",
     "@types/fs-extra": "9.0.13",
     "@types/node-fetch": "2.6.2",

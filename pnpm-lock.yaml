@@ -28,8 +28,8 @@ importers:
         specifier: 1.5.1
         version: 1.5.1(@swc/core@1.11.31)(@swc/types@0.1.22)(typescript@4.7.4)
       '@types/debug':
-        specifier: 4.1.7
-        version: 4.1.7
+        specifier: 4.1.12
+        version: 4.1.12
       '@types/didyoumean':
         specifier: 1.2.0
         version: 1.2.0
@@ -476,8 +476,8 @@ packages:
   '@types/chai@4.3.20':
     resolution: {integrity: sha512-/pC9HAB5I/xMlc5FP77qjCnI16ChlJfW0tGa0IUcFn38VJrTV6DeZ60NU5KZBtaOZqjdpwTWohz5HU1RrhiYxQ==}
 
-  '@types/debug@4.1.7':
-    resolution: {integrity: sha512-9AonUzyTjXXhEOa0DnqpzZi6VHlqKMswga9EXjpXnnqxwLtdvPPtlO8evrI5D9S6asFRCQ6v+wpiUKbw+vKqyg==}
+  '@types/debug@4.1.12':
+    resolution: {integrity: sha512-vIChWdVG3LG1SMxEvI/AK+FWJthlrqlTu7fbrlywTkkaONwk/UAGaULXRlf8vkzFBLVm0zkMdCquhL5aOjhXPQ==}
 
   '@types/didyoumean@1.2.0':
     resolution: {integrity: sha512-3QMjBOgPEXaOkhfQxiGgzn6JpofPSi8Z0RmQq65FIpZv4kCPT/jvYiYrwqaUrfiHZmwwRvyYJjJmoKopbvLPQw==}
@@ -3233,7 +3233,7 @@ snapshots:
 
   '@types/chai@4.3.20': {}
 
-  '@types/debug@4.1.7':
+  '@types/debug@4.1.12':
     dependencies:
       '@types/ms': 2.1.0
 
