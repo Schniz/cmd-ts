@@ -1,18 +1,18 @@
-import {
-  ArgParser,
-  ParsingResult,
-  ParseContext,
-  ParsingError,
-} from './argparser';
-import { OutputOf } from './from';
-import { PositionalArgument } from './newparser/parser';
-import { Type, HasType } from './type';
-import { ProvidesHelp, Displayed, Descriptive } from './helpdoc';
-import * as Result from './Result';
-import { string } from './types';
+import * as Result from "./Result";
+import type {
+	ArgParser,
+	ParseContext,
+	ParsingError,
+	ParsingResult,
+} from "./argparser";
+import type { OutputOf } from "./from";
+import type { Descriptive, Displayed, ProvidesHelp } from "./helpdoc";
+import type { PositionalArgument } from "./newparser/parser";
+import type { HasType, Type } from "./type";
+import { string } from "./types";
 
 type RestPositionalsConfig<Decoder extends Type<string, any>> =
-  HasType<Decoder> & Partial<Displayed & Descriptive>;
+	HasType<Decoder> & Partial<Displayed & Descriptive>;
 
 /**
  * Read all the positionals and decode them using the type provided.
@@ -20,66 +20,66 @@ type RestPositionalsConfig<Decoder extends Type<string, any>> =
  * used like the `...rest` operator in JS and TypeScript.
  */
 function fullRestPositionals<Decoder extends Type<string, any>>(
-  config: RestPositionalsConfig<Decoder>
+	config: RestPositionalsConfig<Decoder>,
 ): ArgParser<OutputOf<Decoder>[]> & ProvidesHelp {
-  return {
-    helpTopics() {
-      const displayName =
-        config.displayName ?? config.type.displayName ?? 'arg';
-      return [
-        {
-          usage: `[...${displayName}]`,
-          category: 'arguments',
-          defaults: [],
-          description: config.description ?? config.type.description ?? '',
-        },
-      ];
-    },
-    register(_opts) {},
-    async parse({
-      nodes,
-      visitedNodes,
-    }: ParseContext): Promise<ParsingResult<OutputOf<Decoder>[]>> {
-      const positionals = nodes.filter(
-        (node): node is PositionalArgument =>
-          node.type === 'positionalArgument' && !visitedNodes.has(node)
-      );
+	return {
+		helpTopics() {
+			const displayName =
+				config.displayName ?? config.type.displayName ?? "arg";
+			return [
+				{
+					usage: `[...${displayName}]`,
+					category: "arguments",
+					defaults: [],
+					description: config.description ?? config.type.description ?? "",
+				},
+			];
+		},
+		register(_opts) {},
+		async parse({
+			nodes,
+			visitedNodes,
+		}: ParseContext): Promise<ParsingResult<OutputOf<Decoder>[]>> {
+			const positionals = nodes.filter(
+				(node): node is PositionalArgument =>
+					node.type === "positionalArgument" && !visitedNodes.has(node),
+			);
 
-      const results: OutputOf<Decoder>[] = [];
-      let errors: ParsingError[] = [];
+			const results: OutputOf<Decoder>[] = [];
+			const errors: ParsingError[] = [];
 
-      for (const positional of positionals) {
-        visitedNodes.add(positional);
-        const decoded = await Result.safeAsync(
-          config.type.from(positional.raw)
-        );
-        if (Result.isOk(decoded)) {
-          results.push(decoded.value);
-        } else {
-          errors.push({
-            nodes: [positional],
-            message: decoded.error.message,
-          });
-        }
-      }
+			for (const positional of positionals) {
+				visitedNodes.add(positional);
+				const decoded = await Result.safeAsync(
+					config.type.from(positional.raw),
+				);
+				if (Result.isOk(decoded)) {
+					results.push(decoded.value);
+				} else {
+					errors.push({
+						nodes: [positional],
+						message: decoded.error.message,
+					});
+				}
+			}
 
-      if (errors.length > 0) {
-        return Result.err({
-          errors,
-        });
-      }
+			if (errors.length > 0) {
+				return Result.err({
+					errors,
+				});
+			}
 
-      return Result.ok(results);
-    },
-  };
+			return Result.ok(results);
+		},
+	};
 }
 
 type StringType = Type<string, string>;
 
 type RestPositionalsParser<Decoder extends Type<string, any>> = ArgParser<
-  OutputOf<Decoder>[]
+	OutputOf<Decoder>[]
 > &
-  ProvidesHelp;
+	ProvidesHelp;
 
 /**
  * Read all the positionals and decode them using the type provided.
@@ -89,16 +89,16 @@ type RestPositionalsParser<Decoder extends Type<string, any>> = ArgParser<
  * @param config rest positionals argument config
  */
 export function restPositionals<Decoder extends Type<string, any>>(
-  config: HasType<Decoder> & Partial<Displayed & Descriptive>
+	config: HasType<Decoder> & Partial<Displayed & Descriptive>,
 ): RestPositionalsParser<Decoder>;
 export function restPositionals(
-  config?: Partial<HasType<never> & Displayed & Descriptive>
+	config?: Partial<HasType<never> & Displayed & Descriptive>,
 ): RestPositionalsParser<StringType>;
 export function restPositionals(
-  config?: Partial<HasType<any>> & Partial<Displayed & Descriptive>
+	config?: Partial<HasType<any>> & Partial<Displayed & Descriptive>,
 ): RestPositionalsParser<any> {
-  return fullRestPositionals({
-    type: string,
-    ...config,
-  });
+	return fullRestPositionals({
+		type: string,
+		...config,
+	});
 }

@@ -1,21 +1,20 @@
-import stripAnsi from 'strip-ansi';
+import stripAnsi from "strip-ansi";
 
 /**
  * @ignore
  */
 export function padNoAnsi(
-  str: string,
-  length: number,
-  place: 'end' | 'start'
+	str: string,
+	length: number,
+	place: "end" | "start",
 ): string {
-  const noAnsiStr = stripAnsi(str);
-  if (length < noAnsiStr.length) return str;
-  const pad = Array(length - noAnsiStr.length + 1).join(' ');
-  if (place === 'end') {
-    return str + pad;
-  } else {
-    return pad + str;
-  }
+	const noAnsiStr = stripAnsi(str);
+	if (length < noAnsiStr.length) return str;
+	const pad = Array(length - noAnsiStr.length + 1).join(" ");
+	if (place === "end") {
+		return str + pad;
+	}
+	return pad + str;
 }
 
 /**
@@ -24,16 +23,16 @@ export function padNoAnsi(
  * @ignore
  */
 export function groupBy<A, B extends string>(
-  objs: A[],
-  f: (a: A) => B
+	objs: A[],
+	f: (a: A) => B,
 ): Record<B, A[]> {
-  const result = {} as Record<B, A[]>;
-  for (const obj of objs) {
-    const key = f(obj);
-    result[key] = result[key] ?? [];
-    result[key].push(obj);
-  }
-  return result;
+	const result = {} as Record<B, A[]>;
+	for (const obj of objs) {
+		const key = f(obj);
+		result[key] = result[key] ?? [];
+		result[key].push(obj);
+	}
+	return result;
 }
 
 /**
@@ -42,9 +41,9 @@ export function groupBy<A, B extends string>(
  * @ignore
  */
 export function entries<Obj extends Record<string, any>>(
-  obj: Obj
+	obj: Obj,
 ): { [key in keyof Obj]: [key, Obj[key]] }[keyof Obj][] {
-  return Object.entries(obj);
+	return Object.entries(obj);
 }
 
 /**
@@ -53,9 +52,9 @@ export function entries<Obj extends Record<string, any>>(
  * @ignore
  */
 export function* enumerate<T>(arr: T[]): Generator<[number, T]> {
-  for (let i = 0; i < arr.length; i++) {
-    yield [i, arr[i]];
-  }
+	for (let i = 0; i < arr.length; i++) {
+		yield [i, arr[i]];
+	}
 }
 
 /**
@@ -64,11 +63,11 @@ export function* enumerate<T>(arr: T[]): Generator<[number, T]> {
  * @ignore
  */
 export function flatMap<A, B>(xs: A[], fn: (a: A) => B[]): B[] {
-  const results: B[] = [];
-  for (const x of xs) {
-    results.push(...fn(x));
-  }
-  return results;
+	const results: B[] = [];
+	for (const x of xs) {
+		results.push(...fn(x));
+	}
+	return results;
 }
 
 /**
@@ -77,11 +76,11 @@ export function flatMap<A, B>(xs: A[], fn: (a: A) => B[]): B[] {
  * @ignore
  */
 export function flatten<A>(xs: A[][]): A[] {
-  const results: A[] = [];
-  for (const x of xs) {
-    results.push(...x);
-  }
-  return results;
+	const results: A[] = [];
+	for (const x of xs) {
+		results.push(...x);
+	}
+	return results;
 }
 
 /**

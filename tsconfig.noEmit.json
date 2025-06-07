@@ -1,8 +1,8 @@
 {
-  "$schema": "http://json.schemastore.org/tsconfig",
-  "extends": "./tsconfig.json",
-  "compilerOptions": {
-    "rootDir": "./",
-    "noEmit": true,
-  }
+	"$schema": "http://json.schemastore.org/tsconfig",
+	"extends": "./tsconfig.json",
+	"compilerOptions": {
+		"rootDir": "./",
+		"noEmit": true
+	}
 }

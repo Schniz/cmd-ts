@@ -1,4 +1,4 @@
-import { AstNode, LongOption, ShortOption } from './parser';
+import type { AstNode, LongOption, ShortOption } from "./parser";
 
 type Option = LongOption | ShortOption;
 
@@ -9,28 +9,28 @@ type Option = LongOption | ShortOption;
  * @param opts Long and short names to look up
  */
 export function findOption(
-  nodes: AstNode[],
-  opts: {
-    longNames: string[];
-    shortNames: string[];
-  }
+	nodes: AstNode[],
+	opts: {
+		longNames: string[];
+		shortNames: string[];
+	},
 ): Option[] {
-  const result: Option[] = [];
+	const result: Option[] = [];
 
-  for (const node of nodes) {
-    if (node.type === 'longOption' && opts.longNames.includes(node.key)) {
-      result.push(node);
-      continue;
-    }
+	for (const node of nodes) {
+		if (node.type === "longOption" && opts.longNames.includes(node.key)) {
+			result.push(node);
+			continue;
+		}
 
-    if (node.type === 'shortOptions' && opts.shortNames.length) {
-      for (const option of node.options) {
-        if (opts.shortNames.includes(option.key)) {
-          result.push(option);
-        }
-      }
-    }
-  }
+		if (node.type === "shortOptions" && opts.shortNames.length) {
+			for (const option of node.options) {
+				if (opts.shortNames.includes(option.key)) {
+					result.push(option);
+				}
+			}
+		}
+	}
 
-  return result;
+	return result;
 }

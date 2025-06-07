@@ -1,12 +1,12 @@
 /**
  * A successful value
  */
-export type Ok<R> = { _tag: 'ok'; value: R };
+export type Ok<R> = { _tag: "ok"; value: R };
 
 /**
  * A failed value
  */
-export type Err<L> = { _tag: 'error'; error: L };
+export type Err<L> = { _tag: "error"; error: L };
 
 /**
  * A safe result type: imagine a language with no exceptions — the way to handle
@@ -18,11 +18,11 @@ export type Err<L> = { _tag: 'error'; error: L };
 export type Result<L, R> = Err<L> | Ok<R>;
 
 export function ok<O>(value: O): Ok<O> {
-  return { _tag: 'ok', value };
+	return { _tag: "ok", value };
 }
 
 export function err<E>(error: E): Err<E> {
-  return { _tag: 'error', error };
+	return { _tag: "error", error };
 }
 
 /**
@@ -30,7 +30,7 @@ export function err<E>(error: E): Err<E> {
  * Handy with TypeScript guards
  */
 export function isOk<R>(result: Result<any, R>): result is Ok<R> {
-  return result._tag === 'ok';
+	return result._tag === "ok";
 }
 
 /**
@@ -38,7 +38,7 @@ export function isOk<R>(result: Result<any, R>): result is Ok<R> {
  * Handy with TypeScript guards
  */
 export function isErr<L>(either: Result<L, any>): either is Err<L> {
-  return either._tag === 'error';
+	return either._tag === "error";
 }
 
 /**
@@ -46,12 +46,12 @@ export function isErr<L>(either: Result<L, any>): either is Err<L> {
  * therefore catching the errors and being able to handle them explicitly
  */
 export async function safeAsync<O>(
-  promise: Promise<O>
+	promise: Promise<O>,
 ): Promise<Result<Error, O>> {
-  try {
-    const value = await promise;
-    return ok(value);
-  } catch (e: any) {
-    return err(e);
-  }
+	try {
+		const value = await promise;
+		return ok(value);
+	} catch (e: any) {
+		return err(e);
+	}
 }
