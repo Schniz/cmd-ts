@@ -5,7 +5,7 @@ import { app } from "./util";
 test("help for subcommands", async () => {
 	const result = await runApp1(["--help"]);
 	expect(result.all).toMatchSnapshot();
-	expect(result.exitCode).toBe(1);
+	expect(result.exitCode).toBe(0);
 });
 
 test("invalid subcommand", async () => {
@@ -17,7 +17,7 @@ test("invalid subcommand", async () => {
 test("help for complex command", async () => {
 	const result = await runApp1(["complex", "--help"]);
 	expect(result.all).toMatchSnapshot();
-	expect(result.exitCode).toBe(1);
+	expect(result.exitCode).toBe(0);
 });
 
 test("too many arguments", async () => {
@@ -40,13 +40,13 @@ test("suggests a subcommand on typo", async () => {
 test("displays subcommand help if no arguments passed", async () => {
 	const result = await runApp1([]);
 	expect(result.all).toMatchSnapshot();
-	expect(result.exitCode).toBe(1);
+	expect(result.exitCode).toBe(0);
 });
 
 test("displays nested subcommand help if no arguments passed", async () => {
 	const result = await runApp1(["composed"]);
 	expect(result.all).toMatchSnapshot();
-	expect(result.exitCode).toBe(1);
+	expect(result.exitCode).toBe(0);
 });
 
 test("composes errors", async () => {
@@ -68,13 +68,13 @@ test("multiline error", async () => {
 test("help for composed subcommands", async () => {
 	const result = await runApp1(["composed", "--help"]);
 	expect(result.all).toMatchSnapshot();
-	expect(result.exitCode).toBe(1);
+	expect(result.exitCode).toBe(0);
 });
 
 test("help for composed subcommand", async () => {
 	const result = await runApp1(["composed", "cat", "--help"]);
 	expect(result.all).toMatchSnapshot();
-	expect(result.exitCode).toBe(1);
+	expect(result.exitCode).toBe(0);
 });
 
 test("asynchronous type conversion works for failures", async () => {
@@ -104,14 +104,14 @@ test("failures in defaultValue", async () => {
 test("subcommands with process.argv.slice(2)", async () => {
 	const result = await runApp3(["--help"]);
 	expect(result.all).toMatchSnapshot();
-	expect(result.exitCode).toBe(1);
+	expect(result.exitCode).toBe(0);
 });
 
 describe("allows positional arguments", () => {
 	test("help shows them", async () => {
 		const result = await runApp3(["sub2", "--help"]);
 		expect(result.all).toMatchSnapshot();
-		expect(result.exitCode).toBe(1);
+		expect(result.exitCode).toBe(0);
 	});
 
 	test("no positionals => all default", async () => {
