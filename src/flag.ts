@@ -112,16 +112,17 @@ export function fullFlag<Decoder extends Type<boolean, any>>(
       const valueFromEnv = config.env ? process.env[config.env] : undefined;
       let rawValue: string;
       let envPrefix = '';
+      const defaultValueFn = config.defaultValue ?? config.type.defaultValue;
 
       if (options.length === 0 && valueFromEnv !== undefined) {
         rawValue = valueFromEnv;
         envPrefix = `env[${chalk.italic(config.env)}]: `;
       } else if (
         options.length === 0 &&
-        typeof config.type.defaultValue === 'function'
+        typeof defaultValueFn === 'function'
       ) {
         try {
-          return Result.ok(config.type.defaultValue());
+          return Result.ok(defaultValueFn());
         } catch (e: any) {
           const message = `Default value not found for '--${config.long}': ${e.message}`;
           return Result.err({
