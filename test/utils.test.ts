@@ -7,7 +7,13 @@ describe("padNoAnsi", () => {
 	it("pads start", () => {
 		const expected = "hello".padStart(10, " ");
 		const actual = padNoAnsi(
-			chalk`{red h}{cyan e}{blue l}{green l}{red o}`,
+			[
+				chalk.red("h"),
+				chalk.cyan("e"),
+				chalk.blue("l"),
+				chalk.green("l"),
+				chalk.red("o"),
+			].join(""),
 			10,
 			"start",
 		);
@@ -16,7 +22,13 @@ describe("padNoAnsi", () => {
 	it("pads end", () => {
 		const expected = "hello".padEnd(10, " ");
 		const actual = padNoAnsi(
-			chalk`{red h}{cyan e}{blue l}{green l}{red o}`,
+			[
+				chalk.red("h"),
+				chalk.cyan("e"),
+				chalk.blue("l"),
+				chalk.green("l"),
+				chalk.red("o"),
+			].join(""),
 			10,
 			"end",
 		);
