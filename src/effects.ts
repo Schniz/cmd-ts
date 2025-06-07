@@ -8,7 +8,7 @@
  * @packageDocumentation
  */
 
-import chalk from 'chalk';
+import chalk from "chalk";
 
 /**
  * An effect to exit the program with a message
@@ -25,31 +25,33 @@ import chalk from 'chalk';
  * with a command line, and again, to mock `stdout` and `stderr` it if we want to test it.
  */
 export class Exit {
-  constructor(
-    public readonly config: {
-      exitCode: number;
-      message: string;
-      into: 'stdout' | 'stderr';
-    }
-  ) {}
+	constructor(
+		public readonly config: {
+			exitCode: number;
+			message: string;
+			into: "stdout" | "stderr";
+		},
+	) {}
 
-  run(): never {
-    const output = this.output();
-    output(this.config.message);
-    process.exit(this.config.exitCode);
-  }
+	run(): never {
+		const output = this.output();
+		output(this.config.message);
+		process.exit(this.config.exitCode);
+	}
 
-  dryRun(): string {
-    const { into, message, exitCode } = this.config;
-    const coloredExit = chalk.dim(`process exited with status ${exitCode} (${into})`);
-    return `${message}\n\n${coloredExit}`;
-  }
+	dryRun(): string {
+		const { into, message, exitCode } = this.config;
+		const coloredExit = chalk.dim(
+			`process exited with status ${exitCode} (${into})`,
+		);
+		return `${message}\n\n${coloredExit}`;
+	}
 
-  private output() {
-    if (this.config.into === 'stderr') {
-      return console.error;
-    } else {
-      return console.log;
-    }
-  }
+	private output() {
+		if (this.config.into === "stderr") {
+			return console.error;
+		} else {
+			return console.log;
+		}
+	}
 }

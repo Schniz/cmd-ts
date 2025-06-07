@@ -1,6 +1,6 @@
 module.exports = {
-  testEnvironment: 'node',
-  transform: {
-    '^.+\\.(t|j)sx?$': ['@swc-node/jest'],
-  },
+	testEnvironment: "node",
+	transform: {
+		"^.+\\.(t|j)sx?$": ["@swc-node/jest"],
+	},
 };

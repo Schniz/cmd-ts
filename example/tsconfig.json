@@ -1,4 +1,4 @@
 {
-  "extends": "../tsconfig.noEmit.json",
-  "include": ["."]
+	"extends": "../tsconfig.noEmit.json",
+	"include": ["."]
 }
