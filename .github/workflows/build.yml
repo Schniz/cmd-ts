@@ -13,15 +13,13 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: ["18.x", "20.x"]
+        node-version: ["18.x", "20.x", "22.x"]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
       - uses: pnpm/action-setup@v4
-        with:
-          version: 10
       - name: Cache pnpm modules
         uses: actions/cache@v3
         with:
