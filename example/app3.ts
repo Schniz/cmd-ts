@@ -8,6 +8,7 @@ import {
   number,
   optional,
 } from '../src';
+import { inspect } from 'node:util';
 
 const sub1 = command({
   name: 'sub1',
@@ -32,7 +33,7 @@ const sub2 = command({
     }),
   },
   handler({ name, age }) {
-    console.log({ name, age });
+    console.log(inspect({ name, age }));
   },
 });
 
