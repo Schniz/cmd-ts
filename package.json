@@ -46,7 +46,7 @@
     "@types/debug": "4.1.7",
     "@types/didyoumean": "1.2.0",
     "@types/fs-extra": "9.0.13",
-    "@types/node-fetch": "2.6.2",
+    "@types/node-fetch": "2.6.12",
     "@types/request": "2.48.8",
     "@typescript-eslint/eslint-plugin": "5.30.7",
     "@typescript-eslint/parser": "5.30.7",
