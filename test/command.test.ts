@@ -25,7 +25,7 @@ const cmd = command({
 
 test("merges options, positionals and flags", async () => {
 	const argv =
-		`first --option=666 second --second-option works-too --flag third`.split(
+		"first --option=666 second --second-option works-too --flag third".split(
 			" ",
 		);
 	const tokens = tokenize(argv);
@@ -47,7 +47,7 @@ test("merges options, positionals and flags", async () => {
 
 test("fails if an argument fail to parse", async () => {
 	const argv =
-		`first --option=hello second --second-option works-too --flag=fails-too third`.split(
+		"first --option=hello second --second-option works-too --flag=fails-too third".split(
 			" ",
 		);
 	const tokens = tokenize(argv);
@@ -90,7 +90,7 @@ test("fails if providing unknown arguments", async () => {
 		},
 		handler: (_) => {},
 	});
-	const argv = `okay --option=failing alright --another=fail`.split(" ");
+	const argv = "okay --option=failing alright --another=fail".split(" ");
 	const tokens = tokenize(argv);
 
 	const registerOptions = createRegisterOptions();

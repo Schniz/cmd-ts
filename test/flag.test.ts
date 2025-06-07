@@ -7,7 +7,7 @@ import { boolean } from "../src/types";
 import { createRegisterOptions } from "./createRegisterOptions";
 
 test("fails on incompatible value", async () => {
-	const argv = `--hello=world`;
+	const argv = "--hello=world";
 	const tokens = tokenize(argv.split(" "));
 	const argparser = flag({
 		type: boolean,
@@ -37,7 +37,7 @@ test("fails on incompatible value", async () => {
 });
 
 test("defaults to false", async () => {
-	const argv = ``;
+	const argv = "";
 	const tokens = tokenize(argv.split(" "));
 	const argparser = flag({
 		type: boolean,
@@ -57,7 +57,7 @@ test("defaults to false", async () => {
 });
 
 test("allows short arguments", async () => {
-	const argv = `-abc`;
+	const argv = "-abc";
 	const tokens = tokenize(argv.split(" "));
 	const argparser = flag({
 		type: boolean,

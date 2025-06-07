@@ -1,4 +1,4 @@
-import path from "path";
+import path from "node:path";
 import { getTypes } from "infer-types";
 import { expect, test } from "vitest";
 

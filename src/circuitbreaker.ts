@@ -33,7 +33,8 @@ export function handleCircuitBreaker(
 	if (breaker.value === "help") {
 		const message = value.printHelp(context);
 		throw new Exit({ exitCode: 1, message, into: "stdout" });
-	} else if (breaker.value === "version") {
+	}
+	if (breaker.value === "version") {
 		const message = value.version || "0.0.0";
 		throw new Exit({ exitCode: 0, message, into: "stdout" });
 	}
@@ -79,18 +80,18 @@ export function createCircuitBreaker(
 
 			if (help.value) {
 				return Result.ok("help");
-			} else if (version?.value) {
-				return Result.ok("version");
-			} else {
-				return Result.err({
-					errors: [
-						{
-							nodes: [],
-							message: "Neither help nor version",
-						},
-					],
-				});
 			}
+			if (version?.value) {
+				return Result.ok("version");
+			}
+			return Result.err({
+				errors: [
+					{
+						nodes: [],
+						message: "Neither help nor version",
+					},
+				],
+			});
 		},
 	};
 }

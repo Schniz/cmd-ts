@@ -1,7 +1,7 @@
 /* istanbul ignore file */
 
-import type { Stream } from "stream";
-import URL from "url";
+import type { Stream } from "node:stream";
+import URL from "node:url";
 import { createReadStream, pathExists, stat } from "fs-extra";
 import fetch from "node-fetch";
 import { type Type, extendType, number } from "../src";
@@ -46,7 +46,7 @@ export const ReadStream: Type<string, Stream> = {
 
 		const fileStat = await stat(obj);
 		if (!fileStat.isFile()) {
-			throw new Error(`Path is not a file.`);
+			throw new Error("Path is not a file.");
 		}
 
 		return createReadStream(obj);
@@ -56,7 +56,9 @@ export const ReadStream: Type<string, Stream> = {
 export function readStreamToString(s: Stream): Promise<string> {
 	return new Promise((resolve, reject) => {
 		let str = "";
-		s.on("data", (x) => (str += x.toString()));
+		s.on("data", (x) => {
+			str += x.toString();
+		});
 		s.on("error", (e) => reject(e));
 		s.on("end", () => resolve(str));
 	});

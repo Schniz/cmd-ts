@@ -15,9 +15,8 @@ export function typeDef<T extends From<any, any> | FromFn<any, any>>(
 ): T extends FromFn<any, any> ? {} : Omit<T, "from"> {
 	if (typeof from === "function") {
 		return {} as any;
-	} else {
-		return from as any;
 	}
+	return from as any;
 }
 
 /**
@@ -26,9 +25,8 @@ export function typeDef<T extends From<any, any> | FromFn<any, any>>(
 export function fromFn<A, B>(t: FromFn<A, B> | From<A, B>): FromFn<A, B> {
 	if (typeof t === "function") {
 		return t;
-	} else {
-		return t.from;
 	}
+	return t.from;
 }
 
 /**

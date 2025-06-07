@@ -50,8 +50,7 @@ export class Exit {
 	private output() {
 		if (this.config.into === "stderr") {
 			return console.error;
-		} else {
-			return console.log;
 		}
+		return console.log;
 	}
 }

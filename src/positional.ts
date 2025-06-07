@@ -37,7 +37,7 @@ function fullPositional<Decoder extends Type<string, any>>(
 						config.defaultValueIsSerializable ??
 						config.type.defaultValueIsSerializable
 					) {
-						defaults.push("default: " + chalk.italic(defaultValue));
+						defaults.push(`default: ${chalk.italic(defaultValue)}`);
 					} else {
 						defaults.push("optional");
 					}
@@ -74,16 +74,15 @@ function fullPositional<Decoder extends Type<string, any>>(
 			if (!positional) {
 				if (defaultValueFn) {
 					return Result.ok(defaultValueFn());
-				} else {
-					return Result.err({
-						errors: [
-							{
-								nodes: [],
-								message: `No value provided for ${displayName}`,
-							},
-						],
-					});
 				}
+				return Result.err({
+					errors: [
+						{
+							nodes: [],
+							message: `No value provided for ${displayName}`,
+						},
+					],
+				});
 			}
 
 			visitedNodes.add(positional);

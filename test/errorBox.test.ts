@@ -9,7 +9,8 @@ import { createRegisterOptions } from "./createRegisterOptions";
 import { number } from "./test-types";
 
 test("works for multiple nodes", async () => {
-	const argv = `hello world --some arg --flag --some another --flag --this-is=option -abcde=f -abcde`;
+	const argv =
+		"hello world --some arg --flag --some another --flag --this-is=option -abcde=f -abcde";
 
 	const tokens = tokenize(argv.split(" "));
 	const tree = parse(tokens, createRegisterOptions());
@@ -33,7 +34,7 @@ test("works for multiple nodes", async () => {
 });
 
 test("works for a short flag", async () => {
-	const argv = `hello world -fn not_a_number hey`;
+	const argv = "hello world -fn not_a_number hey";
 
 	const tokens = tokenize(argv.split(" "));
 	const tree = parse(tokens, createRegisterOptions());
@@ -58,7 +59,8 @@ test("works for a short flag", async () => {
 });
 
 test("works for a single node", async () => {
-	const argv = `hello world --flag --some not_a_number --flag --this-is=option -abcde=f -abcde`;
+	const argv =
+		"hello world --flag --some not_a_number --flag --this-is=option -abcde=f -abcde";
 
 	const tokens = tokenize(argv.split(" "));
 	const tree = parse(tokens, createRegisterOptions());
@@ -82,7 +84,7 @@ test("works for a single node", async () => {
 });
 
 test("works when no nodes", async () => {
-	const argv = `hello world --flag --flag --this-is=option -abcde=f -abcde`;
+	const argv = "hello world --flag --flag --this-is=option -abcde=f -abcde";
 
 	const tokens = tokenize(argv.split(" "));
 	const tree = parse(tokens, createRegisterOptions());
@@ -102,5 +104,5 @@ test("works when no nodes", async () => {
 	}
 
 	const errors = errorBox(tree, result.error.errors, []);
-	expect(errors).toMatch(`No value provided for --some`);
+	expect(errors).toMatch("No value provided for --some");
 });

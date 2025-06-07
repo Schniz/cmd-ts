@@ -28,7 +28,9 @@ export function rest(
 
 			const maxIndex = Math.max(...visitedNodeIndices);
 			const restItems = context.nodes.slice(maxIndex + 1);
-			restItems.forEach((node) => context.visitedNodes.add(node));
+			for (const node of restItems) {
+				context.visitedNodes.add(node);
+			}
 			return Result.ok(restItems.map((x) => x.raw));
 		},
 	};

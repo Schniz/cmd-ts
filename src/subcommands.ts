@@ -59,7 +59,7 @@ export function subcommands<
 			if (cmd) {
 				return cmd.cmdName;
 			}
-			let errorMessage = `Not a valid subcommand name`;
+			let errorMessage = "Not a valid subcommand name";
 
 			const closeOptions = didYouMean(
 				str,
@@ -78,7 +78,7 @@ export function subcommands<
 
 	const subcommand = positional({
 		displayName: "subcommand",
-		description: "one of " + Object.keys(config.cmds).join(", "),
+		description: `one of ${Object.keys(config.cmds).join(", ")}`,
 		type,
 	});
 
@@ -129,7 +129,7 @@ export function subcommands<
 			for (const key of Object.keys(config.cmds)) {
 				const cmd = config.cmds[key];
 				let description = cmd.description ?? "";
-				description = description && " - " + description + " ";
+				description = description && ` - ${description} `;
 				if (cmd.aliases?.length) {
 					const aliasTxt = cmd.aliases.length === 1 ? "alias" : "aliases";
 					const aliases = cmd.aliases.join(", ");

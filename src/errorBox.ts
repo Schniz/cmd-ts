@@ -31,27 +31,26 @@ function highlight(
 		if (error.nodes.includes(node)) {
 			foundError();
 			return strings.push(chalk.red(node.raw));
-		} else {
-			if (node.type === "shortOptions") {
-				let failed = false;
-				let s = "";
-				for (const option of node.options) {
-					if (error.nodes.includes(option)) {
-						s += chalk.red(option.raw);
-						failed = true;
-					} else {
-						s += chalk.dim(option.raw);
-					}
-				}
-				const prefix = failed ? chalk.red(`-`) : chalk.dim("-");
-				if (failed) {
-					foundError();
-				}
-				return strings.push(prefix + s);
-			}
-
-			return strings.push(chalk.dim(node.raw));
 		}
+		if (node.type === "shortOptions") {
+			let failed = false;
+			let s = "";
+			for (const option of node.options) {
+				if (error.nodes.includes(option)) {
+					s += chalk.red(option.raw);
+					failed = true;
+				} else {
+					s += chalk.dim(option.raw);
+				}
+			}
+			const prefix = failed ? chalk.red("-") : chalk.dim("-");
+			if (failed) {
+				foundError();
+			}
+			return strings.push(prefix + s);
+		}
+
+		return strings.push(chalk.dim(node.raw));
 	});
 
 	return { colorized: strings.join(" "), errorIndex: errorIndex ?? 0 };
@@ -81,11 +80,7 @@ export function errorBox(
 	const maxNumberWidth = String(withHighlight.length).length;
 
 	errorMessages.push(
-		chalk.red.bold("error: ") +
-			"found " +
-			chalk.yellow(withHighlight.length) +
-			" error" +
-			(withHighlight.length > 1 ? "s" : ""),
+		`${chalk.red.bold("error: ")}found ${chalk.yellow(withHighlight.length)} error${withHighlight.length > 1 ? "s" : ""}`,
 	);
 	errorMessages.push("");
 
@@ -126,11 +121,11 @@ export function errorBox(
 		number++;
 	});
 
-	const helpCmd = chalk.yellow(breadcrumbs.join(" ") + " --help");
+	const helpCmd = chalk.yellow(`${breadcrumbs.join(" ")} --help`);
 
 	errorMessages.push("");
 	errorMessages.push(
-		chalk.red.bold("hint: ") + `for more information, try '${helpCmd}'`,
+		`${chalk.red.bold("hint: ")}for more information, try '${helpCmd}'`,
 	);
 
 	return errorMessages.join("\n");

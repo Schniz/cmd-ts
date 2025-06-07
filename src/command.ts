@@ -81,7 +81,7 @@ export function command<
 			name = chalk.bold(name);
 
 			if (config.version) {
-				name += " " + chalk.dim(config.version);
+				name += ` ${chalk.dim(config.version)}`;
 			}
 
 			lines.push(name);
@@ -94,13 +94,13 @@ export function command<
 
 			for (const [category, helpTopics] of entries(usageBreakdown)) {
 				lines.push("");
-				lines.push(category.toUpperCase() + ":");
+				lines.push(`${category.toUpperCase()}:`);
 				const widestUsage = helpTopics.reduce((len, curr) => {
 					return Math.max(len, curr.usage.length);
 				}, 0);
 				for (const helpTopic of helpTopics) {
 					let line = "";
-					line += "  " + padNoAnsi(helpTopic.usage, widestUsage, "end");
+					line += `  ${padNoAnsi(helpTopic.usage, widestUsage, "end")}`;
 					line += " - ";
 					line += helpTopic.description;
 					for (const defaultValue of helpTopic.defaults) {
@@ -143,9 +143,6 @@ export function command<
 				}
 
 				if (node.type === "forcePositional") {
-					// A `forcePositional` node can't really be visited since it has no meaning
-					// other than forcing a positional argument in the parsing phase
-					continue;
 				} else if (node.type === "shortOptions") {
 					for (const option of node.options) {
 						if (context.visitedNodes.has(option)) {
@@ -170,9 +167,8 @@ export function command<
 					errors: errors,
 					partialValue: resultObject,
 				});
-			} else {
-				return Result.ok(resultObject);
 			}
+			return Result.ok(resultObject);
 		},
 		async run(context) {
 			const breaker = await circuitbreaker.parse(context);

@@ -11,9 +11,8 @@ export const number: Type<string, number> = {
 
 		if (Number.isNaN(decoded)) {
 			throw new Error("Not a number");
-		} else {
-			return decoded;
 		}
+		return decoded;
 	},
 	displayName: "number",
 	description: "a number",

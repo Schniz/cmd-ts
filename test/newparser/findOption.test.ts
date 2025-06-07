@@ -5,7 +5,7 @@ import { tokenize } from "../../src/newparser/tokenizer";
 import { createRegisterOptions } from "../createRegisterOptions";
 
 test("finds options", () => {
-	const argv = `hello world --some arg --flag --this-is=option -abcde=f -abcde`;
+	const argv = "hello world --some arg --flag --this-is=option -abcde=f -abcde";
 	const tokens = tokenize(argv.split(" "));
 	const nodes = parse(tokens, createRegisterOptions());
 

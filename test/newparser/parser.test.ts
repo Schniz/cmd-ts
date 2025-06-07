@@ -37,15 +37,15 @@ test("dash in the middle of a word", () => {
   `);
 });
 
-test(`parses forcePositional if it is the last token`, () => {
-	const argv = `scripts/ts-node src/example/app.ts cat /tmp/a --`.split(" ");
+test("parses forcePositional if it is the last token", () => {
+	const argv = "scripts/ts-node src/example/app.ts cat /tmp/a --".split(" ");
 	const tokens = tokenize(argv);
 	const tree = parse(tokens, createRegisterOptions());
 	expect(tree.map((x) => x.type)).toContain<AstNode["type"]>("forcePositional");
 });
 
 test("welp", () => {
-	const argv = `scripts/ts-node src/example/app.ts cat /tmp/a --help`.split(
+	const argv = "scripts/ts-node src/example/app.ts cat /tmp/a --help".split(
 		" ",
 	);
 	const tokens = tokenize(argv);

@@ -73,7 +73,7 @@ export function fullFlag<Decoder extends Type<boolean, any>>(
 
 				if (defaultValueFn && defaultValueIsSerializable) {
 					const defaultValue = defaultValueFn();
-					defaults.push("default: " + chalk.italic(defaultValue));
+					defaults.push(`default: ${chalk.italic(defaultValue)}`);
 				}
 			} catch (e) {}
 
@@ -108,7 +108,7 @@ export function fullFlag<Decoder extends Type<boolean, any>>(
 					errors: [
 						{
 							nodes: options,
-							message: "Expected 1 occurence, got " + options.length,
+							message: `Expected 1 occurence, got ${options.length}`,
 						},
 					],
 				});

@@ -61,7 +61,7 @@ export function parse(tokens: Token[], forceFlag: RegisterOptions): AstNode[] {
 			shortOptions: [...forceFlag.forceOptionShortNames],
 			longOptions: [...forceFlag.forceOptionLongNames],
 		};
-		debug(`Registered:`, JSON.stringify(registered));
+		debug("Registered:", JSON.stringify(registered));
 	}
 
 	const nodes: AstNode[] = [];
@@ -183,6 +183,7 @@ export function parse(tokens: Token[], forceFlag: RegisterOptions): AstNode[] {
 				nextToken = getToken();
 			}
 
+			// biome-ignore lint/style/noNonNullAssertion: migration
 			const lastKey = keys.pop()!;
 			const parsedValue = parseOptionValue({
 				key: lastKey.raw,
@@ -235,12 +236,11 @@ export function parse(tokens: Token[], forceFlag: RegisterOptions): AstNode[] {
 		}
 
 		index++;
-		continue;
 	}
 
 	if (debug.enabled) {
 		const objectNodes = nodes.map((node) => ({ [node.type]: node.raw }));
-		debug(`Parsed items:`, JSON.stringify(objectNodes));
+		debug("Parsed items:", JSON.stringify(objectNodes));
 	}
 
 	return nodes;

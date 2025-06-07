@@ -10,7 +10,7 @@
 	"files": ["dist", "batteries"],
 	"scripts": {
 		"build": "tsc && tsc --project ./tsconfig.esm.json",
-		"lint": "eslint src/**/*.ts test/**/*.ts example/**/*.ts ./.eslintrc.js",
+		"lint": "biome check src test example",
 		"now-build": "mdbook build --dest-dir=public",
 		"start": "yarn build --watch",
 		"prepublishOnly": "rm -rf dist && yarn build && yarn test",

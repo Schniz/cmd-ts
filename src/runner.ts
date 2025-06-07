@@ -32,9 +32,8 @@ export async function run<R extends Runner<any, any>>(
 	const result = await runSafely(ap, strings);
 	if (isErr(result)) {
 		return result.error.run();
-	} else {
-		return result.value;
 	}
+	return result.value;
 }
 
 /**
@@ -56,9 +55,8 @@ export async function runSafely<R extends Runner<any, any>>(
 				exitCode: 1,
 				into: "stderr",
 			});
-		} else {
-			return ok(result.value);
 		}
+		return ok(result.value);
 	} catch (e) {
 		if (e instanceof Exit) {
 			return err(e);
@@ -77,9 +75,8 @@ export async function dryRun<R extends Runner<any, any>>(
 	const result = await runSafely(ap, strings);
 	if (isErr(result)) {
 		return err(result.error.dryRun());
-	} else {
-		return result;
 	}
+	return result;
 }
 
 /**

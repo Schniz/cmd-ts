@@ -44,7 +44,7 @@ export function multioption<Decoder extends Type<string[], any>>(
 						config.defaultValueIsSerializable ??
 						config.type.defaultValueIsSerializable
 					) {
-						defaults.push("default: " + chalk.italic(defaultValue));
+						defaults.push(`default: ${chalk.italic(defaultValue)}`);
 					} else {
 						defaults.push("[...optional]");
 					}
@@ -113,7 +113,7 @@ export function multioption<Decoder extends Type<string[], any>>(
 			if (flagNodes.length > 0) {
 				errors.push({
 					nodes: flagNodes,
-					message: `Expected to get a value, found a flag`,
+					message: "Expected to get a value, found a flag",
 				});
 			}
 

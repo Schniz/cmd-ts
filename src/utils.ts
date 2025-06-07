@@ -13,9 +13,8 @@ export function padNoAnsi(
 	const pad = Array(length - noAnsiStr.length + 1).join(" ");
 	if (place === "end") {
 		return str + pad;
-	} else {
-		return pad + str;
 	}
+	return pad + str;
 }
 
 /**

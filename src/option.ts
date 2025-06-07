@@ -57,7 +57,7 @@ function fullOption<Decoder extends Type<string, any>>(
 						config.defaultValueIsSerializable ??
 						config.type.defaultValueIsSerializable
 					) {
-						defaults.push("default: " + chalk.italic(defaultValue));
+						defaults.push(`default: ${chalk.italic(defaultValue)}`);
 					} else {
 						defaults.push("optional");
 					}
@@ -93,8 +93,7 @@ function fullOption<Decoder extends Type<string, any>>(
 
 			if (options.length > 1) {
 				const error: ParsingError = {
-					message:
-						"Too many times provided. Expected 1, got: " + options.length,
+					message: `Too many times provided. Expected 1, got: ${options.length}`,
 					nodes: options,
 				};
 				return Result.err({ errors: [error] });

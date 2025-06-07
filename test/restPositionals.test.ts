@@ -7,7 +7,7 @@ import { createRegisterOptions } from "./createRegisterOptions";
 import { number } from "./test-types";
 
 test("fails on specific positional", async () => {
-	const argv = `10 20 --mamma mia hello 40`;
+	const argv = "10 20 --mamma mia hello 40";
 	const tokens = tokenize(argv.split(" "));
 	const nodes = parse(tokens, createRegisterOptions());
 	const argparser = restPositionals({
@@ -29,7 +29,7 @@ test("fails on specific positional", async () => {
 });
 
 test("succeeds when all unused positional decode successfuly", async () => {
-	const argv = `10 20 --mamma mia hello 40`;
+	const argv = "10 20 --mamma mia hello 40";
 	const tokens = tokenize(argv.split(" "));
 	const nodes = parse(tokens, createRegisterOptions());
 	const argparser = restPositionals({

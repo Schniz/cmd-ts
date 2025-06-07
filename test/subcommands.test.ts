@@ -43,7 +43,7 @@ const subcmds = subcommands({
 });
 
 test("chooses one subcommand", async () => {
-	const argv = `greeter Gal -eg Hello`.split(" ");
+	const argv = "greeter Gal -eg Hello".split(" ");
 	const tokens = tokenize(argv);
 	const registerOptions = createRegisterOptions();
 	subcmds.register(registerOptions);
@@ -62,7 +62,7 @@ test("chooses one subcommand", async () => {
 });
 
 test("chooses the other subcommand", async () => {
-	const argv = `howdy joe`.split(" ");
+	const argv = "howdy joe".split(" ");
 	const tokens = tokenize(argv);
 	const registerOptions = createRegisterOptions();
 	subcmds.register(registerOptions);
@@ -79,7 +79,7 @@ test("chooses the other subcommand", async () => {
 });
 
 test("fails when using unknown subcommand", async () => {
-	const argv = `--hello yes how are you joe`.split(" ");
+	const argv = "--hello yes how are you joe".split(" ");
 	const tokens = tokenize(argv);
 	const registerOptions = createRegisterOptions();
 	subcmds.register(registerOptions);
@@ -89,7 +89,7 @@ test("fails when using unknown subcommand", async () => {
 		errors: [
 			{
 				nodes: nodes.filter((x) => x.raw === "how"),
-				message: `Not a valid subcommand name`,
+				message: "Not a valid subcommand name",
 			},
 		],
 		partialValue: {},
@@ -99,7 +99,7 @@ test("fails when using unknown subcommand", async () => {
 });
 
 test("fails for a subcommand argument parsing issue", async () => {
-	const argv = `greeter Gal -g Hello --exclaim=hell-no`.split(" ");
+	const argv = "greeter Gal -g Hello --exclaim=hell-no".split(" ");
 	const tokens = tokenize(argv);
 	const registerOptions = createRegisterOptions();
 	subcmds.register(registerOptions);
