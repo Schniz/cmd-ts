@@ -1,6 +1,6 @@
 import * as c from "../src";
-import { ArgvItem } from "../src/argparser2";
-import { describe, expect, test } from "vitest";
+import { ArgParser2, ArgvItem } from "../src/argparser2";
+import { describe, expect, test, expectTypeOf } from "vitest";
 import { exclaim } from "./test-types";
 
 describe("command", () => {
@@ -97,7 +97,10 @@ describe("command", () => {
 					greeting: c.option({ long: "greeting", type: exclaim }),
 					greeter: c.option({ long: "greeter" }),
 				},
-				handler() {},
+				handler({ greeting, greeter }) {
+					expectTypeOf(greeting).toEqualTypeOf<`${string}!`>();
+					expectTypeOf(greeter).toEqualTypeOf<string>();
+				},
 			})
 			.parse2(
 				ArgvItem.normalize([

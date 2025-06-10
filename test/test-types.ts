@@ -69,6 +69,6 @@ export const exclaim = extendType(string, {
 			throw new Error("Value should not end with '!'");
 		}
 
-		return `${value}!`;
+		return `${value}!` as const;
 	},
 });

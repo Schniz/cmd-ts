@@ -18,6 +18,7 @@ import { findOption } from "./newparser/findOption";
 import { type HasType, type OutputOf, type Type, extendType } from "./type";
 import { boolean as booleanIdentity } from "./types";
 import type { AllOrNothing } from "./utils";
+import { type ArgParser2, type ArgvItem, ParsingError } from "./argparser2";
 
 type FlagConfig<Decoder extends Type<boolean, any>> = LongDoc &
 	HasType<Decoder> &
@@ -43,6 +44,7 @@ export const boolean: Type<string, boolean> = {
 export function fullFlag<Decoder extends Type<boolean, any>>(
 	config: FlagConfig<Decoder>,
 ): ArgParser<OutputOf<Decoder>> &
+	ArgParser2<OutputOf<Decoder>> &
 	ProvidesHelp &
 	Register &
 	Partial<Descriptive> {
@@ -92,6 +94,60 @@ export function fullFlag<Decoder extends Type<boolean, any>>(
 			if (config.short) {
 				opts.forceFlagShortNames.add(config.short);
 			}
+		},
+		async parse2(argv) {
+			const arg = argv[0];
+			let remainingArgv = argv;
+
+			let rawValue: { input: string; arg?: ArgvItem } = { input: "false" };
+
+			if (arg?.value === `--${config.long}`) {
+				rawValue = { input: "true", arg };
+				remainingArgv = remainingArgv.slice(1);
+			} else if (config.short && arg?.value === `-${config.short}`) {
+				rawValue = { input: "true", arg };
+				remainingArgv = remainingArgv.slice(1);
+			} else if (arg?.value.startsWith(`--${config.long}=`)) {
+				const spanned = arg.spanned(
+					`--${config.long}=`.length,
+					arg.value.length,
+				);
+				rawValue = {
+					input: spanned.value,
+					arg: spanned,
+				};
+				remainingArgv = remainingArgv.slice(1);
+			} else if (config.short && arg?.value.startsWith(`-${config.short}=`)) {
+				const spanned = arg.spanned(
+					`-${config.short}=`.length,
+					arg.value.length,
+				);
+				rawValue = {
+					input: spanned.value,
+					arg: spanned,
+				};
+				remainingArgv = remainingArgv.slice(1);
+			}
+
+			const value = await Result.safeAsync(decoder.from(rawValue.input));
+			const valueArg = rawValue.arg;
+
+			return Result.match(value, {
+				onErr: (cause) => ({
+					result: null,
+					errors: [
+						valueArg
+							? ParsingError.make(valueArg, cause).asAtomic()
+							: ParsingError.forUnknownArgv(cause).asAtomic(),
+					],
+					remainingArgv: remainingArgv,
+				}),
+				onOk: (value) => ({
+					result: { value },
+					remainingArgv,
+					errors: [],
+				}),
+			});
 		},
 		async parse({
 			nodes,
@@ -175,6 +231,7 @@ type BooleanType = Type<boolean, boolean>;
 export function flag<Decoder extends Type<boolean, any>>(
 	config: FlagConfig<Decoder>,
 ): ArgParser<OutputOf<Decoder>> &
+	ArgParser2<OutputOf<Decoder>> &
 	ProvidesHelp &
 	Register &
 	Partial<Descriptive>;
@@ -183,6 +240,7 @@ export function flag(
 		Partial<HasType<never> & ShortDoc & Descriptive & EnvDoc> &
 		AllOrNothing<Default<OutputOf<BooleanType>>>,
 ): ArgParser<OutputOf<BooleanType>> &
+	ArgParser2<OutputOf<BooleanType>> &
 	ProvidesHelp &
 	Register &
 	Partial<Descriptive>;
