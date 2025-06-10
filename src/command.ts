@@ -19,6 +19,7 @@ import type {
 import type { AstNode } from "./newparser/parser";
 import type { Runner } from "./runner";
 import { entries, flatMap, groupBy, padNoAnsi } from "./utils";
+import { ArgParser2 } from "./argparser2";
 
 type ArgTypes = Record<string, ArgParser<any> & Partial<ProvidesHelp>>;
 type HandlerFunc<Args extends ArgTypes> = (args: Output<Args>) => any;
@@ -51,6 +52,7 @@ export function command<
 >(
 	config: CommandConfig<Arguments, Handler>,
 ): ArgParser<Output<Arguments>> &
+	ArgParser2<Output<Arguments>> &
 	PrintHelp &
 	ProvidesHelp &
 	Named &
@@ -116,6 +118,9 @@ export function command<
 			for (const [, arg] of argEntries) {
 				arg.register?.(opts);
 			}
+		},
+		async parse2(argv) {
+			throw new Error("parse2 is not implemented for commands");
 		},
 		async parse(
 			context: ParseContext,

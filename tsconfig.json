@@ -1,5 +1,5 @@
 {
-	"include": ["src"],
+	"include": ["src", "test"],
 	"exclude": ["dist"],
 	"compilerOptions": {
 		"target": "es2018",
@@ -8,7 +8,6 @@
 		"downlevelIteration": true,
 		"sourceMap": true,
 		"outDir": "./dist/cjs",
-		"rootDir": "./src",
 		"strict": true,
 		"noImplicitAny": true,
 		"strictNullChecks": true,

@@ -19,6 +19,11 @@ import { findOption } from "./newparser/findOption";
 import type { HasType, Type } from "./type";
 import { string } from "./types";
 import type { AllOrNothing } from "./utils";
+import {
+	type ArgvItem,
+	ParsingError as ParsingError2,
+	type ArgParser2,
+} from "./argparser2";
 
 type OptionConfig<Decoder extends Type<string, any>> = LongDoc &
 	HasType<Decoder> &
@@ -27,7 +32,10 @@ type OptionConfig<Decoder extends Type<string, any>> = LongDoc &
 
 function fullOption<Decoder extends Type<string, any>>(
 	config: OptionConfig<Decoder>,
-): ArgParser<OutputOf<Decoder>> & ProvidesHelp & Partial<Descriptive> {
+): ArgParser<OutputOf<Decoder>> &
+	ArgParser2<OutputOf<Decoder>> &
+	ProvidesHelp &
+	Partial<Descriptive> {
 	return {
 		description: config.description ?? config.type.description,
 		helpTopics() {
@@ -79,6 +87,114 @@ function fullOption<Decoder extends Type<string, any>>(
 			if (config.short) {
 				opts.forceOptionShortNames.add(config.short);
 			}
+		},
+		async parse2(argv) {
+			const arg = argv[0];
+
+			const onMissing = async () => {
+				if (typeof config.defaultValue === "function") {
+					return {
+						result: { value: await config.defaultValue() },
+						errors: [],
+						remainingArgv: argv,
+					};
+				}
+
+				return {
+					errors: [
+						ParsingError2.forUnknownArgv(
+							new Error(
+								`No value provided for required option ${JSON.stringify(config.long)}`,
+							),
+						),
+					],
+					result: null,
+					remainingArgv: argv,
+				};
+			};
+
+			if (!arg) {
+				return await onMissing();
+			}
+
+			let rawValue: { argv: ArgvItem; text: string } | undefined;
+			let remainingArgv = argv.slice(1);
+
+			if (arg.value.startsWith(`--${config.long}=`)) {
+				const spanned = arg.spanned(
+					`--${config.long}=`.length,
+					arg.value.length,
+				);
+				rawValue = {
+					text: spanned.value,
+					argv: spanned,
+				};
+			} else if (arg.value === `--${config.long}`) {
+				const valueArg = remainingArgv[0];
+				if (!valueArg) {
+					return {
+						errors: [
+							ParsingError2.make(
+								arg,
+								new Error(
+									`Missing value for option ${JSON.stringify(config.long)}`,
+								),
+							),
+						],
+						result: null,
+						remainingArgv,
+					};
+				}
+				remainingArgv = remainingArgv.slice(1);
+				rawValue = { text: valueArg.value, argv: valueArg };
+			} else if (config.short) {
+				if (arg.value.startsWith(`-${config.short}=`)) {
+					const spanned = arg.spanned(
+						`-${config.short}=`.length,
+						arg.value.length,
+					);
+					rawValue = {
+						text: spanned.value,
+						argv: spanned,
+					};
+				} else if (arg.value === `-${config.short}`) {
+					const valueArg = remainingArgv[0];
+					if (!valueArg) {
+						return {
+							errors: [
+								ParsingError2.make(
+									arg,
+									new Error(
+										`Missing value for option ${JSON.stringify(config.short)} (${JSON.stringify(config.long)})`,
+									),
+								),
+							],
+							result: null,
+							remainingArgv,
+						};
+					}
+					remainingArgv = remainingArgv.slice(1);
+					rawValue = { text: valueArg.value, argv: valueArg };
+				}
+			}
+
+			if (!rawValue) {
+				return await onMissing();
+			}
+
+			const parsed = await Result.safeAsync(config.type.from(rawValue.text));
+			return Result.match(parsed, {
+				onErr: (cause) => ({
+					result: null,
+					errors: [ParsingError2.make(rawValue.argv, cause)],
+					remainingArgv,
+				}),
+				onOk: (value) => ({
+					remainingArgv,
+					errors: [],
+					result: { value },
+				}),
+			});
 		},
 		async parse({
 			nodes,
@@ -170,17 +286,26 @@ export function option<Decoder extends Type<string, any>>(
 		HasType<Decoder> &
 		Partial<Descriptive & EnvDoc & ShortDoc> &
 		AllOrNothing<Default<OutputOf<Decoder>>>,
-): ArgParser<OutputOf<Decoder>> & ProvidesHelp & Partial<Descriptive>;
+): ArgParser<OutputOf<Decoder>> &
+	ArgParser2<OutputOf<Decoder>> &
+	ProvidesHelp &
+	Partial<Descriptive>;
 export function option(
 	config: LongDoc &
 		Partial<HasType<never> & Descriptive & EnvDoc & ShortDoc> &
 		AllOrNothing<Default<OutputOf<StringType>>>,
-): ArgParser<OutputOf<StringType>> & ProvidesHelp & Partial<Descriptive>;
+): ArgParser<OutputOf<StringType>> &
+	ArgParser2<OutputOf<StringType>> &
+	ProvidesHelp &
+	Partial<Descriptive>;
 export function option(
 	config: LongDoc &
 		Partial<HasType<any>> &
 		Partial<Descriptive & EnvDoc & ShortDoc>,
-): ArgParser<OutputOf<any>> & ProvidesHelp & Partial<Descriptive> {
+): ArgParser<OutputOf<any>> &
+	ArgParser2<OutputOf<any>> &
+	ProvidesHelp &
+	Partial<Descriptive> {
 	return fullOption({
 		type: string,
 		...config,

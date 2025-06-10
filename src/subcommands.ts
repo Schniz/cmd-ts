@@ -13,6 +13,9 @@ import type { From } from "./from";
 import type { Aliased, Descriptive, Named, Versioned } from "./helpdoc";
 import { positional } from "./positional";
 import type { Runner } from "./runner";
+import { extendType } from "./type";
+import { string } from "./types";
+import { type ArgParser2, ParsingError } from "./argparser2";
 
 type Output<
 	Commands extends Record<string, ArgParser<any> & Runner<any, any>>,
@@ -29,11 +32,16 @@ type RunnerOutput<
 	};
 }[keyof Commands];
 
+const Version = Symbol.for("@cmd-ts/version");
+type Version = typeof Version;
+const Help = Symbol.for("@cmd-ts/help");
+type Help = typeof Help;
+
 /**
  * Combine multiple `command`s into one
  */
 export function subcommands<
-	Commands extends Record<
+	const Commands extends Record<
 		string,
 		ArgParser<any> & Runner<any, any> & Partial<Descriptive & Aliased>
 	>,
@@ -43,6 +51,7 @@ export function subcommands<
 	cmds: Commands;
 	description?: string;
 }): ArgParser<Output<Commands>> &
+	ArgParser2<keyof Commands | Help | Version> &
 	Named &
 	Partial<Descriptive & Versioned> &
 	Runner<Output<Commands>, RunnerOutput<Commands>> {
@@ -75,6 +84,18 @@ export function subcommands<
 			throw new Error(errorMessage);
 		},
 	};
+
+	const typeWithCircuitBreakers = extendType(string, {
+		async from(str) {
+			if (config.version && (str === "--version" || str === "-V")) {
+				return Version;
+			}
+			if (str === "--help") {
+				return Help;
+			}
+			return await type.from(str);
+		},
+	});
 
 	const subcommand = positional({
 		displayName: "subcommand",
@@ -174,6 +195,26 @@ export function subcommands<
 			return Result.ok({
 				args: parsedCommand.value,
 				command: parsed.value,
+			});
+		},
+		async parse2(argv) {
+			const arg = argv[0];
+
+			const value = await Result.safeAsync(
+				typeWithCircuitBreakers.from(arg.value),
+			);
+
+			return Result.match(value, {
+				onOk: (value) => ({
+					errors: [],
+					remainingArgv: argv.slice(1),
+					result: { value },
+				}),
+				onErr: (cause) => ({
+					errors: [ParsingError.make(arg, cause)],
+					result: null,
+					remainingArgv: argv,
+				}),
 			});
 		},
 		async run(context): Promise<ParsingResult<RunnerOutput<Commands>>> {

@@ -55,3 +55,20 @@ export async function safeAsync<O>(
 		return err(e);
 	}
 }
+
+export function match<L, R, L1, R1>(
+	result: Result<L, R>,
+	{
+		onOk,
+		onErr,
+	}: {
+		onOk: (value: R) => L1;
+		onErr: (error: L) => R1;
+	},
+): L1 | R1 {
+	if (isOk(result)) {
+		return onOk(result.value);
+	}
+
+	return onErr(result.error);
+}
