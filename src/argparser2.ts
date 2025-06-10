@@ -35,7 +35,12 @@ export class ParsingError {
 	constructor(
 		readonly argv: ArgvItem | "unknown",
 		readonly cause: Error,
+		readonly atomic?: true,
 	) {}
+
+	asAtomic(): ParsingError {
+		return new ParsingError(this.argv, this.cause, true);
+	}
 	static make(argv: ArgvItem, cause: Error) {
 		return new ParsingError(argv, cause);
 	}
@@ -44,7 +49,7 @@ export class ParsingError {
 	}
 }
 
-interface ParseResult<T> {
+export interface ParseResult<T> {
 	errors: ParsingError[];
 	result: Option<T>;
 	remainingArgv: ArgvItem[];

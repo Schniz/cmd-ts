@@ -186,7 +186,7 @@ function fullOption<Decoder extends Type<string, any>>(
 			return Result.match(parsed, {
 				onErr: (cause) => ({
 					result: null,
-					errors: [ParsingError2.make(rawValue.argv, cause)],
+					errors: [ParsingError2.make(rawValue.argv, cause).asAtomic()],
 					remainingArgv,
 				}),
 				onOk: (value) => ({

@@ -19,9 +19,16 @@ import type {
 import type { AstNode } from "./newparser/parser";
 import type { Runner } from "./runner";
 import { entries, flatMap, groupBy, padNoAnsi } from "./utils";
-import { ArgParser2 } from "./argparser2";
+import {
+	ArgParser2,
+	ParsingError as ParsingError2,
+	ParseResult,
+} from "./argparser2";
 
-type ArgTypes = Record<string, ArgParser<any> & Partial<ProvidesHelp>>;
+type ArgTypes = Record<
+	string,
+	ArgParser<any> & ArgParser2<any> & Partial<ProvidesHelp>
+>;
 type HandlerFunc<Args extends ArgTypes> = (args: Output<Args>) => any;
 
 type CommandConfig<
@@ -120,7 +127,31 @@ export function command<
 			}
 		},
 		async parse2(argv) {
-			throw new Error("parse2 is not implemented for commands");
+			const subparsers = Object.entries(config.args).map(([key, parser]) => {
+				return [key, parser] as const;
+			});
+
+			const resultObject = {} as Partial<Output<Arguments>>;
+
+			const parsed = await multipleParsers({
+				availableParsers: () => subparsers,
+				isDone: () => subparsers.length === 0,
+				onAtomicResult: (key, result) => {
+					const index = subparsers.findIndex(([k]) => k === key);
+					if (index > -1) {
+						subparsers.splice(index, 1);
+					}
+					if (result.result) {
+						resultObject[key] = result.result.value;
+					}
+				},
+			}).parse2(argv);
+
+			return {
+				errors: parsed.errors,
+				result: { value: resultObject },
+				remainingArgv: parsed.remainingArgv,
+			};
 		},
 		async parse(
 			context: ParseContext,
@@ -185,6 +216,61 @@ export function command<
 			}
 
 			return Result.ok(await this.handler(parsed.value));
+		},
+	};
+}
+
+function multipleParsers(opts: {
+	isDone(): boolean;
+	availableParsers(): readonly (readonly [
+		key: string,
+		parser: ArgParser2<any>,
+	])[];
+	onAtomicResult(key: string, result: ParseResult<any>): void;
+}): ArgParser2<[key: string, value: any][]> {
+	return {
+		async parse2(argv) {
+			const errors = [] as ParsingError2[];
+			let remainingArgv = argv;
+			const values = [] as [key: string, value: any][];
+
+			while (!opts.isDone()) {
+				const parsers = opts.availableParsers();
+				if (!parsers.length) break;
+
+				let found = false;
+				for (let i = 0; i < parsers.length; i++) {
+					const [key, parser] = parsers[i];
+					const result = await parser.parse2(remainingArgv);
+					remainingArgv = result.remainingArgv;
+
+					if (result.errors.length) {
+						errors.push(...result.errors);
+						if (errors.some((x) => x.atomic)) {
+							opts.onAtomicResult(key, result);
+							found = true;
+							break;
+						}
+					} else {
+						opts.onAtomicResult(key, result);
+						values.push([key, result.result?.value]);
+						found = true;
+						break;
+					}
+				}
+
+				if (found) {
+					continue;
+				}
+
+				break;
+			}
+
+			return {
+				errors,
+				result: { value: values },
+				remainingArgv,
+			};
 		},
 	};
 }

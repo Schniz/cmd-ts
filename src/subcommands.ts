@@ -211,7 +211,7 @@ export function subcommands<
 					result: { value },
 				}),
 				onErr: (cause) => ({
-					errors: [ParsingError.make(arg, cause)],
+					errors: [ParsingError.make(arg, cause).asAtomic()],
 					result: null,
 					remainingArgv: argv,
 				}),

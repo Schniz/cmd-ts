@@ -1,6 +1,6 @@
 import { identity } from "../src/from";
 import type { InputOf, OutputOf } from "../src/from";
-import type { Type } from "../src/type";
+import { extendType, type Type } from "../src/type";
 
 export const number: Type<string, number> = {
 	async from(str) {
@@ -62,3 +62,13 @@ export function optional<T extends Type<any, any>>(
 		},
 	};
 }
+
+export const exclaim = extendType(string, {
+	async from(value) {
+		if (value.endsWith("!")) {
+			throw new Error("Value should not end with '!'");
+		}
+
+		return `${value}!`;
+	},
+});

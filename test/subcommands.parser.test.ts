@@ -15,7 +15,7 @@ test("parses a subcommand", async () => {
 
 	{
 		const parse = await subcommands.parse2(ArgvItem.normalize(["a", "world"]));
-		expect(parse).toEqual<typeof parse>({
+		expect(parse).toEqual({
 			errors: [],
 			remainingArgv: [{ value: "world", index: 1 }],
 			result: { value: "a" },
@@ -24,7 +24,7 @@ test("parses a subcommand", async () => {
 
 	{
 		const parse = await subcommands.parse2(ArgvItem.normalize(["b", "world"]));
-		expect(parse).toEqual<typeof parse>({
+		expect(parse).toEqual({
 			errors: [],
 			remainingArgv: [{ value: "world", index: 1 }],
 			result: { value: "b" },
@@ -33,11 +33,12 @@ test("parses a subcommand", async () => {
 
 	{
 		const parse = await subcommands.parse2(ArgvItem.normalize(["c", "world"]));
-		expect(parse).toEqual<typeof parse>({
+		expect(parse).toEqual({
 			errors: [
 				{
-					argvIndex: 0,
+					argv: { index: 0, value: "c" },
 					cause: new Error("Not a valid subcommand name"),
+					atomic: true,
 				},
 			],
 			remainingArgv: [

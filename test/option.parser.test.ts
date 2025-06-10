@@ -1,6 +1,7 @@
 import * as c from "../src";
 import { ArgvItem } from "../src/argparser2";
 import { describe, expect, test } from "vitest";
+import { exclaim } from "./test-types";
 
 describe("parses an option", () => {
 	test("no args provided", async () => {
@@ -58,16 +59,6 @@ describe("parses an option", () => {
 	});
 
 	describe("long", () => {
-		const exclaim = c.extendType(c.string, {
-			async from(value) {
-				if (value.endsWith("!")) {
-					throw new Error("Value should not end with '!'");
-				}
-
-				return `${value}!`;
-			},
-		});
-
 		test("parses a single element with =", async () => {
 			const parsed = await c
 				.option({ long: "greeting", type: exclaim })
@@ -140,16 +131,6 @@ describe("parses an option", () => {
 	});
 
 	describe("short", () => {
-		const exclaim = c.extendType(c.string, {
-			async from(value) {
-				if (value.endsWith("!")) {
-					throw new Error("Value should not end with '!'");
-				}
-
-				return `${value}!`;
-			},
-		});
-
 		test("parses a single element with =", async () => {
 			const parsed = await c
 				.option({ short: "g", long: "greeting", type: exclaim })
