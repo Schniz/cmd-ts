@@ -1,5 +1,5 @@
 import * as c from "../src";
-import { ArgParser2, ArgvItem } from "../src/argparser2";
+import { ArgvItem } from "../src/argparser2";
 import { describe, expect, test, expectTypeOf } from "vitest";
 import { exclaim } from "./test-types";
 
@@ -96,10 +96,12 @@ describe("command", () => {
 				args: {
 					greeting: c.option({ long: "greeting", type: exclaim }),
 					greeter: c.option({ long: "greeter" }),
+					scream: c.flag({ long: "scream" }),
 				},
-				handler({ greeting, greeter }) {
+				handler({ greeting, greeter, scream }) {
 					expectTypeOf(greeting).toEqualTypeOf<`${string}!`>();
 					expectTypeOf(greeter).toEqualTypeOf<string>();
+					expectTypeOf(scream).toEqualTypeOf<boolean>();
 				},
 			})
 			.parse2(
@@ -124,7 +126,7 @@ describe("command", () => {
 					cause: new Error(`Value should not end with '!'`),
 				},
 			],
-			result: { value: { greeter: "gal" } },
+			result: { value: { greeter: "gal", scream: false } },
 			remainingArgv: [
 				{ index: 4, value: "rest" },
 				{ index: 5, value: "arguments" },
