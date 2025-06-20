@@ -39,7 +39,7 @@
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^1.9.4",
-		"@changesets/cli": "2.29.4",
+		"@changesets/cli": "2.29.5",
 		"@types/debug": "4.1.12",
 		"@types/didyoumean": "1.2.3",
 		"@types/fs-extra": "11.0.4",
