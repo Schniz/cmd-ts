@@ -1,5 +1,11 @@
 # cmd-ts
 
+## 0.14.0
+
+### Minor Changes
+
+- a1afb05: --help exits with statuscode 0
+
 ## 0.13.0
 
 ### Minor Changes
