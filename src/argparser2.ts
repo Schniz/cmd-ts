@@ -53,6 +53,7 @@ export interface ParseResult<T> {
 	errors: ParsingError[];
 	result: Option<T>;
 	remainingArgv: ArgvItem[];
+	continue?: true;
 }
 
 type Option<T> = null | { value: T };

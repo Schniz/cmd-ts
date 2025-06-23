@@ -139,7 +139,9 @@ export function command<
 				onAtomicResult: (key, result) => {
 					const index = subparsers.findIndex(([k]) => k === key);
 					if (index > -1) {
-						subparsers.splice(index, 1);
+						if (!result.continue) {
+							subparsers.splice(index, 1);
+						}
 					}
 					if (result.result) {
 						resultObject[key] = result.result.value;
@@ -230,11 +232,12 @@ function multipleParsers(opts: {
 }): ArgParser2<[key: string, value: any][]> {
 	return {
 		async parse2(argv) {
-			const errors = [] as ParsingError2[];
+			let errors = [] as ParsingError2[];
 			let remainingArgv = argv;
 			const values = [] as [key: string, value: any][];
 
 			while (!opts.isDone()) {
+				errors = errors.filter((x) => x.atomic);
 				const parsers = opts.availableParsers();
 				if (!parsers.length) break;
 

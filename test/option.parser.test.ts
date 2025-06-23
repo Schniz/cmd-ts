@@ -29,6 +29,17 @@ describe("parses an option", () => {
 		});
 	});
 
+	test("optional works", async () => {
+		const parsed = await c
+			.option({ long: "greeting", type: c.optional(c.string) })
+			.parse2([]);
+		expect(parsed).toMatchObject({
+			errors: [],
+			result: { value: undefined },
+			remainingArgv: [],
+		});
+	});
+
 	test("an arg provided but it's not in the first position", async () => {
 		// We only read the first argument for the option, so the second one is ignored.
 		const parsed = await c

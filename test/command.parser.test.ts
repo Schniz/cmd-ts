@@ -1,5 +1,5 @@
 import * as c from "../src";
-import { ArgvItem } from "../src/argparser2";
+import { ArgParser2, ArgvItem } from "../src/argparser2";
 import { describe, expect, test, expectTypeOf } from "vitest";
 import { exclaim } from "./test-types";
 
@@ -132,5 +132,35 @@ describe("command", () => {
 				{ index: 5, value: "arguments" },
 			],
 		});
+	});
+
+	test("multioption", async () => {
+		function multi<T>(parser: ArgParser2<T>): ArgParser2<T[]> {
+			return {
+				async parse2(argv) {
+					const result = await parser.parse2(argv);
+					return { ...result, continue: true };
+				},
+			};
+		}
+
+		const value = await c
+			.command({
+				name: "cmd",
+				args: {
+					names: multi(c.option({ long: "name", type: exclaim })),
+					verbose: c.flag({ long: "verbose" }),
+				},
+				handler({ greeting, greeter, scream }) {
+					// expectTypeOf(greeting).toEqualTypeOf<`${string}!`>();
+					// expectTypeOf(greeter).toEqualTypeOf<string>();
+					// expectTypeOf(scream).toEqualTypeOf<boolean>();
+				},
+			})
+			.parse2(
+				ArgvItem.normalize(["--name=gal", "--verbose", "--name", "schniz"]),
+			);
+
+		expect(value).toEqual({});
 	});
 });

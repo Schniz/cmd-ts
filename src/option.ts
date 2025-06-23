@@ -92,9 +92,10 @@ function fullOption<Decoder extends Type<string, any>>(
 			const arg = argv[0];
 
 			const onMissing = async () => {
-				if (typeof config.defaultValue === "function") {
+				const defaultValue = config.defaultValue || config.type.defaultValue;
+				if (typeof defaultValue === "function") {
 					return {
-						result: { value: await config.defaultValue() },
+						result: { value: await defaultValue() },
 						errors: [],
 						remainingArgv: argv,
 					};
