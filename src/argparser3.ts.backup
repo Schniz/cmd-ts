@@ -1,0 +1,304 @@
+import assert from "node:assert";
+
+export class ArgvItem {
+	constructor(
+		/**
+		 * The original value, coming from process.argv
+		 */
+		readonly value: string,
+
+		/**
+		 * The original index position in the argv array
+		 * so we can track it in error messages.
+		 */
+		readonly index: number,
+
+		readonly span?: [from: number, to: number],
+	) {}
+
+	spanned(from: number, to: number): ArgvItem {
+		return new ArgvItem(this.value.slice(from, to), this.index, [from, to]);
+	}
+
+	static normalize(argv: string[] | ArgvItem[]): ArgvItem[] {
+		if (argv.length === 0) {
+			return [];
+		}
+
+		if (typeof argv[0] !== "string") {
+			return argv as ArgvItem[];
+		}
+
+		return argv.map((value, index) => new ArgvItem(value as string, index));
+	}
+}
+
+export class ParsingError {
+	constructor(
+		readonly argv: ArgvItem | "unknown",
+		readonly cause: Error,
+		readonly atomic?: true,
+	) {}
+
+	asAtomic(): ParsingError {
+		return new ParsingError(this.argv, this.cause, true);
+	}
+	static make(argv: ArgvItem, cause: Error) {
+		return new ParsingError(argv, cause);
+	}
+	static forUnknownArgv(cause: Error) {
+		return new ParsingError("unknown", cause);
+	}
+}
+
+export interface ParseResult<T> {
+	errors: ParsingError[];
+	result: Option<T>;
+	remainingArgv: ArgvItem[];
+}
+
+export type Option<T> = null | { value: T };
+
+export interface Effects {
+	peek(count: number): ArgvItem[];
+	consume(count: number): ArgvItem[];
+	continue(): boolean;
+	break(...errors: ParsingError[]): never;
+}
+
+export type Yieldable = {
+	[key in keyof Effects]: { key: key; payload: Parameters<Effects[key]> };
+}[keyof Effects];
+//   ^?
+export type YieldResult = {
+	[key in keyof Effects]: readonly [key, ReturnType<Effects[key]>];
+}[keyof Effects];
+//   ^?
+
+export type ParserGen<T> = AsyncGenerator<Yieldable, T, YieldResult>;
+
+export type EffectsGens = {
+	[key in keyof Effects]: (
+		...args: Parameters<Effects[key]>
+	) => Parser<ReturnType<Effects[key]>>;
+};
+
+export const effects = new Proxy({} as EffectsGens, {
+	get(target, prop: string, receiver: any) {
+		if (!(prop in target)) {
+			const fn = (...args: any): Parser<any> =>
+				new Parser(async function* () {
+					const [key, ret] = yield {
+						key: prop as keyof Effects,
+						payload: args,
+					};
+					assert(key === prop, `Expected effect ${prop}, got ${key}`);
+					return ret;
+				});
+			Reflect.set(target, prop, fn, receiver);
+		}
+		return Reflect.get(target, prop, receiver);
+	},
+});
+
+export class Parser<T> {
+	constructor(readonly gen: () => ParserGen<T>) {}
+	[Symbol.asyncIterator](): ParserGen<T> {
+		return this.gen();
+	}
+
+	withConsumed(): Parser<[T, ArgvItem[]]> {
+		const wrapped = this;
+		return new Parser<[T, ArgvItem[]]>(async function* () {
+			const gen = wrapped.gen();
+			const trapped: ArgvItem[] = [];
+			let state = await gen.next(["continue", true]);
+			while (true) {
+				if (state.done) {
+					return [state.value, trapped];
+				}
+
+				const { key, payload } = state.value;
+				switch (key) {
+					case "consume": {
+						const removed = yield* effects.consume(...payload);
+						trapped.push(...removed);
+						state = await gen.next(["consume", removed]);
+						break;
+					}
+					case "peek": {
+						const res = yield { key, payload };
+						state = await gen.next(res);
+						break;
+					}
+					case "break": {
+						const res = yield { key, payload };
+						state = await gen.next(res);
+						break;
+					}
+					case "continue": {
+						const res = yield { key, payload };
+						state = await gen.next(res);
+						break;
+					}
+				}
+			}
+		});
+	}
+}
+
+export namespace Parser {
+	export type Type<T> = T extends Parser<infer U> ? U : never;
+	export type IterResult<T> = IteratorResult<Yieldable, T>;
+}
+
+export const createFlag = (name: string) =>
+	new Parser(async function* () {
+		do {
+			const value = yield* effects.peek(1);
+			if (value.length > 0 && value[0].value === `--${name}`) {
+				yield* effects.consume(1);
+				return true;
+			}
+		} while (yield* effects.continue());
+
+		return false;
+	});
+
+export const createMultiFlag = (name: string) =>
+	new Parser(async function* () {
+		let count = 0;
+		do {
+			const value = yield* effects.peek(1);
+			if (value.length > 0 && value[0].value === `--${name}`) {
+				yield* effects.consume(1);
+				count++;
+			}
+		} while (yield* effects.continue());
+		return count;
+	});
+
+export const createRequiredParam = (name: string) =>
+	new Parser<string>(async function* () {
+		console.log(`[${name}] Starting parser`);
+		do {
+			const value = yield* effects.peek(1);
+			console.log(`[${name}] Peeked:`, value.map(v => v.value));
+			if (value.length > 0 && value[0].value.startsWith(`--${name}=`)) {
+				const consumed = yield* effects.consume(1);
+				const paramValue = consumed[0].value.slice(`--${name}=`.length);
+				console.log(`[${name}] Found parameter:`, paramValue);
+				return paramValue;
+			}
+			console.log(`[${name}] Calling continue()`);
+		} while (yield* effects.continue());
+
+		// If we exit the loop, it means continue() returned false
+		// and we haven't found our required parameter
+		console.log(`[${name}] Exited loop, calling break`);
+		yield* effects.break(
+			ParsingError.forUnknownArgv(new Error(`Required parameter --${name} is missing`))
+		);
+		throw new Error("Unreachable"); // TypeScript doesn't know effects.break never returns
+	});
+
+export function all<const T extends readonly Parser<any>[]>(parsers: T): Parser<{
+	[K in keyof T]: Parser.Type<T[K]>;
+}> {
+	return new Parser(async function* () {
+		const results = new Array(parsers.length);
+		const activeGenerators = parsers.map((parser, index) => ({
+			gen: parser.gen(),
+			index,
+			completed: false
+		}));
+
+
+		// First, start all generators (they start with peek now due to do-while)
+		for (const genInfo of activeGenerators) {
+			let state = await genInfo.gen.next();
+			
+			// Process initial effects until generator yields control
+			while (!state.done && state.value.key !== "continue") {
+				switch (state.value.key) {
+					case "peek": {
+						const peeked = yield* effects.peek(...state.value.payload);
+						state = await genInfo.gen.next(["peek", peeked]);
+						break;
+					}
+					case "consume": {
+						const consumed = yield* effects.consume(...state.value.payload);
+						state = await genInfo.gen.next(["consume", consumed]);
+						break;
+					}
+					case "break": {
+						yield* effects.break(...state.value.payload);
+						return results as { [K in keyof T]: Parser.Type<T[K]> };
+					}
+				}
+			}
+			
+			if (state.done) {
+				genInfo.completed = true;
+				results[genInfo.index] = state.value;
+			}
+		}
+
+		while (yield* effects.continue()) {
+			let anyProgress = false;
+			
+			// Run each active generator
+			for (const genInfo of activeGenerators) {
+				if (genInfo.completed) continue;
+
+				// Continue this generator
+				let state = await genInfo.gen.next(["continue", true]);
+				
+				// Process all effects from this generator until it yields control back
+				while (!state.done && state.value.key !== "continue") {
+					switch (state.value.key) {
+						case "peek": {
+							const peeked = yield* effects.peek(...state.value.payload);
+							state = await genInfo.gen.next(["peek", peeked]);
+							break;
+						}
+						case "consume": {
+							const consumed = yield* effects.consume(...state.value.payload);
+							state = await genInfo.gen.next(["consume", consumed]);
+							anyProgress = true;
+
+							break;
+						}
+						case "break": {
+							yield* effects.break(...state.value.payload);
+							return results as { [K in keyof T]: Parser.Type<T[K]> };
+						}
+					}
+				}
+
+				// Check if generator completed
+				if (state.done) {
+					genInfo.completed = true;
+					results[genInfo.index] = state.value;
+				}
+			}
+
+			// If no generator made progress, break out of the loop
+			if (!anyProgress) {
+				break;
+			}
+		}
+
+		// Complete any remaining generators with continue(false)
+		for (const genInfo of activeGenerators) {
+			if (!genInfo.completed) {
+				const state = await genInfo.gen.next(["continue", false]);
+				if (state.done) {
+					results[genInfo.index] = state.value;
+				}
+			}
+		}
+
+		return results as { [K in keyof T]: Parser.Type<T[K]> };
+	});
+}

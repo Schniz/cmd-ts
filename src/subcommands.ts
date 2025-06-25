@@ -197,7 +197,7 @@ export function subcommands<
 				command: parsed.value,
 			});
 		},
-		async parse2(argv) {
+		async *parse2(argv) {
 			const arg = argv[0];
 
 			const value = await Result.safeAsync(

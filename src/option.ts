@@ -88,7 +88,7 @@ function fullOption<Decoder extends Type<string, any>>(
 				opts.forceOptionShortNames.add(config.short);
 			}
 		},
-		async parse2(argv) {
+		async *parse2(argv) {
 			const arg = argv[0];
 
 			const onMissing = async () => {

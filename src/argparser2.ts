@@ -59,5 +59,44 @@ export interface ParseResult<T> {
 type Option<T> = null | { value: T };
 
 export interface ArgParser2<T> {
-	parse2(argv: ArgvItem[]): Promise<ParseResult<T>>;
+	parse2(
+		argv: ArgvItem[],
+	): AsyncGenerator<ParseResult<T>, ParseResult<T>, ArgvItem[]>;
 }
+
+type Action<T extends { type: string }, R> = { action: T; result: R };
+
+type Yielded =
+	| Action<{ type: "peek"; count: number }, ArgvItem[]>
+	| Action<{ type: "consume"; count: number }, void>
+	| Action<{ type: "continue" }, void>;
+
+class Peek {
+	constructor(readonly count: number) {}
+	[Symbol.asyncIterator](): AsyncGenerator<ArgvItem[], ArgvItem[], void> {
+		return {} as never;
+	}
+}
+
+class Consume {
+	constructor(readonly count: number) {}
+	[Symbol.asyncIterator](): AsyncGenerator<void, void, void> {
+		return {} as never;
+	}
+}
+
+/**
+ * Returns whether to retry reading
+ */
+class Unmatched {
+	[Symbol.asyncIterator](): AsyncGenerator<void, boolean, void> {
+		return {} as never;
+	}
+}
+
+const hey = async function* () {
+	const x = yield* cont;
+	const y = yield* new Peek(2);
+	const a = yield* new Consume(2);
+	const z = yield* new Unmatched();
+};
