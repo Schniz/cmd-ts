@@ -201,6 +201,128 @@ export const createRequiredFlag = (name: string) =>
 		);
 	});
 
+export function all<const T extends readonly Parser<any>[]>(
+	parsers: T,
+): Parser<{
+	[K in keyof T]: Parser.Type<T[K]>;
+}> {
+	return new Parser(async function* () {
+		const results: any[] = new Array(parsers.length).fill(undefined);
+		const allErrors: ParsingError[] = [];
+		
+		// Initialize all parser generators
+		const generators = parsers.map(parser => parser.gen());
+		const states = await Promise.all(generators.map(gen => gen.next()));
+		
+		// Keep track of which parsers are still active (not done)
+		const activeParsers = new Set(parsers.map((_, i) => i));
+		
+		// Cooperative scheduler: cycle through parsers until all are done
+		while (activeParsers.size > 0) {
+			let schedulerMadeProgress = false;
+			
+			// Give each active parser a turn
+			for (const i of Array.from(activeParsers)) {
+				const gen = generators[i];
+				let state = states[i];
+				
+				// If parser is done, collect result and remove from active set
+				if (state.done) {
+					results[i] = state.value;
+					activeParsers.delete(i);
+					schedulerMadeProgress = true;
+					continue;
+				}
+				
+				// Run parser until it yields (continue) or finishes
+				let parserYielded = false;
+				let parserErrors: ParsingError[] = [];
+				
+				try {
+					while (!state.done && !parserYielded) {
+						const yieldedValue = state.value as Yieldable;
+						const key = yieldedValue.key;
+						const payload = yieldedValue.payload;
+						
+						switch (key) {
+							case "peek": {
+								const result = yield { key, payload };
+								state = await gen.next(result);
+								states[i] = state;
+								break;
+							}
+							case "consume": {
+								const result = yield { key, payload };
+								state = await gen.next(result);
+								states[i] = state;
+								schedulerMadeProgress = true;
+								break;
+							}
+							case "continue": {
+								// In the all combinator, continue should return true
+								// to allow parsers to keep looking through the argument stream
+								state = await gen.next([key, true]);
+								states[i] = state;
+								parserYielded = true; // Yield to scheduler
+								break;
+							}
+							case "break": {
+								// Collect errors and mark parser as done
+								parserErrors.push(...payload);
+								allErrors.push(...parserErrors);
+								state = await gen.return({} as never);
+								states[i] = state;
+								activeParsers.delete(i);
+								schedulerMadeProgress = true;
+								break;
+							}
+						}
+					}
+					
+					// If parser finished naturally, collect result
+					if (state.done) {
+						results[i] = state.value;
+						activeParsers.delete(i);
+						schedulerMadeProgress = true;
+					}
+					
+				} catch (error) {
+					// Handle unexpected errors
+					allErrors.push(
+						ParsingError.forUnknownArgv(
+							error instanceof Error ? error : new Error(String(error))
+						)
+					);
+					activeParsers.delete(i);
+					schedulerMadeProgress = true;
+				}
+			}
+			
+			// If no parser made progress, we're stuck - break out
+			if (!schedulerMadeProgress) {
+				break;
+			}
+		}
+		
+		// Collect any remaining results
+		for (const i of activeParsers) {
+			const state = states[i];
+			if (state.done) {
+				results[i] = state.value;
+			}
+		}
+
+		// If any parser failed, fail the whole combinator
+		if (allErrors.length > 0) {
+			return yield* effects.break(...allErrors);
+		}
+
+		return results as {
+			[K in keyof T]: Parser.Type<T[K]>;
+		};
+	});
+}
+
 export async function parse<T>(
 	parser: Parser<T>,
 	argv: ArgvItem[],
