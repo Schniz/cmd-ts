@@ -200,3 +200,116 @@ export const createRequiredFlag = (name: string) =>
 			ParsingError.forUnknownArgv(new Error(`Missing value for --${name}`)),
 		);
 	});
+
+export async function parse<T>(
+	parser: Parser<T>,
+	argv: ArgvItem[],
+): Promise<ParseResult<T>> {
+	const remainingArgv = [...argv];
+	const errors: ParsingError[] = [];
+	let position = 0;
+	const consumedIndices = new Set<number>();
+	let lastConsumedCount = 0;
+
+	const effects: Effects = {
+		peek(count: number): ArgvItem[] {
+			return remainingArgv.slice(position, position + count);
+		},
+
+		consume(count: number): ArgvItem[] {
+			const consumed = remainingArgv.slice(position, position + count);
+			// Mark these indices as consumed
+			for (let i = position; i < position + count; i++) {
+				consumedIndices.add(i);
+			}
+			position += count;
+			return consumed;
+		},
+
+		continue(): boolean {
+			// For cooperative scheduling, continue if we made progress (consumed something)
+			// or if we haven't reached the end yet
+			const currentConsumedCount = consumedIndices.size;
+			const madeProgress = currentConsumedCount > lastConsumedCount;
+			lastConsumedCount = currentConsumedCount;
+
+			if (madeProgress) {
+				// We consumed something, continue from current position
+				return position < remainingArgv.length;
+			}
+
+			// No progress made, advance position to avoid infinite loop
+			position++;
+			return position < remainingArgv.length;
+		},
+
+		break(...parsingErrors: ParsingError[]): never {
+			errors.push(...parsingErrors);
+			throw new Error("Parser break");
+		},
+	};
+
+	try {
+		const gen = parser.gen();
+		let state = await gen.next();
+
+		while (!state.done) {
+			const { key, payload } = state.value;
+
+			// Yield control to the event loop for cooperative scheduling
+			await new Promise((resolve) => setImmediate(resolve));
+
+			switch (key) {
+				case "peek": {
+					const result = effects.peek(...payload);
+					state = await gen.next([key, result]);
+					break;
+				}
+				case "consume": {
+					const result = effects.consume(...payload);
+					state = await gen.next([key, result]);
+					break;
+				}
+				case "continue": {
+					const result = effects.continue(...payload);
+					state = await gen.next([key, result]);
+					break;
+				}
+				case "break": {
+					try {
+						effects.break(...payload);
+					} catch {
+						// Expected - break throws
+					}
+					state = await gen.return({} as never);
+					break;
+				}
+			}
+		}
+
+		return {
+			errors,
+			result: errors.length > 0 ? null : { value: state.value },
+			remainingArgv: remainingArgv.filter(
+				(_, index) => !consumedIndices.has(index),
+			),
+		};
+	} catch (error) {
+		const allErrors =
+			errors.length > 0
+				? errors
+				: [
+						ParsingError.forUnknownArgv(
+							error instanceof Error ? error : new Error(String(error)),
+						),
+					];
+
+		return {
+			errors: allErrors,
+			result: null,
+			remainingArgv: remainingArgv.filter(
+				(_, index) => !consumedIndices.has(index),
+			),
+		};
+	}
+}
