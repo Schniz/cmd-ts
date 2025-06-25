@@ -5,51 +5,38 @@ import { exclaim } from "./test-types";
 
 describe("parses an option", () => {
 	test("no args provided", async () => {
-		const parsed = await c.option({ long: "greeting" }).parse2([]).next();
+		const parsed = await c.option({ long: "greeting" }).parse2([]);
 		expect(parsed).toMatchObject({
-			done: true,
-			value: {
-				errors: [
-					{
-						argv: "unknown",
-						cause: new Error(
-							`No value provided for required option "greeting"`,
-						),
-					},
-				],
-				result: null,
-				remainingArgv: [],
-			},
+			errors: [
+				{
+					argv: "unknown",
+					cause: new Error(`No value provided for required option "greeting"`),
+				},
+			],
+			result: null,
+			remainingArgv: [],
 		});
 	});
 
 	test("defaultValue with no args provided", async () => {
 		const parsed = await c
 			.option({ long: "greeting", defaultValue: () => "yellow" })
-			.parse2([])
-			.next();
+			.parse2([]);
 		expect(parsed).toMatchObject({
-			done: true,
-			value: {
-				errors: [],
-				result: { value: "yellow" },
-				remainingArgv: [],
-			},
+			errors: [],
+			result: { value: "yellow" },
+			remainingArgv: [],
 		});
 	});
 
 	test("optional works", async () => {
 		const parsed = await c
 			.option({ long: "greeting", type: c.optional(c.string) })
-			.parse2([])
-			.next();
+			.parse2([]);
 		expect(parsed).toMatchObject({
-			done: true,
-			value: {
-				errors: [],
-				result: { value: undefined },
-				remainingArgv: [],
-			},
+			errors: [],
+			result: { value: undefined },
+			remainingArgv: [],
 		});
 	});
 
@@ -57,25 +44,16 @@ describe("parses an option", () => {
 		// We only read the first argument for the option, so the second one is ignored.
 		const parsed = await c
 			.option({ long: "greeting" })
-			.parse2(ArgvItem.normalize(["--name=hello", "--greeting=yellow"]))
-			.next();
+			.parse2(ArgvItem.normalize(["--name=hello", "--greeting=yellow"]));
 		expect(parsed).toMatchObject({
-			done: true,
-			value: {
-				errors: [
-					{
-						cause: new Error(
-							`No value provided for required option "greeting"`,
-						),
-						argv: "unknown",
-					},
-				],
-				result: null,
-				remainingArgv: ArgvItem.normalize([
-					"--name=hello",
-					"--greeting=yellow",
-				]),
-			},
+			errors: [
+				{
+					cause: new Error(`No value provided for required option "greeting"`),
+					argv: "unknown",
+				},
+			],
+			result: null,
+			remainingArgv: ArgvItem.normalize(["--name=hello", "--greeting=yellow"]),
 		});
 	});
 
@@ -83,18 +61,11 @@ describe("parses an option", () => {
 		// We only read the first argument for the option, so the second one is ignored.
 		const parsed = await c
 			.option({ long: "greeting", defaultValue: () => "yellow" })
-			.parse2(ArgvItem.normalize(["--name=hello", "--greeting=yellow"]))
-			.next();
+			.parse2(ArgvItem.normalize(["--name=hello", "--greeting=yellow"]));
 		expect(parsed).toMatchObject({
-			done: true,
-			value: {
-				errors: [],
-				result: { value: "yellow" },
-				remainingArgv: ArgvItem.normalize([
-					"--name=hello",
-					"--greeting=yellow",
-				]),
-			},
+			errors: [],
+			result: { value: "yellow" },
+			remainingArgv: ArgvItem.normalize(["--name=hello", "--greeting=yellow"]),
 		});
 	});
 
@@ -102,90 +73,70 @@ describe("parses an option", () => {
 		test("parses a single element with =", async () => {
 			const parsed = await c
 				.option({ long: "greeting", type: exclaim })
-				.parse2(ArgvItem.normalize(["--greeting=yellow", "--name=hello"]))
-				.next();
+				.parse2(ArgvItem.normalize(["--greeting=yellow", "--name=hello"]));
 			expect(parsed).toMatchObject({
-				done: true,
-				value: {
-					errors: [],
-					result: { value: "yellow!" },
-					remainingArgv: [{ index: 1, value: "--name=hello" }],
-				},
+				errors: [],
+				result: { value: "yellow!" },
+				remainingArgv: [{ index: 1, value: "--name=hello" }],
 			});
 		});
 
 		test("parse errors on a single element with =", async () => {
 			const parsed = await c
 				.option({ long: "greeting", type: exclaim })
-				.parse2(ArgvItem.normalize(["--greeting=yellow!", "--name=hello"]))
-				.next();
+				.parse2(ArgvItem.normalize(["--greeting=yellow!", "--name=hello"]));
 			expect(parsed).toMatchObject({
-				done: true,
-				value: {
-					errors: [
-						{
-							argv: { index: 0, span: [11, 18], value: "yellow!" },
-							cause: new Error(`Value should not end with '!'`),
-						},
-					],
-					result: null,
-					remainingArgv: [{ index: 1, value: "--name=hello" }],
-				},
+				errors: [
+					{
+						argv: { index: 0, span: [11, 18], value: "yellow!" },
+						cause: new Error(`Value should not end with '!'`),
+					},
+				],
+				result: null,
+				remainingArgv: [{ index: 1, value: "--name=hello" }],
 			});
 		});
 
 		test("parses whitespace delimited --key value", async () => {
 			const parsed = await c
 				.option({ long: "greeting", type: exclaim })
-				.parse2(ArgvItem.normalize(["--greeting", "yellow", "--name=hello"]))
-				.next();
+				.parse2(ArgvItem.normalize(["--greeting", "yellow", "--name=hello"]));
 			expect(parsed).toMatchObject({
-				done: true,
-				value: {
-					errors: [],
-					result: { value: "yellow!" },
-					remainingArgv: [{ index: 2, value: "--name=hello" }],
-				},
+				errors: [],
+				result: { value: "yellow!" },
+				remainingArgv: [{ index: 2, value: "--name=hello" }],
 			});
 		});
 
 		test("missing value on --key value", async () => {
 			const parsed = await c
 				.option({ long: "greeting", type: exclaim })
-				.parse2(ArgvItem.normalize(["--greeting"]))
-				.next();
+				.parse2(ArgvItem.normalize(["--greeting"]));
 			expect(parsed).toMatchObject({
-				done: true,
-				value: {
-					errors: [
-						{
-							argv: { index: 0, value: "--greeting" },
-							cause: new Error(`Missing value for option "greeting"`),
-						},
-					],
-					result: null,
-					remainingArgv: [],
-				},
+				errors: [
+					{
+						argv: { index: 0, value: "--greeting" },
+						cause: new Error(`Missing value for option "greeting"`),
+					},
+				],
+				result: null,
+				remainingArgv: [],
 			});
 		});
 
 		test("parse errors on whitespace delimited --key value", async () => {
 			const parsed = await c
 				.option({ long: "greeting", type: exclaim })
-				.parse2(ArgvItem.normalize(["--greeting", "yellow!", "--name=hello"]))
-				.next();
+				.parse2(ArgvItem.normalize(["--greeting", "yellow!", "--name=hello"]));
 			expect(parsed).toMatchObject({
-				done: true,
-				value: {
-					errors: [
-						{
-							argv: { index: 1, value: "yellow!" },
-							cause: new Error(`Value should not end with '!'`),
-						},
-					],
-					result: null,
-					remainingArgv: [{ index: 2, value: "--name=hello" }],
-				},
+				errors: [
+					{
+						argv: { index: 1, value: "yellow!" },
+						cause: new Error(`Value should not end with '!'`),
+					},
+				],
+				result: null,
+				remainingArgv: [{ index: 2, value: "--name=hello" }],
 			});
 		});
 	});
@@ -194,90 +145,70 @@ describe("parses an option", () => {
 		test("parses a single element with =", async () => {
 			const parsed = await c
 				.option({ short: "g", long: "greeting", type: exclaim })
-				.parse2(ArgvItem.normalize(["-g=yellow", "--name=hello"]))
-				.next();
+				.parse2(ArgvItem.normalize(["-g=yellow", "--name=hello"]));
 			expect(parsed).toMatchObject({
-				done: true,
-				value: {
-					errors: [],
-					result: { value: "yellow!" },
-					remainingArgv: [{ index: 1, value: "--name=hello" }],
-				},
+				errors: [],
+				result: { value: "yellow!" },
+				remainingArgv: [{ index: 1, value: "--name=hello" }],
 			});
 		});
 
 		test("parse errors on a single element with =", async () => {
 			const parsed = await c
 				.option({ short: "g", long: "greeting", type: exclaim })
-				.parse2(ArgvItem.normalize(["-g=yellow!", "--name=hello"]))
-				.next();
+				.parse2(ArgvItem.normalize(["-g=yellow!", "--name=hello"]));
 			expect(parsed).toMatchObject({
-				done: true,
-				value: {
-					errors: [
-						{
-							argv: { index: 0, span: [3, 10], value: "yellow!" },
-							cause: new Error(`Value should not end with '!'`),
-						},
-					],
-					result: null,
-					remainingArgv: [{ index: 1, value: "--name=hello" }],
-				},
+				errors: [
+					{
+						argv: { index: 0, span: [3, 10], value: "yellow!" },
+						cause: new Error(`Value should not end with '!'`),
+					},
+				],
+				result: null,
+				remainingArgv: [{ index: 1, value: "--name=hello" }],
 			});
 		});
 
 		test("parses whitespace delimited -k value", async () => {
 			const parsed = await c
 				.option({ short: "g", long: "greeting", type: exclaim })
-				.parse2(ArgvItem.normalize(["-g", "yellow", "--name=hello"]))
-				.next();
+				.parse2(ArgvItem.normalize(["-g", "yellow", "--name=hello"]));
 			expect(parsed).toMatchObject({
-				done: true,
-				value: {
-					errors: [],
-					result: { value: "yellow!" },
-					remainingArgv: [{ index: 2, value: "--name=hello" }],
-				},
+				errors: [],
+				result: { value: "yellow!" },
+				remainingArgv: [{ index: 2, value: "--name=hello" }],
 			});
 		});
 
 		test("missing value on -k value", async () => {
 			const parsed = await c
 				.option({ short: "g", long: "greeting", type: exclaim })
-				.parse2(ArgvItem.normalize(["-g"]))
-				.next();
+				.parse2(ArgvItem.normalize(["-g"]));
 			expect(parsed).toMatchObject({
-				done: true,
-				value: {
-					errors: [
-						{
-							argv: { index: 0, value: "-g" },
-							cause: new Error(`Missing value for option "g" ("greeting")`),
-						},
-					],
-					result: null,
-					remainingArgv: [],
-				},
+				errors: [
+					{
+						argv: { index: 0, value: "-g" },
+						cause: new Error(`Missing value for option "g" ("greeting")`),
+					},
+				],
+				result: null,
+				remainingArgv: [],
 			});
 		});
 
 		test("parse errors on whitespace delimited -k value", async () => {
 			const parsed = await c
 				.option({ short: "g", long: "greeting", type: exclaim })
-				.parse2(ArgvItem.normalize(["-g", "yellow!", "--name=hello"]))
-				.next();
+				.parse2(ArgvItem.normalize(["-g", "yellow!", "--name=hello"]));
 			expect(parsed).toMatchObject({
-				done: true,
-				value: {
-					errors: [
-						{
-							argv: { index: 1, value: "yellow!" },
-							cause: new Error(`Value should not end with '!'`),
-						},
-					],
-					result: null,
-					remainingArgv: [{ index: 2, value: "--name=hello" }],
-				},
+				errors: [
+					{
+						argv: { index: 1, value: "yellow!" },
+						cause: new Error(`Value should not end with '!'`),
+					},
+				],
+				result: null,
+				remainingArgv: [{ index: 2, value: "--name=hello" }],
 			});
 		});
 	});

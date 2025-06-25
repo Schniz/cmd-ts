@@ -95,7 +95,7 @@ export function fullFlag<Decoder extends Type<boolean, any>>(
 				opts.forceFlagShortNames.add(config.short);
 			}
 		},
-		async *parse2(argv) {
+		async parse2(argv) {
 			const arg = argv[0];
 			let remainingArgv = argv;
 

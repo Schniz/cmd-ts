@@ -14,53 +14,38 @@ test("parses a subcommand", async () => {
 	});
 
 	{
-		const parse = await subcommands
-			.parse2(ArgvItem.normalize(["a", "world"]))
-			.next();
+		const parse = await subcommands.parse2(ArgvItem.normalize(["a", "world"]));
 		expect(parse).toEqual({
-			done: true,
-			value: {
-				errors: [],
-				remainingArgv: [{ value: "world", index: 1 }],
-				result: { value: "a" },
-			},
+			errors: [],
+			remainingArgv: [{ value: "world", index: 1 }],
+			result: { value: "a" },
 		});
 	}
 
 	{
-		const parse = await subcommands
-			.parse2(ArgvItem.normalize(["b", "world"]))
-			.next();
+		const parse = await subcommands.parse2(ArgvItem.normalize(["b", "world"]));
 		expect(parse).toEqual({
-			done: true,
-			value: {
-				errors: [],
-				remainingArgv: [{ value: "world", index: 1 }],
-				result: { value: "b" },
-			},
+			errors: [],
+			remainingArgv: [{ value: "world", index: 1 }],
+			result: { value: "b" },
 		});
 	}
 
 	{
-		const parse = await subcommands
-			.parse2(ArgvItem.normalize(["c", "world"]))
-			.next();
+		const parse = await subcommands.parse2(ArgvItem.normalize(["c", "world"]));
 		expect(parse).toEqual({
-			done: true,
-			value: {
-				errors: [
-					{
-						argv: { index: 0, value: "c" },
-						cause: new Error("Not a valid subcommand name"),
-						atomic: true,
-					},
-				],
-				remainingArgv: [
-					{ value: "c", index: 0 },
-					{ value: "world", index: 1 },
-				],
-				result: null,
-			},
+			errors: [
+				{
+					argv: { index: 0, value: "c" },
+					cause: new Error("Not a valid subcommand name"),
+					atomic: true,
+				},
+			],
+			remainingArgv: [
+				{ value: "c", index: 0 },
+				{ value: "world", index: 1 },
+			],
+			result: null,
 		});
 	}
 });
