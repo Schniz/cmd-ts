@@ -16,6 +16,7 @@ import type { Runner } from "./runner";
 import { extendType } from "./type";
 import { string } from "./types";
 import { type ArgParser2, ParsingError } from "./argparser2";
+import * as AP3 from "./argparser3";
 
 type Output<
 	Commands extends Record<string, ArgParser<any> & Runner<any, any>>,
@@ -52,6 +53,7 @@ export function subcommands<
 	description?: string;
 }): ArgParser<Output<Commands>> &
 	ArgParser2<keyof Commands | Help | Version> &
+	AP3.Yielder<Help | Version | Output<Commands>> &
 	Named &
 	Partial<Descriptive & Versioned> &
 	Runner<Output<Commands>, RunnerOutput<Commands>> {
@@ -217,6 +219,28 @@ export function subcommands<
 				}),
 			});
 		},
+		...AP3.yielder(
+			new AP3.Parser(async function* () {
+				const [arg] = yield* AP3.effects.consume(1);
+				if (!arg) {
+					return yield* AP3.effects.break(
+						ParsingError.forUnknownArgv(
+							new Error("No value provided for subcommand"),
+						),
+					);
+				}
+
+				const value = await Result.safeAsync(
+					typeWithCircuitBreakers.from(arg.value),
+				);
+
+				if (Result.isErr(value)) {
+					return yield* AP3.effects.break(ParsingError.make(arg, value.error));
+				}
+
+				return value.value;
+			}),
+		),
 		async run(context): Promise<ParsingResult<RunnerOutput<Commands>>> {
 			normalizeContext(context);
 			const parsedSubcommand = await subcommand.parse(context);
