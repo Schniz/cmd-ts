@@ -81,8 +81,8 @@ export interface Effects {
 	consume(count: number): ArgvItem[];
 	/** Skip the next `count` items from the argv without consuming them (they remain in remainingArgv) */
 	skip(count: number): ArgvItem[];
-	/** Yield the cooperative parser, and return whether we can continue parsing with the current parser. */
-	continue(): boolean;
+	/** Yield control to the cooperative scheduler, and return whether we can continue parsing with the current parser. */
+	yield(): boolean;
 	/** Throw a parsing error */
 	break(...errors: ParsingError[]): never;
 }
@@ -122,58 +122,70 @@ export const effects = new Proxy({} as EffectsGens, {
 	},
 });
 
-export class Parser<T> {
+export interface Yielder<T> {
+	parser3: Parser<T>;
+	[Symbol.asyncIterator](): ParserGen<T>;
+}
+
+export function yielder<T>(parser: Parser<T>): Yielder<T> {
+	return { parser3: parser, [Symbol.asyncIterator]: () => parser.gen() };
+}
+
+export class Parser<T> implements Yielder<T> {
 	constructor(readonly gen: () => ParserGen<T>) {}
+	get parser3(): Parser<T> {
+		return new Parser(this.gen);
+	}
 	[Symbol.asyncIterator](): ParserGen<T> {
 		return this.gen();
 	}
 
-	withConsumed(): Parser<[T, ArgvItem[]]> {
-		const wrapped = this;
-		return new Parser<[T, ArgvItem[]]>(async function* () {
-			const gen = wrapped.gen();
-			const trapped: ArgvItem[] = [];
-			let state = await gen.next(["continue", true]);
-			while (true) {
-				// Yield control to the event loop for cooperative scheduling
-				await forceAwait();
-
-				if (state.done) {
-					return [state.value, trapped];
-				}
-
-				const { key, payload } = state.value;
-				switch (key) {
-					case "consume": {
-						const removed = yield* effects.consume(...payload);
-						trapped.push(...removed);
-						state = await gen.next(["consume", removed]);
-						break;
-					}
-					case "peek": {
-						const res = yield { key, payload };
-						state = await gen.next(res);
-						break;
-					}
-					case "break": {
-						const res = yield { key, payload };
-						state = await gen.next(res);
-						break;
-					}
-					case "skip": {
-						const res = yield { key, payload };
-						state = await gen.next(res);
-						break;
-					}
-					case "continue": {
-						const res = yield { key, payload };
-						state = await gen.next(res);
-						break;
-					}
-				}
-			}
-		});
-	}
+	// withConsumed(): Parser<[T, ArgvItem[]]> {
+	// 	const wrapped = this;
+	// 	return new Parser<[T, ArgvItem[]]>(async function* () {
+	// 		const gen = wrapped.gen();
+	// 		const trapped: ArgvItem[] = [];
+	// 		let state = await gen.next(["yield", true]);
+	// 		while (true) {
+	// 			// Yield control to the event loop for cooperative scheduling
+	// 			await forceAwait();
+	//
+	// 			if (state.done) {
+	// 				return [state.value, trapped];
+	// 			}
+	//
+	// 			const { key, payload } = state.value;
+	// 			switch (key) {
+	// 				case "consume": {
+	// 					const removed = yield* effects.consume(...payload);
+	// 					trapped.push(...removed);
+	// 					state = await gen.next(["consume", removed]);
+	// 					break;
+	// 				}
+	// 				case "peek": {
+	// 					const res = yield { key, payload };
+	// 					state = await gen.next(res);
+	// 					break;
+	// 				}
+	// 				case "break": {
+	// 					const res = yield { key, payload };
+	// 					state = await gen.next(res);
+	// 					break;
+	// 				}
+	// 				case "skip": {
+	// 					const res = yield { key, payload };
+	// 					state = await gen.next(res);
+	// 					break;
+	// 				}
+	// 				case "yield": {
+	// 					const res = yield { key, payload };
+	// 					state = await gen.next(res);
+	// 					break;
+	// 				}
+	// 			}
+	// 		}
+	// 	});
+	// }
 }
 
 export namespace Parser {
@@ -181,7 +193,13 @@ export namespace Parser {
 	export type IterResult<T> = IteratorResult<Yieldable, T>;
 }
 
-function peekFor<T>(fn: (argv: ArgvItem) => T | null) {
+export function pure<T>(t: T) {
+	return new Parser<T>(async function* () {
+		return t;
+	});
+}
+
+export function peekFor<T>(fn: (argv: ArgvItem) => T | null) {
 	return new Parser<T | null>(async function* () {
 		do {
 			const [value] = yield* effects.peek(1);
@@ -190,12 +208,12 @@ function peekFor<T>(fn: (argv: ArgvItem) => T | null) {
 			if (matched) {
 				return matched;
 			}
-		} while (yield* effects.continue());
+		} while (yield* effects.yield());
 		return null;
 	});
 }
 
-function match<T>(fn: (argv: ArgvItem) => T | null) {
+export function match<T>(fn: (argv: ArgvItem) => T | null) {
 	return new Parser<T | null>(async function* () {
 		const matched = yield* peekFor(fn);
 		if (matched) {
@@ -207,25 +225,24 @@ function match<T>(fn: (argv: ArgvItem) => T | null) {
 
 export const createFlag = (name: string) =>
 	new Parser(async function* () {
-		const flag = yield* match((v) => {
-			return v.value === `--${name}` ? v : null;
+		const flag = yield* match((argument) => {
+			return argument.value === `--${name}` ? argument : null;
 		});
 		return flag !== null;
 	});
 
-export const createMultiFlag = (name: string) =>
-	new Parser(async function* () {
+export const createMultiFlag = (name: string) => {
+	const flag = createFlag(name);
+	return new Parser(async function* () {
 		let count = 0;
-		do {
-			const value = yield* effects.peek(1);
-			if (!value.length) break;
-			if (value[0].value === `--${name}`) {
-				yield* effects.consume(1);
-				count++;
-			}
-		} while (yield* effects.continue());
+		while (true) {
+			const value = yield* flag;
+			if (!value) break;
+			count++;
+		}
 		return count;
 	});
+};
 
 export const createRequiredFlag = (name: string) =>
 	new Parser(async function* () {
@@ -237,7 +254,7 @@ export const createRequiredFlag = (name: string) =>
 				yield* effects.consume(1);
 				return value[0].value.slice(prefix.length);
 			}
-		} while (yield* effects.continue());
+		} while (yield* effects.yield());
 
 		return yield* effects.break(
 			ParsingError.forUnknownArgv(new Error(`Missing value for --${name}`)),
@@ -284,7 +301,7 @@ export function all<const T extends readonly Parser<any>[]>(
 					continue;
 				}
 
-				// Run parser until it yields (continue) or finishes
+				// Run parser until it yields or finishes
 				let parserYielded = false;
 				const parserErrors: ParsingError[] = [];
 
@@ -314,8 +331,8 @@ export function all<const T extends readonly Parser<any>[]>(
 								schedulerMadeProgress = true;
 								break;
 							}
-							case "continue": {
-								// In the all combinator, continue should return true
+							case "yield": {
+								// In the all combinator, yield should return true
 								// to allow parsers to keep looking through the argument stream
 								state = await gen.next([key, true]);
 								states[i] = state;
@@ -359,6 +376,7 @@ export function all<const T extends readonly Parser<any>[]>(
 					}
 					activeParsers.delete(i);
 					schedulerMadeProgress = true;
+					await gen.return(error);
 				}
 			}
 
@@ -390,7 +408,9 @@ export function all<const T extends readonly Parser<any>[]>(
 			}
 		}
 
-		if (incompleteParsers.length > 0) {
+		// If there are any parsers that didn't complete, we need to report an error
+		// but only if there are no other errors already reported.
+		if (incompleteParsers.length > 0 && !allErrors.length) {
 			allErrors.push(
 				ParsingError.forUnknownArgv(
 					new Error(
@@ -447,7 +467,7 @@ export async function parse<T>(
 			return skipped;
 		},
 
-		continue(): boolean {
+		yield(): boolean {
 			// For cooperative scheduling, continue if we made progress (consumed something)
 			// or if we haven't reached the end yet
 			const currentConsumedCount = consumedIndices.size;
@@ -497,8 +517,8 @@ export async function parse<T>(
 					break;
 				}
 
-				case "continue": {
-					const result = effects.continue(...payload);
+				case "yield": {
+					const result = effects.yield(...payload);
 					state = await gen.next([key, result]);
 					break;
 				}

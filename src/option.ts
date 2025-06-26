@@ -24,6 +24,8 @@ import {
 	ParsingError as ParsingError2,
 	type ArgParser2,
 } from "./argparser2";
+import * as AP3 from "./argparser3";
+import { doubleDashOption } from "./doubledash";
 
 type OptionConfig<Decoder extends Type<string, any>> = LongDoc &
 	HasType<Decoder> &
@@ -34,6 +36,7 @@ function fullOption<Decoder extends Type<string, any>>(
 	config: OptionConfig<Decoder>,
 ): ArgParser<OutputOf<Decoder>> &
 	ArgParser2<OutputOf<Decoder>> &
+	AP3.Yielder<OutputOf<Decoder>> &
 	ProvidesHelp &
 	Partial<Descriptive> {
 	return {
@@ -197,6 +200,58 @@ function fullOption<Decoder extends Type<string, any>>(
 				}),
 			});
 		},
+		...AP3.yielder(
+			new AP3.Parser(async function* () {
+				const values = yield* doubleDashOption(config);
+
+				const defaultValue = config.defaultValue || config.type.defaultValue;
+
+				if (!values) {
+					if (!defaultValue) {
+						return yield* AP3.effects.break(
+							AP3.ParsingError.forUnknownArgv(
+								new Error(
+									`No value provided for required option "${config.long}"`,
+								),
+							),
+						);
+					}
+
+					return await defaultValue();
+				}
+
+				const [matched, definition, inlineValue] = values;
+
+				let value = inlineValue;
+
+				if (!value) {
+					const [consumed] = yield* AP3.effects.consume(1);
+					if (!consumed) {
+						const optHint =
+							matched === "short"
+								? `"${config.short}" ("${config.long}")`
+								: `"${config.long}"`;
+						throw yield* AP3.effects.break(
+							AP3.ParsingError.make(
+								definition,
+								new Error(`Missing value for option ${optHint}`),
+							),
+						);
+					}
+					value = consumed;
+				}
+
+				const decoded = await Result.safeAsync(config.type.from(value.value));
+
+				if (Result.isErr(decoded)) {
+					return yield* AP3.effects.break(
+						AP3.ParsingError.make(value, decoded.error),
+					);
+				}
+
+				return decoded.value;
+			}),
+		),
 		async parse({
 			nodes,
 			visitedNodes,
@@ -289,6 +344,7 @@ export function option<Decoder extends Type<string, any>>(
 		AllOrNothing<Default<OutputOf<Decoder>>>,
 ): ArgParser<OutputOf<Decoder>> &
 	ArgParser2<OutputOf<Decoder>> &
+	AP3.Yielder<OutputOf<StringType>> &
 	ProvidesHelp &
 	Partial<Descriptive>;
 export function option(
@@ -297,6 +353,7 @@ export function option(
 		AllOrNothing<Default<OutputOf<StringType>>>,
 ): ArgParser<OutputOf<StringType>> &
 	ArgParser2<OutputOf<StringType>> &
+	AP3.Yielder<OutputOf<StringType>> &
 	ProvidesHelp &
 	Partial<Descriptive>;
 export function option(

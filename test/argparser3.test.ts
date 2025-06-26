@@ -257,11 +257,6 @@ describe("combinator: all", () => {
 				remainingArgv: [],
 				errors: [
 					ParsingError.make(argv[1], new Error("i don't like --unmatched")),
-					ParsingError.forUnknownArgv(
-						new Error(
-							"All parsers must complete successfully. Parsers at indices 1 did not complete.",
-						),
-					),
 				],
 			});
 		}

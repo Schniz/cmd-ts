@@ -19,6 +19,8 @@ import { type HasType, type OutputOf, type Type, extendType } from "./type";
 import { boolean as booleanIdentity } from "./types";
 import type { AllOrNothing } from "./utils";
 import { type ArgParser2, type ArgvItem, ParsingError } from "./argparser2";
+import * as AP3 from "./argparser3";
+import { doubleDashOption } from "./doubledash";
 
 type FlagConfig<Decoder extends Type<boolean, any>> = LongDoc &
 	HasType<Decoder> &
@@ -45,6 +47,7 @@ export function fullFlag<Decoder extends Type<boolean, any>>(
 	config: FlagConfig<Decoder>,
 ): ArgParser<OutputOf<Decoder>> &
 	ArgParser2<OutputOf<Decoder>> &
+	AP3.Yielder<OutputOf<Decoder>> &
 	ProvidesHelp &
 	Register &
 	Partial<Descriptive> {
@@ -95,6 +98,25 @@ export function fullFlag<Decoder extends Type<boolean, any>>(
 				opts.forceFlagShortNames.add(config.short);
 			}
 		},
+		...AP3.yielder(
+			new AP3.Parser(async function* () {
+				const args = yield* doubleDashOption(config);
+
+				const [, definition, valueArg] = args ?? [];
+				const parsable = valueArg ? valueArg.value : String(!!definition);
+				const result = await Result.safeAsync(decoder.from(parsable));
+
+				if (Result.isErr(result)) {
+					return yield* AP3.effects.break(
+						definition
+							? AP3.ParsingError.make(valueArg ?? definition, result.error)
+							: AP3.ParsingError.forUnknownArgv(result.error),
+					);
+				}
+
+				return result.value;
+			}),
+		),
 		async parse2(argv) {
 			const arg = argv[0];
 			let remainingArgv = argv;
@@ -232,6 +254,7 @@ export function flag<Decoder extends Type<boolean, any>>(
 	config: FlagConfig<Decoder>,
 ): ArgParser<OutputOf<Decoder>> &
 	ArgParser2<OutputOf<Decoder>> &
+	AP3.Yielder<OutputOf<BooleanType>> &
 	ProvidesHelp &
 	Register &
 	Partial<Descriptive>;
@@ -241,6 +264,7 @@ export function flag(
 		AllOrNothing<Default<OutputOf<BooleanType>>>,
 ): ArgParser<OutputOf<BooleanType>> &
 	ArgParser2<OutputOf<BooleanType>> &
+	AP3.Yielder<OutputOf<BooleanType>> &
 	ProvidesHelp &
 	Register &
 	Partial<Descriptive>;
