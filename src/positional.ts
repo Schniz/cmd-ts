@@ -8,6 +8,7 @@ import type { PositionalArgument } from "./newparser/parser";
 import type { HasType, Type } from "./type";
 import { string } from "./types";
 import type { AllOrNothing } from "./utils";
+import * as AP3 from "./argparser3";
 
 type PositionalConfig<Decoder extends Type<string, any>> = HasType<Decoder> &
 	Partial<Displayed & Descriptive> &
@@ -16,6 +17,7 @@ type PositionalConfig<Decoder extends Type<string, any>> = HasType<Decoder> &
 type PositionalParser<Decoder extends Type<string, any>> = ArgParser<
 	OutputOf<Decoder>
 > &
+	AP3.Yielder<OutputOf<Decoder>> &
 	ProvidesHelp &
 	Partial<Descriptive>;
 
@@ -58,6 +60,34 @@ function fullPositional<Decoder extends Type<string, any>>(
 			];
 		},
 		register(_opts) {},
+		...AP3.yielder(
+			new AP3.Parser(async function* () {
+				const value = yield* AP3.match((arg) =>
+					!arg.value.startsWith("-") ? arg : null,
+				);
+				const defaultValue = config.defaultValue || config.type.defaultValue;
+				if (!value) {
+					if (defaultValue) {
+						return await defaultValue();
+					}
+					return yield* AP3.effects.break(
+						AP3.ParsingError.forUnknownArgv(
+							new Error(`No value provided for "${displayName}"`),
+						),
+					);
+				}
+
+				const result = await Result.safeAsync(config.type.from(value.value));
+
+				if (Result.isErr(result)) {
+					return yield* AP3.effects.break(
+						AP3.ParsingError.make(value, result.error),
+					);
+				}
+
+				return result.value;
+			}),
+		),
 		async parse({
 			nodes,
 			visitedNodes,

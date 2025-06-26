@@ -54,3 +54,14 @@ export class Exit {
 		return console.log;
 	}
 }
+
+/**
+ * A request to print a version
+ */
+export const Version = Symbol.for("@cmd-ts/version");
+export type Version = typeof Version;
+/**
+ * A request to print a help doc
+ */
+export const Help = Symbol.for("@cmd-ts/help");
+export type Help = typeof Help;

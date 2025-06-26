@@ -17,6 +17,7 @@ import { extendType } from "./type";
 import { string } from "./types";
 import { type ArgParser2, ParsingError } from "./argparser2";
 import * as AP3 from "./argparser3";
+import { Help, Version } from "./effects";
 
 type Output<
 	Commands extends Record<string, ArgParser<any> & Runner<any, any>>,
@@ -32,11 +33,6 @@ type RunnerOutput<
 		value: Commands[key] extends Runner<any, infer X> ? X : never;
 	};
 }[keyof Commands];
-
-const Version = Symbol.for("@cmd-ts/version");
-type Version = typeof Version;
-const Help = Symbol.for("@cmd-ts/help");
-type Help = typeof Help;
 
 /**
  * Combine multiple `command`s into one
