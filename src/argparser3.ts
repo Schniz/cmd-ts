@@ -1,5 +1,12 @@
 import assert from "node:assert";
 
+/**
+ * Force cooperative scheduling by yielding control to the event loop
+ */
+function forceAwait(): Promise<void> {
+	return new Promise((resolve) => setImmediate(resolve));
+}
+
 export class ArgvItem {
 	constructor(
 		/**
@@ -33,16 +40,24 @@ export class ArgvItem {
 	}
 }
 
+export class UnmatchedInput extends Error {
+	constructor(
+		readonly argvItem: ArgvItem,
+		message?: string,
+	) {
+		super(
+			message ||
+				`Unmatched argument: ${argvItem.value}. No parser can handle this argument.`,
+		);
+		this.name = "UnmatchedInput";
+	}
+}
+
 export class ParsingError {
 	constructor(
 		readonly argv: ArgvItem | "unknown",
 		readonly cause: Error,
-		readonly atomic?: true,
 	) {}
-
-	asAtomic(): ParsingError {
-		return new ParsingError(this.argv, this.cause, true);
-	}
 	static make(argv: ArgvItem, cause: Error) {
 		return new ParsingError(argv, cause);
 	}
@@ -64,6 +79,8 @@ export interface Effects {
 	peek(count: number): ArgvItem[];
 	/** Consume the next `count` items from the argv, declaring them as used so other parsers can't touch them. */
 	consume(count: number): ArgvItem[];
+	/** Skip the next `count` items from the argv without consuming them (they remain in remainingArgv) */
+	skip(count: number): ArgvItem[];
 	/** Yield the cooperative parser, and return whether we can continue parsing with the current parser. */
 	continue(): boolean;
 	/** Throw a parsing error */
@@ -118,6 +135,9 @@ export class Parser<T> {
 			const trapped: ArgvItem[] = [];
 			let state = await gen.next(["continue", true]);
 			while (true) {
+				// Yield control to the event loop for cooperative scheduling
+				await forceAwait();
+
 				if (state.done) {
 					return [state.value, trapped];
 				}
@@ -140,6 +160,11 @@ export class Parser<T> {
 						state = await gen.next(res);
 						break;
 					}
+					case "skip": {
+						const res = yield { key, payload };
+						state = await gen.next(res);
+						break;
+					}
 					case "continue": {
 						const res = yield { key, payload };
 						state = await gen.next(res);
@@ -156,18 +181,36 @@ export namespace Parser {
 	export type IterResult<T> = IteratorResult<Yieldable, T>;
 }
 
-export const createFlag = (name: string) =>
-	new Parser(async function* () {
+function peekFor<T>(fn: (argv: ArgvItem) => T | null) {
+	return new Parser<T | null>(async function* () {
 		do {
-			const value = yield* effects.peek(1);
-			if (!value.length) break;
-			if (value[0].value === `--${name}`) {
-				yield* effects.consume(1);
-				return true;
+			const [value] = yield* effects.peek(1);
+			if (!value) return null;
+			const matched = fn(value);
+			if (matched) {
+				return matched;
 			}
 		} while (yield* effects.continue());
+		return null;
+	});
+}
 
-		return false;
+function match<T>(fn: (argv: ArgvItem) => T | null) {
+	return new Parser<T | null>(async function* () {
+		const matched = yield* peekFor(fn);
+		if (matched) {
+			yield* effects.consume(1);
+		}
+		return matched;
+	});
+}
+
+export const createFlag = (name: string) =>
+	new Parser(async function* () {
+		const flag = yield* match((v) => {
+			return v.value === `--${name}` ? v : null;
+		});
+		return flag !== null;
 	});
 
 export const createMultiFlag = (name: string) =>
@@ -209,23 +252,30 @@ export function all<const T extends readonly Parser<any>[]>(
 	return new Parser(async function* () {
 		const results: any[] = new Array(parsers.length).fill(undefined);
 		const allErrors: ParsingError[] = [];
-		
+
 		// Initialize all parser generators
-		const generators = parsers.map(parser => parser.gen());
-		const states = await Promise.all(generators.map(gen => gen.next()));
-		
+		const generators = parsers.map((parser) => parser.gen());
+		const states = await Promise.all(generators.map((gen) => gen.next()));
+		const consumed: ArgvItem[][] = Array.from(
+			{ length: parsers.length },
+			() => [],
+		);
+
 		// Keep track of which parsers are still active (not done)
 		const activeParsers = new Set(parsers.map((_, i) => i));
-		
+
 		// Cooperative scheduler: cycle through parsers until all are done
 		while (activeParsers.size > 0) {
+			// Yield control to the event loop for cooperative scheduling
+			await forceAwait();
+
 			let schedulerMadeProgress = false;
-			
+
 			// Give each active parser a turn
 			for (const i of Array.from(activeParsers)) {
 				const gen = generators[i];
 				let state = states[i];
-				
+
 				// If parser is done, collect result and remove from active set
 				if (state.done) {
 					results[i] = state.value;
@@ -233,17 +283,15 @@ export function all<const T extends readonly Parser<any>[]>(
 					schedulerMadeProgress = true;
 					continue;
 				}
-				
+
 				// Run parser until it yields (continue) or finishes
 				let parserYielded = false;
-				let parserErrors: ParsingError[] = [];
-				
+				const parserErrors: ParsingError[] = [];
+
 				try {
 					while (!state.done && !parserYielded) {
-						const yieldedValue = state.value as Yieldable;
-						const key = yieldedValue.key;
-						const payload = yieldedValue.payload;
-						
+						const { key, payload } = state.value as Yieldable;
+
 						switch (key) {
 							case "peek": {
 								const result = yield { key, payload };
@@ -252,6 +300,14 @@ export function all<const T extends readonly Parser<any>[]>(
 								break;
 							}
 							case "consume": {
+								const result = yield { key, payload };
+								consumed[i].push(...(result[1] as ArgvItem[]));
+								state = await gen.next(result);
+								states[i] = state;
+								schedulerMadeProgress = true;
+								break;
+							}
+							case "skip": {
 								const result = yield { key, payload };
 								state = await gen.next(result);
 								states[i] = state;
@@ -278,38 +334,70 @@ export function all<const T extends readonly Parser<any>[]>(
 							}
 						}
 					}
-					
+
 					// If parser finished naturally, collect result
 					if (state.done) {
 						results[i] = state.value;
 						activeParsers.delete(i);
 						schedulerMadeProgress = true;
 					}
-					
-				} catch (error) {
-					// Handle unexpected errors
-					allErrors.push(
-						ParsingError.forUnknownArgv(
-							error instanceof Error ? error : new Error(String(error))
-						)
-					);
+				} catch (e) {
+					const error = e instanceof Error ? e : new Error(String(e));
+					if (typeof error === "object" && error instanceof ParsingError) {
+						allErrors.push(error);
+					} else if (consumed[i].length) {
+						allErrors.push(
+							...consumed[i].map((c) => ParsingError.make(c, error)),
+						);
+					} else {
+						// Handle unexpected errors
+						allErrors.push(
+							ParsingError.forUnknownArgv(
+								error instanceof Error ? error : new Error(String(error)),
+							),
+						);
+					}
 					activeParsers.delete(i);
 					schedulerMadeProgress = true;
 				}
 			}
-			
-			// If no parser made progress, we're stuck - break out
+
+			// If no parser made progress, we're stuck
 			if (!schedulerMadeProgress) {
-				break;
+				// Try to skip one argument to get unstuck
+				const skipped = yield* effects.skip(1);
+				if (skipped.length === 0) {
+					// No more arguments to skip, we're done
+					break;
+				}
+				// We skipped an argument, continue trying
 			}
 		}
-		
+
 		// Collect any remaining results
 		for (const i of activeParsers) {
 			const state = states[i];
 			if (state.done) {
 				results[i] = state.value;
 			}
+		}
+
+		// All-or-nothing: if any parser didn't complete, fail the whole combinator
+		const incompleteParsers = [];
+		for (let i = 0; i < parsers.length; i++) {
+			if (results[i] === undefined) {
+				incompleteParsers.push(i);
+			}
+		}
+
+		if (incompleteParsers.length > 0) {
+			allErrors.push(
+				ParsingError.forUnknownArgv(
+					new Error(
+						`All parsers must complete successfully. Parsers at indices ${incompleteParsers.join(", ")} did not complete.`,
+					),
+				),
+			);
 		}
 
 		// If any parser failed, fail the whole combinator
@@ -326,7 +414,11 @@ export function all<const T extends readonly Parser<any>[]>(
 export async function parse<T>(
 	parser: Parser<T>,
 	argv: ArgvItem[],
+	config?: {
+		unmatchedInput?: "skipAndCollect" | "failEarly";
+	},
 ): Promise<ParseResult<T>> {
+	const unmatchedInputBehavior = config?.unmatchedInput ?? "skipAndCollect";
 	const remainingArgv = [...argv];
 	const errors: ParsingError[] = [];
 	let position = 0;
@@ -346,6 +438,13 @@ export async function parse<T>(
 			}
 			position += count;
 			return consumed;
+		},
+
+		skip(count: number): ArgvItem[] {
+			const skipped = remainingArgv.slice(position, position + count);
+			// Advance position but don't mark as consumed (so they remain in remainingArgv)
+			position += count;
+			return skipped;
 		},
 
 		continue(): boolean {
@@ -379,7 +478,7 @@ export async function parse<T>(
 			const { key, payload } = state.value;
 
 			// Yield control to the event loop for cooperative scheduling
-			await new Promise((resolve) => setImmediate(resolve));
+			await forceAwait();
 
 			switch (key) {
 				case "peek": {
@@ -392,6 +491,12 @@ export async function parse<T>(
 					state = await gen.next([key, result]);
 					break;
 				}
+				case "skip": {
+					const result = effects.skip(...payload);
+					state = await gen.next([key, result]);
+					break;
+				}
+
 				case "continue": {
 					const result = effects.continue(...payload);
 					state = await gen.next([key, result]);
@@ -409,29 +514,78 @@ export async function parse<T>(
 			}
 		}
 
+		// Handle unmatched input after parsing is complete
+		const finalRemainingArgv = remainingArgv.filter(
+			(_, index) => !consumedIndices.has(index),
+		);
+
+		// If there are unmatched arguments and we're in failEarly mode, add errors
+		if (
+			finalRemainingArgv.length > 0 &&
+			unmatchedInputBehavior === "failEarly"
+		) {
+			for (const argvItem of finalRemainingArgv) {
+				errors.push(
+					ParsingError.make(
+						argvItem,
+						new UnmatchedInput(
+							argvItem,
+							`Unmatched argument: ${argvItem.value}. No parser can handle this argument.`,
+						),
+					),
+				);
+			}
+		}
+
 		return {
 			errors,
 			result: errors.length > 0 ? null : { value: state.value },
-			remainingArgv: remainingArgv.filter(
-				(_, index) => !consumedIndices.has(index),
-			),
+			remainingArgv: finalRemainingArgv,
 		};
 	} catch (error) {
 		const allErrors =
 			errors.length > 0
 				? errors
-				: [
-						ParsingError.forUnknownArgv(
-							error instanceof Error ? error : new Error(String(error)),
+				: consumedIndices.size === 0
+					? [
+							ParsingError.forUnknownArgv(
+								error instanceof Error ? error : new Error(String(error)),
+							),
+						]
+					: Array.from(consumedIndices, (index) => {
+							return ParsingError.make(
+								argv[index],
+								error instanceof Error ? error : new Error(String(error)),
+							);
+						});
+
+		// Handle unmatched input after parsing failed
+		const finalRemainingArgv = remainingArgv.filter(
+			(_, index) => !consumedIndices.has(index),
+		);
+
+		// If there are unmatched arguments and we're in failEarly mode, add errors
+		if (
+			finalRemainingArgv.length > 0 &&
+			unmatchedInputBehavior === "failEarly"
+		) {
+			for (const argvItem of finalRemainingArgv) {
+				allErrors.push(
+					ParsingError.make(
+						argvItem,
+						new UnmatchedInput(
+							argvItem,
+							`Unmatched argument: ${argvItem.value}. No parser can handle this argument.`,
 						),
-					];
+					),
+				);
+			}
+		}
 
 		return {
 			errors: allErrors,
 			result: null,
-			remainingArgv: remainingArgv.filter(
-				(_, index) => !consumedIndices.has(index),
-			),
+			remainingArgv: finalRemainingArgv,
 		};
 	}
 }

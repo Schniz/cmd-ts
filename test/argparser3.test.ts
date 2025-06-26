@@ -6,6 +6,9 @@ import {
 	createRequiredFlag,
 	all,
 	ParsingError,
+	UnmatchedInput,
+	Parser,
+	effects,
 } from "../src/argparser3";
 import { describe, test, expect } from "vitest";
 
@@ -128,15 +131,57 @@ describe("combinator: all", () => {
 		});
 	});
 
-	test.only("with unmatched arguments", async () => {
+	test("with unmatched arguments (default skipAndCollect)", async () => {
 		const argv = ArgvItem.normalize(["--verbose", "--unmatched", "--debug"]);
 		const parser = all([createFlag("verbose"), createFlag("debug")]);
 		const value = await parse(parser, argv);
 
+		// Default behavior: should succeed and skip unmatched argument
 		expect(value).toEqual<typeof value>({
-			errors: [],
-			remainingArgv: [argv[1]], // --unmatched should remain
 			result: { value: [true, true] },
+			remainingArgv: [argv[1]], // --unmatched should be in remaining
+			errors: [],
+		});
+	});
+
+	test("with unmatched arguments (failEarly)", async () => {
+		const argv = ArgvItem.normalize(["--verbose", "--unmatched", "--debug"]);
+		const parser = all([createFlag("verbose"), createFlag("debug")]);
+		const value = await parse(parser, argv, {
+			unmatchedInput: "failEarly",
+		});
+
+		// All-or-nothing: should fail because of unmatched argument
+		expect(value).toEqual<typeof value>({
+			result: null,
+			remainingArgv: [argv[1]], // Only --unmatched should remain
+			errors: [
+				ParsingError.make(
+					argv[1],
+					new UnmatchedInput(
+						argv[1],
+						"Unmatched argument: --unmatched. No parser can handle this argument.",
+					),
+				),
+			],
+		});
+	});
+
+	test("with unmatched arguments (explicit skipAndCollect)", async () => {
+		const argv = ArgvItem.normalize([
+			"--verbose",
+			"--unmatched",
+			"--debug",
+			"--another-unmatched",
+		]);
+		const parser = all([createFlag("verbose"), createFlag("debug")]);
+		const value = await parse(parser, argv);
+
+		// Should succeed and skip both unmatched arguments
+		expect(value).toEqual<typeof value>({
+			result: { value: [true, true] },
+			remainingArgv: [argv[1], argv[3]], // both unmatched args should be in remaining
+			errors: [],
 		});
 	});
 
@@ -181,6 +226,127 @@ describe("combinator: all", () => {
 			],
 			result: null,
 			remainingArgv: [],
+		});
+	});
+
+	test("errors are marked to the specific consumed elements", async () => {
+		const failing = new Parser<never>(async function* () {
+			const [arg] = yield* effects.consume(1);
+			throw new Error(`i don't like ${arg.value}`);
+		});
+
+		{
+			const argv = ArgvItem.normalize(["--verbose"]);
+			const result = await parse(failing, argv);
+			expect(result).toEqual<typeof result>({
+				result: null,
+				remainingArgv: [],
+				errors: [
+					ParsingError.make(argv[0], new Error("i don't like --verbose")),
+				],
+			});
+		}
+
+		{
+			const parser = all([createFlag("verbose"), failing]);
+			const argv = ArgvItem.normalize(["--verbose", "--unmatched"]);
+			const result = await parse(parser, argv);
+
+			expect(result).toEqual({
+				result: null,
+				remainingArgv: [],
+				errors: [
+					ParsingError.make(argv[1], new Error("i don't like --unmatched")),
+					ParsingError.forUnknownArgv(
+						new Error(
+							"All parsers must complete successfully. Parsers at indices 1 did not complete.",
+						),
+					),
+				],
+			});
+		}
+	});
+
+	describe("use `all` in a custom parser", () => {
+		const one = createFlag("one");
+		const two = createFlag("two");
+		const xor = new Parser<"one" | "two">(async function* () {
+			const [vone, vtwo] = yield* all([one, two]);
+			if (vone && vtwo) {
+				throw new Error("Cannot use both --one and --two together");
+			}
+			if (!vone && !vtwo) {
+				throw new Error("Must use either --one or --two");
+			}
+
+			return vone ? "one" : "two";
+		});
+
+		test("one + two", async () => {
+			const argv = ArgvItem.normalize(["--one", "--two"]);
+			const result = await parse(xor, argv);
+			expect(result).toEqual<typeof result>({
+				result: null,
+				remainingArgv: [],
+				errors: [
+					ParsingError.make(
+						argv[0],
+						new Error("Cannot use both --one and --two together"),
+					),
+					ParsingError.make(
+						argv[1],
+						new Error("Cannot use both --one and --two together"),
+					),
+				],
+			});
+		});
+
+		test("!one + !two", async () => {
+			const argv = ArgvItem.normalize([]);
+			const result = await parse(xor, argv);
+			expect(result).toEqual<typeof result>({
+				result: null,
+				remainingArgv: [],
+				errors: [
+					ParsingError.forUnknownArgv(
+						new Error("Must use either --one or --two"),
+					),
+				],
+			});
+		});
+
+		test("!one + !two + unmatched", async () => {
+			const argv = ArgvItem.normalize(["--unmatched", "value"]);
+			const result = await parse(xor, argv);
+			expect(result).toEqual<typeof result>({
+				result: null,
+				remainingArgv: argv,
+				errors: [
+					ParsingError.forUnknownArgv(
+						new Error("Must use either --one or --two"),
+					),
+				],
+			});
+		});
+
+		test("one", async () => {
+			const argv = ArgvItem.normalize(["--one"]);
+			const result = await parse(xor, argv);
+			expect(result).toEqual<typeof result>({
+				result: { value: "one" },
+				remainingArgv: [],
+				errors: [],
+			});
+		});
+
+		test("two", async () => {
+			const argv = ArgvItem.normalize(["--two"]);
+			const result = await parse(xor, argv);
+			expect(result).toEqual<typeof result>({
+				result: { value: "two" },
+				remainingArgv: [],
+				errors: [],
+			});
 		});
 	});
 });
