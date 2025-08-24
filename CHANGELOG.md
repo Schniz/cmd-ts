@@ -1,5 +1,11 @@
 # cmd-ts
 
+## 0.14.1
+
+### Patch Changes
+
+- 46bf4a7: fix: properly reconstruct original argument strings in rest combinator
+
 ## 0.14.0
 
 ### Minor Changes
