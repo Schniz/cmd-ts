@@ -7,16 +7,13 @@
 	"main": "dist/cjs/index.js",
 	"typings": "dist/cjs/index.d.ts",
 	"module": "dist/esm/index.js",
-	"files": [
-		"dist",
-		"batteries"
-	],
+	"files": ["dist", "batteries"],
 	"scripts": {
 		"build": "tsc && tsc --project ./tsconfig.esm.json",
 		"lint": "biome check src test example",
 		"now-build": "mdbook build --dest-dir=public",
-		"start": "yarn build --watch",
-		"prepublishOnly": "rm -rf dist && yarn build && yarn test",
+		"start": "pnpm build --watch",
+		"prepublishOnly": "rm -rf dist && pnpm build && pnpm test",
 		"test": "vitest",
 		"ts-node": "./scripts/ts-node",
 		"changeset:version": "changeset version && pnpm install --no-frozen-lockfile",
@@ -24,7 +21,7 @@
 	},
 	"husky": {
 		"hooks": {
-			"pre-commit": "yarn lint"
+			"pre-commit": "pnpm lint"
 		}
 	},
 	"sideEffects": false,
