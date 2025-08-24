@@ -78,13 +78,21 @@ test("help for composed subcommand", async () => {
 });
 
 test("asynchronous type conversion works for failures", async () => {
-	const result = await runApp1(["composed", "cat", "https://httpstat.us/404"]);
+	const result = await runApp1([
+		"composed",
+		"cat",
+		"https://mock.httpstatus.io/404",
+	]);
 	expect(result.all).toMatchSnapshot();
 	expect(result.exitCode).toBe(1);
 });
 
 test("asynchronous type conversion works for success", async () => {
-	const result = await runApp1(["composed", "cat", "https://httpstat.us/200"]);
+	const result = await runApp1([
+		"composed",
+		"cat",
+		"https://mock.httpstatus.io/200",
+	]);
 	expect(result.all).toMatchSnapshot();
 	expect(result.exitCode).toBe(0);
 });
