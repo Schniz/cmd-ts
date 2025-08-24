@@ -24,7 +24,7 @@ FLAGS:
 exports[`asynchronous type conversion works for failures 1`] = `
 "[31m[1merror: [22m[39mfound [33m1[39m error
 
-  [2msubcmds[22m [2mcomposed[22m [2mcat[22m [31mhttps://httpstat.us/404[39m
+  [2msubcmds[22m [2mcomposed[22m [2mcat[22m [31mhttps://mock.httpstatus.io/404[39m
 [31m                       [1m^[22m Got status Not Found 404 reading URL[39m
 
 
