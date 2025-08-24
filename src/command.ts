@@ -7,10 +7,12 @@ import type {
 	ParsingInto,
 	ParsingResult,
 } from "./argparser";
-import { createCircuitBreaker, handleCircuitBreaker } from "./circuitbreaker";
+import { CircuitBreaker, createCircuitBreaker, handleCircuitBreaker } from "./circuitbreaker";
 import type {
 	Aliased,
 	Descriptive,
+	ExitWithPrint,
+	HelpTopic,
 	Named,
 	PrintHelp,
 	ProvidesHelp,
@@ -33,11 +35,83 @@ type CommandConfig<
 	description?: string;
 	handler: Handler;
 	aliases?: string[];
+	parseDefaults?: (context: ParseContext) => Promise<ParsingResult<any>>;
 };
 
 type Output<Args extends ArgTypes> = {
 	[key in keyof Args]: ParsingInto<Args[key]>;
 };
+
+type ParseDefaults = {
+  parse: (context: ParseContext) => Promise<ParsingResult<CircuitBreaker>>;
+};
+
+export function printVersion(
+  version?: string
+): (context: ParseContext) => ExitWithPrint {
+  return () => {
+    return {
+      stdout: version ?? '0.0.0',
+      exitCode: 0,
+    };
+  };
+}
+
+export function printHelp<
+   Arguments extends ArgTypes,
+   Handler extends HandlerFunc<Arguments>
+>(
+  helpTopics: () => HelpTopic[],
+  config: CommandConfig<Arguments, Handler>
+): (context: ParseContext) => ExitWithPrint {
+  return (context) => {
+    const lines: string[] = [];
+    let name = context.hotPath?.join(' ') ?? '';
+    if (!name) {
+      name = config.name;
+    }
+
+    name = chalk.bold(name);
+
+    if (config.version) {
+      name += ` ${chalk.dim(config.version)}`;
+    }
+
+    lines.push(name);
+
+    if (config.description) {
+      lines.push(chalk.dim('> ') + config.description);
+    }
+
+    const usageBreakdown = groupBy(helpTopics(), (x) => x.category);
+
+    for (const [category, helpTopics] of entries(usageBreakdown)) {
+      lines.push('');
+      lines.push(`${category.toUpperCase()}:`);
+      const widestUsage = helpTopics.reduce((len, curr) => {
+        return Math.max(len, curr.usage.length);
+      }, 0);
+      for (const helpTopic of helpTopics) {
+        let line = '';
+        line += `  ${padNoAnsi(helpTopic.usage, widestUsage, 'end')}`;
+        line += ' - ';
+        line += helpTopic.description;
+        for (const defaultValue of helpTopic.defaults) {
+          line += chalk.dim(` [${defaultValue}]`);
+        }
+        lines.push(line);
+      }
+    }
+
+    return {
+      output: lines.join('\n'),
+      exitCode: 0,
+    };
+  };
+}
+
+
+
 
 /**
  * A command line utility.
@@ -52,12 +126,22 @@ export function command<
 	config: CommandConfig<Arguments, Handler>,
 ): ArgParser<Output<Arguments>> &
 	PrintHelp &
+	ParseDefaults &
 	ProvidesHelp &
 	Named &
 	Runner<Output<Arguments>, ReturnType<Handler>> &
 	Partial<Versioned & Descriptive & Aliased> {
 	const argEntries = entries(config.args);
-	const circuitbreaker = createCircuitBreaker(!!config.version);
+	function helpTopics() {
+			return flatMap(
+				Object.values(config.args).concat([circuitbreaker]),
+				(x) => x.helpTopics?.() ?? [],
+			);
+		}
+	const circuitbreaker = createCircuitBreaker({
+		printHelp: printHelp(helpTopics, config),
+		printVersion: printVersion(config.version),
+	})
 
 	return {
 		name: config.name,
@@ -65,53 +149,7 @@ export function command<
 		handler: config.handler,
 		description: config.description,
 		version: config.version,
-		helpTopics() {
-			return flatMap(
-				Object.values(config.args).concat([circuitbreaker]),
-				(x) => x.helpTopics?.() ?? [],
-			);
-		},
-		printHelp(context) {
-			const lines: string[] = [];
-			let name = context.hotPath?.join(" ") ?? "";
-			if (!name) {
-				name = config.name;
-			}
-
-			name = chalk.bold(name);
-
-			if (config.version) {
-				name += ` ${chalk.dim(config.version)}`;
-			}
-
-			lines.push(name);
-
-			if (config.description) {
-				lines.push(chalk.dim("> ") + config.description);
-			}
-
-			const usageBreakdown = groupBy(this.helpTopics(), (x) => x.category);
-
-			for (const [category, helpTopics] of entries(usageBreakdown)) {
-				lines.push("");
-				lines.push(`${category.toUpperCase()}:`);
-				const widestUsage = helpTopics.reduce((len, curr) => {
-					return Math.max(len, curr.usage.length);
-				}, 0);
-				for (const helpTopic of helpTopics) {
-					let line = "";
-					line += `  ${padNoAnsi(helpTopic.usage, widestUsage, "end")}`;
-					line += " - ";
-					line += helpTopic.description;
-					for (const defaultValue of helpTopic.defaults) {
-						line += chalk.dim(` [${defaultValue}]`);
-					}
-					lines.push(line);
-				}
-			}
-
-			return lines.join("\n");
-		},
+		helpTopics,
 		register(opts) {
 			for (const [, arg] of argEntries) {
 				arg.register?.(opts);
@@ -173,7 +211,7 @@ export function command<
 		async run(context) {
 			const breaker = await circuitbreaker.parse(context);
 			const parsed = await this.parse(context);
-			handleCircuitBreaker(context, this, breaker);
+			handleCircuitBreaker(context, circuitbreaker, breaker);
 
 			if (Result.isErr(parsed)) {
 				return Result.err(parsed.error);

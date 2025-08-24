@@ -2,10 +2,10 @@ import * as Result from "./Result";
 import type { ArgParser, ParseContext, Register } from "./argparser";
 import { Exit } from "./effects";
 import { flag } from "./flag";
-import type { PrintHelp, ProvidesHelp, Versioned } from "./helpdoc";
+import type { PrintHelp, PrintVersion, ProvidesHelp, Versioned } from "./helpdoc";
 import { boolean } from "./types";
 
-type CircuitBreaker = "help" | "version";
+export type CircuitBreaker = "help" | "version";
 
 export const helpFlag = flag({
 	long: "help",
@@ -21,9 +21,10 @@ export const versionFlag = flag({
 	description: "print the version",
 });
 
+
 export function handleCircuitBreaker(
 	context: ParseContext,
-	value: PrintHelp & Partial<Versioned>,
+	printer: PrintHelp & PrintVersion,
 	breaker: Result.Result<any, CircuitBreaker>,
 ): void {
 	if (Result.isErr(breaker)) {
@@ -31,12 +32,10 @@ export function handleCircuitBreaker(
 	}
 
 	if (breaker.value === "help") {
-		const message = value.printHelp(context);
-		throw new Exit({ exitCode: 0, message, into: "stdout" });
+		throw new Exit(printer.printHelp(context));
 	}
 	if (breaker.value === "version") {
-		const message = value.version || "0.0.0";
-		throw new Exit({ exitCode: 0, message, into: "stdout" });
+		throw new Exit(printer.printVersion(context))
 	}
 }
 
@@ -49,25 +48,33 @@ export function handleCircuitBreaker(
  * anywhere in your argument list, you'll see the version and the help for the closest command
  */
 export function createCircuitBreaker(
-	withVersion: boolean,
-): ArgParser<CircuitBreaker> & ProvidesHelp & Register {
+	{
+   printVersion,
+ }: {
+   printHelp: (context: ParseContext) => ExitWithPrint;
+   printVersion?: (context: ParseContext) => ExitWithPrint;
+ }
+
+): ArgParser<CircuitBreaker> & ProvidesHelp & Register & PrintHelp & PrintVersion {
 	return {
+		printVersion,
+		printHelp,
 		register(opts) {
 			helpFlag.register(opts);
-			if (withVersion) {
+			if (printVersion) {
 				versionFlag.register(opts);
 			}
 		},
 		helpTopics() {
 			const helpTopics = helpFlag.helpTopics();
-			if (withVersion) {
+			if (printVersion) {
 				helpTopics.push(...versionFlag.helpTopics());
 			}
 			return helpTopics;
 		},
 		async parse(context) {
 			const help = await helpFlag.parse(context);
-			const version = withVersion
+			const version = printVersion
 				? await versionFlag.parse(context)
 				: undefined;
 
