@@ -145,6 +145,58 @@ describe("allows positional arguments", () => {
 	});
 });
 
+test("onMissing resolves successfully", async () => {
+	const result = await runApp4([]);
+	expect(result.all).toMatchInlineSnapshot(
+		`"Result: default value, Hi, Hello from opt"`,
+	);
+	expect(result.exitCode).toBe(0);
+});
+
+test("onMissing failure", async () => {
+	const result = await runApp5([]);
+	expect(result.all).toMatchSnapshot();
+	expect(result.exitCode).toBe(1);
+});
+
+test("help shows onMissing option", async () => {
+	const result = await runApp4(["--help"]);
+	expect(result.all).toMatchSnapshot();
+	expect(result.exitCode).toBe(0);
+});
+
+test("flag onMissing resolves successfully", async () => {
+	const result = await runApp6([]);
+	expect(result.exitCode).toBe(0);
+	expect(result.all).toContain("Verbose flag not provided");
+	expect(result.all).toContain("Debug flag missing");
+	expect(result.all).toContain("Force flag not set");
+});
+
+test("flag help shows onMissing as optional", async () => {
+	const result = await runApp6(["--help"]);
+	expect(result.exitCode).toBe(0);
+	expect(result.all).toContain("[optional]");
+});
+
+test("multioption onMissing resolves successfully", async () => {
+	const result = await runApp7([]);
+	expect(result.exitCode).toBe(0);
+	expect(result.all).toContain("No includes specified");
+	expect(result.all).toContain("No targets specified");
+	expect(result.all).toContain("No features specified");
+});
+
+test("multioption help shows onMissing as optional", async () => {
+	const result = await runApp7(["--help"]);
+	expect(result.exitCode).toBe(0);
+	expect(result.all).toContain("[...optional]");
+});
+
 const runApp1 = app(path.join(__dirname, "../example/app.ts"));
 const runApp2 = app(path.join(__dirname, "../example/app2.ts"));
 const runApp3 = app(path.join(__dirname, "../example/app3.ts"));
+const runApp4 = app(path.join(__dirname, "../example/app4.ts"));
+const runApp5 = app(path.join(__dirname, "../example/app5.ts"));
+const runApp6 = app(path.join(__dirname, "../example/app6.ts"));
+const runApp7 = app(path.join(__dirname, "../example/app7.ts"));

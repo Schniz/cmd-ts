@@ -65,6 +65,7 @@ const ReadStream: Type<string, Stream> = {
   - `description` to provide a default description for this type
   - `displayName` is a short way to describe the type in the help
   - `defaultValue(): B` to allow the type to be optional and have a default value
+  - `onMissing(): B | Promise<B>` to provide a dynamic fallback when the argument is not provided (used as fallback if `defaultValue` is not provided)
 
 Using the type we've just created is no different that using `string`:
 
@@ -92,5 +93,41 @@ Now, we can add more features to our `ReadStream` type and stop touching our cod
 - We can throw a detailed error when the file is not found
 - We can try to parse the string as a URI and check if the protocol is HTTP, if so - make an HTTP request and return the body stream
 - We can see if the string is `-`, and when it happens, return `process.stdin` like many Unix applications
+
+### Custom Types with `onMissing`
+
+Custom types can also provide dynamic defaults using `onMissing`. This is useful when you want the type itself to determine what happens when no argument is provided:
+
+```ts
+const ConfigFile: Type<string, Config> = {
+  async from(str) {
+    if (!fs.existsSync(str)) {
+      throw new Error(`Config file not found: ${str}`);
+    }
+    return JSON.parse(fs.readFileSync(str, 'utf8'));
+  },
+  
+  displayName: 'config-file',
+  
+  async onMissing() {
+    // Look for config in standard locations when not provided
+    const candidates = [
+      './config.json',
+      path.join(os.homedir(), '.myapp', 'config.json'),
+      '/etc/myapp/config.json'
+    ];
+    
+    for (const candidate of candidates) {
+      if (fs.existsSync(candidate)) {
+        console.log(`Using config from: ${candidate}`);
+        return JSON.parse(fs.readFileSync(candidate, 'utf8'));
+      }
+    }
+    
+    // Return default config if none found
+    return { debug: false, verbose: false };
+  },
+};
+```
 
 And the best thing about it — everything is encapsulated to an easily tested type definition, which can be easily shared and reused. Take a look at [io-ts-types](https://github.com/gcanti/io-ts-types), for instance, which has types like DateFromISOString, NumberFromString and more, which is something we can totally do.

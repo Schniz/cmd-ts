@@ -6,7 +6,7 @@ import type {
 	ParsingResult,
 	Register,
 } from "./argparser";
-import type { Default } from "./default";
+import type { Default, OnMissing } from "./default";
 import type {
 	Descriptive,
 	EnvDoc,
@@ -21,7 +21,7 @@ import type { AllOrNothing } from "./utils";
 
 type FlagConfig<Decoder extends Type<boolean, any>> = LongDoc &
 	HasType<Decoder> &
-	Partial<ShortDoc & Descriptive & EnvDoc> &
+	Partial<ShortDoc & Descriptive & EnvDoc & OnMissing<OutputOf<Decoder>>> &
 	AllOrNothing<Default<OutputOf<Decoder>>>;
 
 /**
@@ -65,17 +65,27 @@ export function fullFlag<Decoder extends Type<boolean, any>>(
 				defaults.push(`env: ${config.env}${env}`);
 			}
 
-			try {
-				const defaultValueFn = config.defaultValue ?? config.type.defaultValue;
-				const defaultValueIsSerializable =
-					config.defaultValueIsSerializable ??
-					config.type.defaultValueIsSerializable;
-
-				if (defaultValueFn && defaultValueIsSerializable) {
-					const defaultValue = defaultValueFn();
-					defaults.push(`default: ${chalk.italic(defaultValue)}`);
-				}
-			} catch (e) {}
+			if (config.defaultValue) {
+				try {
+					const defaultValue = config.defaultValue();
+					if (config.defaultValueIsSerializable) {
+						defaults.push(`default: ${chalk.italic(defaultValue)}`);
+					} else {
+						defaults.push("optional");
+					}
+				} catch (e) {}
+			} else if (config.type.defaultValue) {
+				try {
+					const defaultValue = config.type.defaultValue();
+					if (config.type.defaultValueIsSerializable) {
+						defaults.push(`default: ${chalk.italic(defaultValue)}`);
+					} else {
+						defaults.push("optional");
+					}
+				} catch (e) {}
+			} else if (config.onMissing || config.type.onMissing) {
+				defaults.push("optional");
+			}
 
 			return [
 				{
@@ -115,18 +125,38 @@ export function fullFlag<Decoder extends Type<boolean, any>>(
 			}
 
 			const valueFromEnv = config.env ? process.env[config.env] : undefined;
+			const onMissingFn = config.onMissing || config.type.onMissing;
+
 			let rawValue: string;
 			let envPrefix = "";
 
 			if (options.length === 0 && valueFromEnv !== undefined) {
 				rawValue = valueFromEnv;
 				envPrefix = `env[${chalk.italic(config.env)}]: `;
-			} else if (
-				options.length === 0 &&
-				typeof config.type.defaultValue === "function"
-			) {
+			} else if (options.length === 0 && config.defaultValue) {
 				try {
-					return Result.ok(config.type.defaultValue());
+					const defaultValue = config.defaultValue();
+					return Result.ok(defaultValue);
+				} catch (e: any) {
+					const message = `Default value not found for '--${config.long}': ${e.message}`;
+					return Result.err({
+						errors: [{ message, nodes: [] }],
+					});
+				}
+			} else if (options.length === 0 && onMissingFn) {
+				try {
+					const missingValue = await onMissingFn();
+					return Result.ok(missingValue);
+				} catch (e: any) {
+					const message = `Failed to get missing value for '--${config.long}': ${e.message}`;
+					return Result.err({
+						errors: [{ message, nodes: [] }],
+					});
+				}
+			} else if (options.length === 0 && config.type.defaultValue) {
+				try {
+					const defaultValue = config.type.defaultValue();
+					return Result.ok(defaultValue);
 				} catch (e: any) {
 					const message = `Default value not found for '--${config.long}': ${e.message}`;
 					return Result.err({
@@ -180,7 +210,13 @@ export function flag<Decoder extends Type<boolean, any>>(
 	Partial<Descriptive>;
 export function flag(
 	config: LongDoc &
-		Partial<HasType<never> & ShortDoc & Descriptive & EnvDoc> &
+		Partial<
+			HasType<never> &
+				ShortDoc &
+				Descriptive &
+				EnvDoc &
+				OnMissing<OutputOf<BooleanType>>
+		> &
 		AllOrNothing<Default<OutputOf<BooleanType>>>,
 ): ArgParser<OutputOf<BooleanType>> &
 	ProvidesHelp &

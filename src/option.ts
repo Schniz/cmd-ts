@@ -6,7 +6,7 @@ import type {
 	ParsingError,
 	ParsingResult,
 } from "./argparser";
-import type { Default } from "./default";
+import type { Default, OnMissing } from "./default";
 import type { OutputOf } from "./from";
 import type {
 	Descriptive,
@@ -22,7 +22,7 @@ import type { AllOrNothing } from "./utils";
 
 type OptionConfig<Decoder extends Type<string, any>> = LongDoc &
 	HasType<Decoder> &
-	Partial<Descriptive & EnvDoc & ShortDoc> &
+	Partial<Descriptive & EnvDoc & ShortDoc & OnMissing<OutputOf<Decoder>>> &
 	AllOrNothing<Default<OutputOf<Decoder>>>;
 
 function fullOption<Decoder extends Type<string, any>>(
@@ -48,20 +48,26 @@ function fullOption<Decoder extends Type<string, any>>(
 				defaults.push(`env: ${config.env}${env}`);
 			}
 
-			const defaultValueFn = config.defaultValue ?? config.type.defaultValue;
-
-			if (defaultValueFn) {
+			if (config.defaultValue) {
 				try {
-					const defaultValue = defaultValueFn();
-					if (
-						config.defaultValueIsSerializable ??
-						config.type.defaultValueIsSerializable
-					) {
+					const defaultValue = config.defaultValue();
+					if (config.defaultValueIsSerializable) {
 						defaults.push(`default: ${chalk.italic(defaultValue)}`);
 					} else {
 						defaults.push("optional");
 					}
 				} catch (e) {}
+			} else if (config.type.defaultValue) {
+				try {
+					const defaultValue = config.type.defaultValue();
+					if (config.type.defaultValueIsSerializable) {
+						defaults.push(`default: ${chalk.italic(defaultValue)}`);
+					} else {
+						defaults.push("optional");
+					}
+				} catch (e) {}
+			} else if (config.onMissing || config.type.onMissing) {
+				defaults.push("optional");
 			}
 
 			return [
@@ -100,20 +106,21 @@ function fullOption<Decoder extends Type<string, any>>(
 			}
 
 			const valueFromEnv = config.env ? process.env[config.env] : undefined;
+			const defaultValueFn = config.defaultValue || config.type.defaultValue;
+			const onMissingFn = config.onMissing || config.type.onMissing;
 
 			const option = options[0];
 			let rawValue: string;
 			let envPrefix = "";
-			const defaultValueFn = config.defaultValue ?? config.type.defaultValue;
-
 			if (option?.value) {
 				rawValue = option.value.node.raw;
 			} else if (valueFromEnv !== undefined) {
 				rawValue = valueFromEnv;
 				envPrefix = `env[${chalk.italic(config.env)}]: `;
-			} else if (!option && typeof defaultValueFn === "function") {
+			} else if (defaultValueFn) {
 				try {
-					return Result.ok(defaultValueFn());
+					const defaultValue = defaultValueFn();
+					return Result.ok(defaultValue);
 				} catch (e: any) {
 					const message = `Default value not found for '--${config.long}': ${e.message}`;
 					return Result.err({
@@ -125,11 +132,27 @@ function fullOption<Decoder extends Type<string, any>>(
 						],
 					});
 				}
+			} else if (onMissingFn) {
+				try {
+					const missingValue = await onMissingFn();
+					return Result.ok(missingValue);
+				} catch (e: any) {
+					const message = `Failed to get missing value for '--${config.long}': ${e.message}`;
+					return Result.err({
+						errors: [
+							{
+								nodes: [],
+								message,
+							},
+						],
+					});
+				}
 			} else {
+				// If we reach here, no default or prompt value was available
 				const raw =
 					option?.type === "shortOption"
 						? `-${option?.key}`
-						: `--${option?.key ?? config.long}`;
+						: `--${config.long}`;
 				return Result.err({
 					errors: [
 						{
@@ -168,12 +191,18 @@ type StringType = Type<string, string>;
 export function option<Decoder extends Type<string, any>>(
 	config: LongDoc &
 		HasType<Decoder> &
-		Partial<Descriptive & EnvDoc & ShortDoc> &
+		Partial<Descriptive & EnvDoc & ShortDoc & OnMissing<OutputOf<Decoder>>> &
 		AllOrNothing<Default<OutputOf<Decoder>>>,
 ): ArgParser<OutputOf<Decoder>> & ProvidesHelp & Partial<Descriptive>;
 export function option(
 	config: LongDoc &
-		Partial<HasType<never> & Descriptive & EnvDoc & ShortDoc> &
+		Partial<
+			HasType<never> &
+				Descriptive &
+				EnvDoc &
+				ShortDoc &
+				OnMissing<OutputOf<StringType>>
+		> &
 		AllOrNothing<Default<OutputOf<StringType>>>,
 ): ArgParser<OutputOf<StringType>> & ProvidesHelp & Partial<Descriptive>;
 export function option(

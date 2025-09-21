@@ -7,7 +7,7 @@ import type {
 	ParsingResult,
 	Register,
 } from "./argparser";
-import type { Default } from "./default";
+import type { Default, OnMissing } from "./default";
 import type { OutputOf } from "./from";
 import type { Descriptive, LongDoc, ProvidesHelp, ShortDoc } from "./helpdoc";
 import { findOption } from "./newparser/findOption";
@@ -16,7 +16,12 @@ import type { HasType, Type } from "./type";
 
 type MultiOptionConfig<Decoder extends Type<string[], any>> = HasType<Decoder> &
 	LongDoc &
-	Partial<ShortDoc & Descriptive & Default<OutputOf<Decoder>>>;
+	Partial<
+		ShortDoc &
+			Descriptive &
+			Default<OutputOf<Decoder>> &
+			OnMissing<OutputOf<Decoder>>
+	>;
 
 /**
  * Like `option`, but can accept multiple options, and expects a decoder from a list of strings.
@@ -35,20 +40,26 @@ export function multioption<Decoder extends Type<string[], any>>(
 
 			const defaults: string[] = [];
 
-			const defaultValueFn = config.defaultValue ?? config.type.defaultValue;
-
-			if (defaultValueFn) {
+			if (config.defaultValue) {
 				try {
-					const defaultValue = defaultValueFn();
-					if (
-						config.defaultValueIsSerializable ??
-						config.type.defaultValueIsSerializable
-					) {
+					const defaultValue = config.defaultValue();
+					if (config.defaultValueIsSerializable) {
 						defaults.push(`default: ${chalk.italic(defaultValue)}`);
 					} else {
 						defaults.push("[...optional]");
 					}
 				} catch (e) {}
+			} else if (config.type.defaultValue) {
+				try {
+					const defaultValue = config.type.defaultValue();
+					if (config.type.defaultValueIsSerializable) {
+						defaults.push(`default: ${chalk.italic(defaultValue)}`);
+					} else {
+						defaults.push("[...optional]");
+					}
+				} catch (e) {}
+			} else if (config.onMissing || config.type.onMissing) {
+				defaults.push("[...optional]");
 			}
 
 			return [
@@ -75,13 +86,30 @@ export function multioption<Decoder extends Type<string[], any>>(
 				shortNames: config.short ? [config.short] : [],
 			}).filter((x) => !visitedNodes.has(x));
 
-			const defaultValueFn = config.defaultValue ?? config.type.defaultValue;
+			const defaultValueFn = config.defaultValue || config.type.defaultValue;
+			const onMissingFn = config.onMissing || config.type.onMissing;
 
-			if (options.length === 0 && typeof defaultValueFn === "function") {
+			if (options.length === 0 && defaultValueFn) {
 				try {
-					return Result.ok(defaultValueFn());
+					const defaultValue = defaultValueFn();
+					return Result.ok(defaultValue);
 				} catch (e: any) {
 					const message = `Failed to resolve default value for '--${config.long}': ${e.message}`;
+					return Result.err({
+						errors: [
+							{
+								nodes: [],
+								message,
+							},
+						],
+					});
+				}
+			} else if (options.length === 0 && onMissingFn) {
+				try {
+					const missingValue = await onMissingFn();
+					return Result.ok(missingValue);
+				} catch (e: any) {
+					const message = `Failed to get missing value for '--${config.long}': ${e.message}`;
 					return Result.err({
 						errors: [
 							{

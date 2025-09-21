@@ -1,11 +1,11 @@
-import type { Default } from "./default";
+import type { Default, OnMissing } from "./default";
 import type { From, FromFn, InputOf, OutputOf } from "./from";
 import type { Descriptive, Displayed } from "./helpdoc";
 
-export { identity, OutputOf, InputOf } from "./from";
+export { identity, type OutputOf, type InputOf } from "./from";
 
 export type Type<From_, To> = From<From_, To> &
-	Partial<Descriptive & Displayed & Default<To>>;
+	Partial<Descriptive & Displayed & Default<To> & OnMissing<To>>;
 
 /**
  * Get the type definitions or an empty object from a type or a decoding function
@@ -47,11 +47,12 @@ export function extendType<
 >(
 	base: BaseType,
 	nextTypeOrDecodingFunction: NextType,
-): Omit<BaseType, "from" | "defaultValue"> &
+): Omit<BaseType, "from" | "defaultValue" | "onMissing"> &
 	(NextType extends FromFn<any, any> ? unknown : Omit<NextType, "from">) &
 	From<InputOf<BaseType>, OutputOf<NextType>> {
 	const {
 		defaultValue: _defaultValue,
+		onMissing: _onMissing,
 		from: _from,
 		...t1WithoutDefault
 	} = base;

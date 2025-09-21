@@ -44,6 +44,43 @@ const cmd = command({
 });
 ```
 
+### Dynamic Defaults with `onMissing`
+
+The `onMissing` callback provides a way to dynamically generate values when an option is not provided. This is perfect for interactive prompts:
+
+```ts
+import { command, option, string } from './src';
+import { createInterface } from 'readline/promises';
+
+const name = option({
+  type: string,
+  long: 'name',
+  short: 'n',
+  description: 'Your name for the greeting',
+  onMissing: async () => {
+    const rl = createInterface({
+      input: process.stdin,
+      output: process.stdout,
+    });
+
+    try {
+      const answer = await rl.question("What's your name? ");
+      return answer.trim() || 'Anonymous';
+    } finally {
+      rl.close();
+    }
+  },
+});
+
+const cmd = command({
+  name: 'greeting',
+  args: { name },
+  handler: ({ name }) => {
+    console.log(`Hello, ${name}!`);
+  },
+});
+```
+
 ### Config
 
 - `type` (required): A type from `string` to any value
@@ -53,6 +90,7 @@ const cmd = command({
 - `displayName`: A short description regarding the option
 - `defaultValue`: A function that returns a default value for the option
 - `defaultValueIsSerializable`: Whether to print the defaultValue as a string in the help docs.
+- `onMissing`: A function (sync or async) that returns a value when the option is not provided. Used as fallback if `defaultValue` is not provided.
 
 ## `multioption`
 
@@ -65,6 +103,42 @@ This parser will fail to parse if:
 - No value was provided (if it was treated like [a flag](./flags.md))
 - Decoding the user input fails
 
+### Dynamic Defaults for `multioption`
+
+Like single options, `multioption` supports `onMissing` callbacks for dynamic default arrays:
+
+```ts
+import { command, multioption } from 'cmd-ts';
+import type { Type } from 'cmd-ts';
+
+const stringArray: Type<string[], string[]> = {
+  async from(strings) {
+    return strings;
+  },
+  displayName: 'string',
+};
+
+const includes = multioption({
+  type: stringArray,
+  long: 'include',
+  short: 'i',
+  description: 'Files to include',
+  onMissing: async () => {
+    // Auto-discover files when none specified
+    const files = await glob('src/**/*.ts');
+    return files;
+  },
+});
+
+const cmd = command({
+  name: 'build',
+  args: { includes },
+  handler: ({ includes }) => {
+    console.log(`Processing files: ${includes.join(', ')}`);
+  },
+});
+```
+
 ### Config
 
 - `type` (required): A type from `string[]` to any value
@@ -74,3 +148,4 @@ This parser will fail to parse if:
 - `displayName`: A short description regarding the option
 - `defaultValue`: A function that returns a default value for the option array in case no options were provided. If not provided, the default value will be an empty array.
 - `defaultValueIsSerializable`: Whether to print the defaultValue as a string in the help docs.
+- `onMissing`: A function (sync or async) that returns a value when the option is not provided. Used as fallback if `defaultValue` is not provided.
