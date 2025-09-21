@@ -18,7 +18,7 @@ ARGUMENTS:
   [str]    - a string[2m [default: [3manonymous[23m][22m
 
 FLAGS:
-  --help, -h - show help"
+  --help, -h - show help[2m [optional][22m"
 `;
 
 exports[`asynchronous type conversion works for failures 1`] = `
@@ -101,10 +101,10 @@ OPTIONS:
   --optional-with-default <str> - a string[2m [env: SOME_ENV_VAR][22m[2m [default: [3mHello[23m][22m
 
 FLAGS:
-  --boolean           - a boolean
-  --bool-without-type - a boolean
-  --help, -h          - show help
-  --version, -v       - print the version"
+  --boolean           - a boolean[2m [optional][22m
+  --bool-without-type - a boolean[2m [optional][22m
+  --help, -h          - show help[2m [optional][22m
+  --version, -v       - print the version[2m [optional][22m"
 `;
 
 exports[`help for composed subcommand 1`] = `
@@ -116,7 +116,7 @@ ARGUMENTS:
   [...stream] - A file path or a URL to make a GET request to
 
 FLAGS:
-  --help, -h - show help"
+  --help, -h - show help[2m [optional][22m"
 `;
 
 exports[`help for composed subcommands 1`] = `
@@ -150,9 +150,10 @@ exports[`help shows onMissing option 1`] = `
 OPTIONS:
   --async-arg, -a <str> - A type with onMissing callback[2m [optional][22m
   --async-arg-2 <str>   - A type with onMissing callback[2m [default: [3mHi[23m][22m
+  --async-arg-3 <str>   - a string[2m [optional][22m
 
 FLAGS:
-  --help, -h - show help"
+  --help, -h - show help[2m [optional][22m"
 `;
 
 exports[`invalid subcommand 1`] = `
