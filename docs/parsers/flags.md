@@ -46,6 +46,46 @@ const cmd = command({
 });
 ```
 
+### Dynamic Defaults with `onMissing`
+
+The `onMissing` callback provides a way to dynamically generate values when a flag is not provided. This is useful for environment-based defaults, configuration file lookups, or user prompts.
+
+```ts
+import { command, flag } from 'cmd-ts';
+
+const verboseFlag = flag({
+  long: 'verbose',
+  short: 'v',
+  description: 'Enable verbose output',
+  onMissing: () => {
+    // Check environment variable as fallback
+    return process.env.NODE_ENV === 'development';
+  },
+});
+
+const debugFlag = flag({
+  long: 'debug',
+  short: 'd',
+  description: 'Enable debug mode',
+  onMissing: async () => {
+    // Async example: check config file or make API call
+    const config = await loadConfig();
+    return config.debug || false;
+  },
+});
+
+const cmd = command({
+  name: 'my app',
+  args: { 
+    verbose: verboseFlag,
+    debug: debugFlag,
+  },
+  handler: ({ verbose, debug }) => {
+    console.log(`Verbose: ${verbose}, Debug: ${debug}`);
+  },
+});
+```
+
 ### Config
 
 - `type` (required): A type from `boolean` to any value
@@ -55,6 +95,7 @@ const cmd = command({
 - `displayName`: A short description regarding the option
 - `defaultValue`: A function that returns a default value for the option
 - `defaultValueIsSerializable`: Whether to print the defaultValue as a string in the help docs.
+- `onMissing`: A function (sync or async) that returns a value when the flag is not provided. Used as fallback if `defaultValue` is not provided.
 
 ## `multiflag`
 
