@@ -5,14 +5,14 @@
  */
 
 export { subcommands } from "./subcommands";
-export { Type, extendType } from "./type";
+export { type Type, extendType } from "./type";
 export * from "./types";
 export { binary } from "./binary";
 export { command } from "./command";
 export { flag } from "./flag";
 export { option } from "./option";
 export { positional } from "./positional";
-export { dryRun, runSafely, run, parse, Runner } from "./runner";
+export { dryRun, runSafely, run, parse, type Runner } from "./runner";
 export { restPositionals } from "./restPositionals";
 export { multiflag } from "./multiflag";
 export { multioption } from "./multioption";

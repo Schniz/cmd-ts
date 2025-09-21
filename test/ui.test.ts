@@ -145,6 +145,26 @@ describe("allows positional arguments", () => {
 	});
 });
 
+test("onMissing resolves successfully", async () => {
+	const result = await runApp4([]);
+	expect(result.all).toMatchInlineSnapshot(`"Result: default value, Hi"`);
+	expect(result.exitCode).toBe(0);
+});
+
+test("onMissing failure", async () => {
+	const result = await runApp5([]);
+	expect(result.all).toMatchSnapshot();
+	expect(result.exitCode).toBe(1);
+});
+
+test("help shows onMissing option", async () => {
+	const result = await runApp4(["--help"]);
+	expect(result.all).toMatchSnapshot();
+	expect(result.exitCode).toBe(0);
+});
+
 const runApp1 = app(path.join(__dirname, "../example/app.ts"));
 const runApp2 = app(path.join(__dirname, "../example/app2.ts"));
 const runApp3 = app(path.join(__dirname, "../example/app3.ts"));
+const runApp4 = app(path.join(__dirname, "../example/app4.ts"));
+const runApp5 = app(path.join(__dirname, "../example/app5.ts"));

@@ -144,6 +144,17 @@ where [3m<subcommand>[23m can be one of:
 [2mFor more help, try running \`[33msubcmds <subcommand> --help[39m\`[22m"
 `;
 
+exports[`help shows onMissing option 1`] = `
+"[1masync-test[22m
+
+OPTIONS:
+  --async-arg, -a <str> - A type with onMissing callback[2m [optional][22m
+  --async-arg-2 <str>   - A type with onMissing callback[2m [default: [3mHi[23m][22m
+
+FLAGS:
+  --help, -h - show help"
+`;
+
 exports[`invalid subcommand 1`] = `
 "[31m[1merror: [22m[39mfound [33m1[39m error
 
@@ -165,6 +176,14 @@ Along with the following error:
   [31m[1m2.[22m[39m [31mNo value provided for --greeting[39m
 
 [31m[1mhint: [22m[39mfor more information, try '[33msubcmds greet --help[39m'"
+`;
+
+exports[`onMissing failure 1`] = `
+"[31m[1merror: [22m[39mfound [33m1[39m error
+
+  [31m[1m1.[22m[39m [31mFailed to get missing value for '--fail-arg': Async onMissing failed[39m
+
+[31m[1mhint: [22m[39mfor more information, try '[33masync-test-failure --help[39m'"
 `;
 
 exports[`subcommands show their version 1`] = `"1.0.0"`;
