@@ -46,6 +46,29 @@ export type ProvidesHelp = {
 	helpTopics(): HelpTopic[];
 };
 
+export type ExitWithPrint = Partial<{
+  /**
+   * The string to print
+   */
+  stdout: string;
+  stderr: string;
+
+  /**
+   * The exit code to return
+   * if number exit code
+   * if undefined, don't exit
+   */
+  exitCode: number;
+}>;
+
+
+export type PrintVersion = {
+	/**
+	 * Print the version for the current item and the current parsing context.
+	 */
+	printVersion(context: ParseContext): string;
+};
+
 export type PrintHelp = {
 	/**
 	 * Print help for the current item and the current parsing context.
