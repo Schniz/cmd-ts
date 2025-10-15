@@ -1,5 +1,11 @@
 # cmd-ts
 
+## 0.14.3
+
+### Patch Changes
+
+- e0afa2f: handle circuit breaker (--help and --version) before parsing arguments
+
 ## 0.14.2
 
 ### Patch Changes
