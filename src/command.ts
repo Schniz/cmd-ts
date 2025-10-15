@@ -172,8 +172,8 @@ export function command<
 		},
 		async run(context) {
 			const breaker = await circuitbreaker.parse(context);
-			const parsed = await this.parse(context);
 			handleCircuitBreaker(context, this, breaker);
+			const parsed = await this.parse(context);
 
 			if (Result.isErr(parsed)) {
 				return Result.err(parsed.error);
