@@ -8,6 +8,9 @@ concurrency: ${{ github.workflow }}-${{ github.ref }}
 
 jobs:
   release:
+    permissions:
+      id-token: write # Required for OIDC
+      contents: read
     name: Release
     runs-on: ubuntu-latest
     steps:
@@ -31,4 +34,3 @@ jobs:
           publish: "pnpm changeset:publish"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
