@@ -117,7 +117,13 @@ export function errorBox(
 		const num = chalk.red.bold(
 			`${padNoAnsi(number.toString(), maxNumberWidth, "start")}.`,
 		);
-		errorMessages.push(`  ${num} ${chalk.red(message)}`);
+		const lines = message.split("\n");
+		errorMessages.push(`  ${num} ${chalk.red(lines[0] ?? "")}`);
+		for (const line of lines.slice(1)) {
+			errorMessages.push(
+				` ${"".padStart(maxNumberWidth + 1)}  ${chalk.red(line)}`,
+			);
+		}
 		number++;
 	});
 
