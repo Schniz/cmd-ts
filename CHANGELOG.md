@@ -1,5 +1,11 @@
 # cmd-ts
 
+## 0.14.4
+
+### Patch Changes
+
+- bcd5d02: better multiline error formatting
+
 ## 0.14.3
 
 ### Patch Changes
