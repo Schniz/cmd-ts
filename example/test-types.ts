@@ -1,7 +1,7 @@
 /* istanbul ignore file */
 
 import type { Stream } from "node:stream";
-import URL from "node:url";
+import { URL } from "node:url";
 import { createReadStream, pathExists, stat } from "fs-extra";
 import fetch from "node-fetch";
 import { type Type, extendType, number } from "../src";
@@ -22,34 +22,36 @@ function stdin() {
 export const ReadStream: Type<string, Stream> = {
 	description: "A file path or a URL to make a GET request to",
 	displayName: "file",
-	async from(obj) {
-		const parsedUrl = URL.parse(obj);
+	async from(str) {
+		if (str.startsWith("http://") || str.startsWith("https://")) {
+			const parsedUrl = new URL(str);
 
-		if (parsedUrl.protocol?.startsWith("http")) {
-			const response = await fetch(obj);
-			const statusGroup = Math.floor(response.status / 100);
-			if (statusGroup !== 2) {
-				throw new Error(
-					`Got status ${response.statusText} ${response.status} reading URL`,
-				);
+			if (parsedUrl.protocol?.startsWith("http")) {
+				const response = await fetch(str);
+				const statusGroup = Math.floor(response.status / 100);
+				if (statusGroup !== 2) {
+					throw new Error(
+						`Got status ${response.statusText} ${response.status} reading URL`,
+					);
+				}
+				return response.body;
 			}
-			return response.body;
 		}
 
-		if (obj === "-") {
+		if (str === "-") {
 			return stdin();
 		}
 
-		if (!(await pathExists(obj))) {
-			throw new Error(`Can't find file in path ${obj}`);
+		if (!(await pathExists(str))) {
+			throw new Error(`Can't find file in path ${str}`);
 		}
 
-		const fileStat = await stat(obj);
+		const fileStat = await stat(str);
 		if (!fileStat.isFile()) {
 			throw new Error("Path is not a file.");
 		}
 
-		return createReadStream(obj);
+		return createReadStream(str);
 	},
 };
 
