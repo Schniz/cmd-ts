@@ -106,3 +106,31 @@ test("works when no nodes", async () => {
 	const errors = errorBox(tree, result.error.errors, []);
 	expect(errors).toMatch("No value provided for --some");
 });
+
+test("multiline non-highlight errors are indented", () => {
+	const errors = errorBox(
+		[],
+		[
+			{
+				nodes: [],
+				message:
+					"Failed to get missing value for '--token'\n" +
+					"hint: one line.\n" +
+					"╰▶ second line",
+			},
+		],
+		[],
+	);
+
+	expect(errors).toMatchInlineSnapshot(
+		`
+		"error: found 1 error
+
+		  1. Failed to get missing value for '--token'
+		     hint: one line.
+		     ╰▶ second line
+
+		hint: for more information, try ' --help'"
+	`,
+	);
+});
