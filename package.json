@@ -7,10 +7,7 @@
 	"main": "dist/cjs/index.js",
 	"typings": "dist/cjs/index.d.ts",
 	"module": "dist/esm/index.js",
-	"files": [
-		"dist",
-		"batteries"
-	],
+	"files": ["dist", "batteries"],
 	"scripts": {
 		"build": "tsc && tsc --project ./tsconfig.esm.json",
 		"lint": "biome check src test example",
@@ -62,5 +59,9 @@
 		"typescript": "5.8.3",
 		"vitest": "3.2.4"
 	},
-	"packageManager": "pnpm@10.11.1"
+	"packageManager": "pnpm@10.11.1",
+	"repository": {
+		"url": "https://github.com/Schniz/cmd-ts",
+		"type": "git"
+	}
 }
