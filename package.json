@@ -59,8 +59,8 @@
 		"tempy": "3.1.0",
 		"tsx": "^4.19.4",
 		"typedoc": "0.28.5",
-		"typescript": "5.8.3",
+		"typescript": "5.9.3",
 		"vitest": "3.2.4"
 	},
-	"packageManager": "pnpm@10.11.1"
+	"packageManager": "pnpm@10.28.0"
 }
