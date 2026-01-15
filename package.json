@@ -41,7 +41,7 @@
 		"strip-ansi": "^7.1.0"
 	},
 	"devDependencies": {
-		"@biomejs/biome": "^1.9.4",
+		"@biomejs/biome": "^2.0.0",
 		"@changesets/cli": "2.29.4",
 		"@types/debug": "4.1.12",
 		"@types/didyoumean": "1.2.3",
