@@ -79,6 +79,7 @@ export function createVercelFormatter(
 			if (data.version) {
 				header += ` ${data.version}`;
 			}
+			lines.push(chalk.grey(header));
 
 			// Command usage line
 			lines.push("");
