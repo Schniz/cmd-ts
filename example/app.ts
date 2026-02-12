@@ -66,6 +66,17 @@ const complex = command({
 	},
 	name: "printer",
 	description: "Just prints the arguments",
+	examples: [
+		{
+			description: "Print with required args",
+			command:
+				"complex 42 hello -n 10 --int-or-string 5 --float-or-string 3.14",
+		},
+		{
+			description: "Using a string for int-or-string",
+			command: "complex 1 world -n 1 --int-or-string foo --float-or-string bar",
+		},
+	],
 	handler: (args) => {
 		/** @export complex -> intOrString */
 		const x = args.intOrString;
@@ -172,6 +183,16 @@ const withSubcommands = subcommands({
 					env: "GREETING_NAME",
 				}),
 			},
+			examples: [
+				{
+					description: "Greet someone",
+					command: "greet --greeting Hello World",
+				},
+				{
+					description: "Greet multiple times",
+					command: "greet --greeting Hi --times 3 Gal",
+				},
+			],
 			handler: (result) => {
 				const args = result;
 				/** @export greet -> greeting */
@@ -189,6 +210,10 @@ const withSubcommands = subcommands({
 	name: "subcmds",
 	description: "An awesome subcommand app!",
 	version: "1.0.0",
+	examples: [
+		{ description: "Show help for a command", command: "subcmds greet --help" },
+		{ description: "Run the cat command", command: "subcmds cat ./file.txt" },
+	],
 });
 
 const cli = binary(withSubcommands);

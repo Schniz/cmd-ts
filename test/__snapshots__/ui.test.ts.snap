@@ -70,7 +70,15 @@ where [3m<subcommand>[23m can be one of:
 [2m- [22mgreet - greet a person
 [2m- [22mcomposed - a nested subcommand
 
-[2mFor more help, try running \`[33msubcmds <subcommand> --help[39m\`[22m"
+[2mFor more help, try running \`[33msubcmds <subcommand> --help[39m\`[22m
+
+EXAMPLES:
+
+  Show help for a command
+[2m  $ subcmds greet --help[22m
+
+  Run the cat command
+[2m  $ subcmds cat ./file.txt[22m"
 `;
 
 exports[`failures in defaultValue 1`] = `
@@ -104,7 +112,15 @@ FLAGS:
   --boolean           - a boolean[2m [optional][22m
   --bool-without-type - a boolean[2m [optional][22m
   --help, -h          - show help[2m [optional][22m
-  --version, -v       - print the version[2m [optional][22m"
+  --version, -v       - print the version[2m [optional][22m
+
+EXAMPLES:
+
+  Print with required args
+[2m  $ complex 42 hello -n 10 --int-or-string 5 --float-or-string 3.14[22m
+
+  Using a string for int-or-string
+[2m  $ complex 1 world -n 1 --int-or-string foo --float-or-string bar[22m"
 `;
 
 exports[`help for composed subcommand 1`] = `
@@ -141,7 +157,15 @@ where [3m<subcommand>[23m can be one of:
 [2m- [22mgreet - greet a person
 [2m- [22mcomposed - a nested subcommand
 
-[2mFor more help, try running \`[33msubcmds <subcommand> --help[39m\`[22m"
+[2mFor more help, try running \`[33msubcmds <subcommand> --help[39m\`[22m
+
+EXAMPLES:
+
+  Show help for a command
+[2m  $ subcmds greet --help[22m
+
+  Run the cat command
+[2m  $ subcmds cat ./file.txt[22m"
 `;
 
 exports[`help shows onMissing option 1`] = `
