@@ -11,7 +11,7 @@ import {
 import {
 	createVercelFormatter,
 	vercelFormatter,
-} from "../src/batteries/vercelFormatter";
+} from "../src/batteries/vercel-formatter";
 
 describe("vercelFormatter", () => {
 	afterEach(() => {
