@@ -1,0 +1,5 @@
+{
+	"types": "../../dist/esm/batteries/vercelFormatter.d.ts",
+	"main": "../../dist/cjs/batteries/vercelFormatter.js",
+	"module": "../../dist/esm/batteries/vercelFormatter.js"
+}

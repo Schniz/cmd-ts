@@ -10,7 +10,18 @@ import type {
 } from "./argparser";
 import { createCircuitBreaker, handleCircuitBreaker } from "./circuitbreaker";
 import type { From } from "./from";
-import type { Aliased, Descriptive, Named, Versioned } from "./helpdoc";
+import {
+	type Example,
+	type SubcommandsHelpData,
+	getHelpFormatter,
+} from "./helpFormatter";
+import type {
+	Aliased,
+	Descriptive,
+	Named,
+	ProvidesHelp,
+	Versioned,
+} from "./helpdoc";
 import { positional } from "./positional";
 import type { Runner } from "./runner";
 
@@ -35,13 +46,17 @@ type RunnerOutput<
 export function subcommands<
 	Commands extends Record<
 		string,
-		ArgParser<any> & Runner<any, any> & Partial<Descriptive & Aliased>
+		ArgParser<any> &
+			Runner<any, any> &
+			Partial<Descriptive & Aliased & ProvidesHelp>
 	>,
 >(config: {
 	name: string;
 	version?: string;
 	cmds: Commands;
 	description?: string;
+	/** Examples to show in help output */
+	examples?: Example[];
 }): ArgParser<Output<Commands>> &
 	Named &
 	Partial<Descriptive & Versioned> &
@@ -113,37 +128,20 @@ export function subcommands<
 			circuitbreaker.register(opts);
 		},
 		printHelp(context) {
-			const lines: string[] = [];
-			const argsSoFar = context.hotPath?.join(" ") ?? "cli";
-
-			lines.push(chalk.bold(argsSoFar + chalk.italic(" <subcommand>")));
-
-			if (config.description) {
-				lines.push(chalk.dim("> ") + config.description);
-			}
-
-			lines.push("");
-			lines.push(`where ${chalk.italic("<subcommand>")} can be one of:`);
-			lines.push("");
-
-			for (const key of Object.keys(config.cmds)) {
-				const cmd = config.cmds[key];
-				let description = cmd.description ?? "";
-				description = description && ` - ${description} `;
-				if (cmd.aliases?.length) {
-					const aliasTxt = cmd.aliases.length === 1 ? "alias" : "aliases";
-					const aliases = cmd.aliases.join(", ");
-					description += chalk.dim(`[${aliasTxt}: ${aliases}]`);
-				}
-				const row = chalk.dim("- ") + key + description;
-				lines.push(row.trim());
-			}
-
-			const helpCommand = chalk.yellow(`${argsSoFar} <subcommand> --help`);
-
-			lines.push("");
-			lines.push(chalk.dim(`For more help, try running \`${helpCommand}\``));
-			return lines.join("\n");
+			const data: SubcommandsHelpData = {
+				name: config.name,
+				path: context.hotPath ?? [config.name],
+				version: config.version,
+				description: config.description,
+				commands: Object.entries(config.cmds).map(([name, cmd]) => ({
+					name,
+					description: cmd.description,
+					aliases: cmd.aliases,
+					helpTopics: cmd.helpTopics?.() ?? [],
+				})),
+				examples: config.examples,
+			};
+			return getHelpFormatter().formatSubcommands(data, context);
 		},
 		async parse(
 			context: ParseContext,

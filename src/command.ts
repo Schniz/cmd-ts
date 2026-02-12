@@ -1,4 +1,3 @@
-import chalk from "chalk";
 import * as Result from "./Result";
 import type {
 	ArgParser,
@@ -8,6 +7,11 @@ import type {
 	ParsingResult,
 } from "./argparser";
 import { createCircuitBreaker, handleCircuitBreaker } from "./circuitbreaker";
+import {
+	type CommandHelpData,
+	type Example,
+	getHelpFormatter,
+} from "./helpFormatter";
 import type {
 	Aliased,
 	Descriptive,
@@ -18,7 +22,7 @@ import type {
 } from "./helpdoc";
 import type { AstNode } from "./newparser/parser";
 import type { Runner } from "./runner";
-import { entries, flatMap, groupBy, padNoAnsi } from "./utils";
+import { entries, flatMap } from "./utils";
 
 type ArgTypes = Record<string, ArgParser<any> & Partial<ProvidesHelp>>;
 type HandlerFunc<Args extends ArgTypes> = (args: Output<Args>) => any;
@@ -33,6 +37,8 @@ type CommandConfig<
 	description?: string;
 	handler: Handler;
 	aliases?: string[];
+	/** Examples to show in help output */
+	examples?: Example[];
 };
 
 type Output<Args extends ArgTypes> = {
@@ -72,45 +78,16 @@ export function command<
 			);
 		},
 		printHelp(context) {
-			const lines: string[] = [];
-			let name = context.hotPath?.join(" ") ?? "";
-			if (!name) {
-				name = config.name;
-			}
-
-			name = chalk.bold(name);
-
-			if (config.version) {
-				name += ` ${chalk.dim(config.version)}`;
-			}
-
-			lines.push(name);
-
-			if (config.description) {
-				lines.push(chalk.dim("> ") + config.description);
-			}
-
-			const usageBreakdown = groupBy(this.helpTopics(), (x) => x.category);
-
-			for (const [category, helpTopics] of entries(usageBreakdown)) {
-				lines.push("");
-				lines.push(`${category.toUpperCase()}:`);
-				const widestUsage = helpTopics.reduce((len, curr) => {
-					return Math.max(len, curr.usage.length);
-				}, 0);
-				for (const helpTopic of helpTopics) {
-					let line = "";
-					line += `  ${padNoAnsi(helpTopic.usage, widestUsage, "end")}`;
-					line += " - ";
-					line += helpTopic.description;
-					for (const defaultValue of helpTopic.defaults) {
-						line += chalk.dim(` [${defaultValue}]`);
-					}
-					lines.push(line);
-				}
-			}
-
-			return lines.join("\n");
+			const data: CommandHelpData = {
+				name: config.name,
+				path: context.hotPath ?? [config.name],
+				version: config.version,
+				description: config.description,
+				aliases: config.aliases,
+				helpTopics: this.helpTopics(),
+				examples: config.examples,
+			};
+			return getHelpFormatter().formatCommand(data, context);
 		},
 		register(opts) {
 			for (const [, arg] of argEntries) {

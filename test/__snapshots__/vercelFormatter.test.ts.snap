@@ -1,0 +1,57 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`vercelFormatter > formats command help 1`] = `
+"create 1.0.0
+
+▲ create [options]
+
+Create a new sandbox
+
+Flags:
+
+    --connect, -c  Connect to the sandbox after creating [optional]
+    --help, -h     show help [optional]
+    --version, -v  print the version [optional]
+
+Arguments:
+
+    <name>  Name for the sandbox
+
+Examples:
+
+– Create a sandbox named 'dev'
+
+  $ create dev
+
+– Create and connect
+
+  $ create dev --connect
+"
+`;
+
+exports[`vercelFormatter > formats subcommands help with version and logo 1`] = `
+"Vercel Sandbox CLI 2.3.0
+
+▲ sandbox [options] <command>
+
+For command help, run \`sandbox <command> --help\`
+
+Commands:
+
+    create                  Create a new sandbox
+    ls | list               List sandboxes for the current project
+    run        <cmd>        Create and run a command in a sandbox
+    rm | stop  <id...>      Stop one or more running sandboxes
+    cp | copy  <src> <dst>  Copy files between local and remote
+
+Examples:
+
+– Create a sandbox and start a shell
+
+  $ sandbox create --connect
+
+– Run a command in a new sandbox
+
+  $ sandbox run -- node -e "console.log('hello')"
+"
+`;

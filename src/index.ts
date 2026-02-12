@@ -10,6 +10,15 @@ export * from "./types";
 export { binary } from "./binary";
 export { command } from "./command";
 export { flag } from "./flag";
+export {
+	setDefaultHelpFormatter,
+	resetHelpFormatter,
+	defaultHelpFormatter,
+	type HelpFormatter,
+	type CommandHelpData,
+	type SubcommandsHelpData,
+	type Example,
+} from "./helpFormatter";
 export { option } from "./option";
 export { positional } from "./positional";
 export { dryRun, runSafely, run, parse, type Runner } from "./runner";
