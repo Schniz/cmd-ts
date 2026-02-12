@@ -1,5 +1,13 @@
 # cmd-ts
 
+## 0.15.0
+
+### Minor Changes
+
+- 0366d4f: Add pluggable help formatters with `HelpFormatter` interface and `setDefaultHelpFormatter()` API. This allows customizing how CLI help is rendered. Also adds:
+  - `examples` option to commands and subcommands for documenting usage examples
+  - `cmd-ts/batteries/vercelFormatter` - a Vercel-style help formatter with column-aligned output
+
 ## 0.14.4
 
 ### Patch Changes
