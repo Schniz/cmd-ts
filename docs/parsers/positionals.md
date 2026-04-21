@@ -25,7 +25,7 @@ This parser will fail to parse if:
 
 Fetch all the rest positionals
 
-> **Note:** this will swallaow all the other positionals, so you can't use [`positional`](#positional) to fetch a positional afterwards.
+> **Note:** this will swallow all the other positionals, so you can't use [`positional`](#positional) to fetch a positional afterwards.
 
 This parser will fail to parse if:
 
