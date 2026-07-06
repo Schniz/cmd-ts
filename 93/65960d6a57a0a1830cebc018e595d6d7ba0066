@@ -1,0 +1,31 @@
+src/flag.ts
+  s_e555882df66ef9::t_82efcd3138a4c2 118
+src/option.ts
+  s_e555882df66ef9::t_120cabb8f4fde9 253
+src/argparser3.ts
+  s_e555882df66ef9::t_f9d11254691e0c 97-99,239,244-252,257,268,320-324,326-327,348-352,364-368,600-603,606-609,618-622,625-633,635-637
+  s_e555882df66ef9::t_40d1f54627a66a 96,100-101,149-152,154,219-221,283,313,328,330-332,334-339,341-344,346-347,353-358,360-362,369-373,375-378,380-384,387,389-390,396-400,404-413,417-422,426-435,439-440,443-444,448-459,465-532,534,557-558,562-564,567,577,589-593,612,649
+  s_e555882df66ef9::t_f22aeffed09f7d 295,535,544,568
+  s_e555882df66ef9::t_277131b920f0fa 222
+src/positional.ts
+  s_e555882df66ef9::t_9b1bbf91423531 65-84
+  s_e555882df66ef9::t_3782f97cc1a817 86
+src/subcommands.ts
+  s_e555882df66ef9::t_b625276d65ddb5 52
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "9365960d6a57a0a1830cebc018e595d6d7ba0066",
+  "prompts": {},
+  "sessions": {
+    "s_e555882df66ef9": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_0c7aeb6a1ffeNsREM4zr9wwbO8",
+        "model": "openai/gpt-5.5"
+      },
+      "human_author": "Gal Schlezinger <gal@spitfire.co.il>"
+    }
+  }
+}
