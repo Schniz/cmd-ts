@@ -1,0 +1,30 @@
+.changeset/tidy-parsers-slice.md
+  h_3ceb785fe0a1f8 1-5
+package.json
+  h_3ceb785fe0a1f8 16
+scripts/BENCHMARKS.md
+  h_3ceb785fe0a1f8 1-33
+scripts/benchmark.ts
+  h_3ceb785fe0a1f8 1-212
+src/newparser/findOption.ts
+  h_3ceb785fe0a1f8 19-23,26-30,37-40
+src/newparser/parseArguments.ts
+  h_3ceb785fe0a1f8 1-125
+src/runner.ts
+  h_3ceb785fe0a1f8 11-12,111
+test/newparser/findOption.test.ts
+  h_3ceb785fe0a1f8 21-56
+test/newparser/parseArguments.test.ts
+  h_3ceb785fe0a1f8 1-204
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "c62a546a7a81203b8dd799655b5ba4ce920adc26",
+  "prompts": {},
+  "humans": {
+    "h_3ceb785fe0a1f8": {
+      "author": "Gal Schlezinger <gal@spitfire.co.il>"
+    }
+  }
+}
