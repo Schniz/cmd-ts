@@ -1,0 +1,24 @@
+docs/parsers/command.md
+  h_3ceb785fe0a1f8 12
+docs/parsers/subcommands.md
+  h_3ceb785fe0a1f8 10
+src/command.ts
+  h_3ceb785fe0a1f8 18,41,66,72
+src/helpdoc.ts
+  h_3ceb785fe0a1f8 18-22
+src/subcommands.ts
+  h_3ceb785fe0a1f8 21,52,59,64,120,139-146
+test/subcommands.test.ts
+  h_3ceb785fe0a1f8 45-73
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "534da0c13d4f596e3920eb6b56b85fc5f80dafce",
+  "prompts": {},
+  "humans": {
+    "h_3ceb785fe0a1f8": {
+      "author": "Gal Schlezinger <gal@spitfire.co.il>"
+    }
+  }
+}
