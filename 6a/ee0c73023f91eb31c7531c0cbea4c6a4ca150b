@@ -1,0 +1,28 @@
+.changeset/quiet-parsers-walk.md
+  h_3ceb785fe0a1f8 1-6
+package.json
+  h_3ceb785fe0a1f8 16
+scripts/BENCHMARKS.md
+  h_3ceb785fe0a1f8 34-70
+scripts/benchmark-e2e.cjs
+  h_3ceb785fe0a1f8 1-293
+src/errorBox.ts
+  h_3ceb785fe0a1f8 29-33,36,44
+src/positional.ts
+  h_3ceb785fe0a1f8 64-66
+src/subcommands.ts
+  h_3ceb785fe0a1f8 67-76
+test/performance-regressions.test.ts
+  h_3ceb785fe0a1f8 1-100
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "6aee0c73023f91eb31c7531c0cbea4c6a4ca150b",
+  "prompts": {},
+  "humans": {
+    "h_3ceb785fe0a1f8": {
+      "author": "Gal Schlezinger <gal@spitfire.co.il>"
+    }
+  }
+}
