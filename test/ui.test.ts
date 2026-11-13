@@ -1,3 +1,5 @@
+import { once } from "node:events";
+import { createServer } from "node:http";
 import path from "node:path";
 import { describe, expect, test } from "vitest";
 import { app } from "./util";
@@ -77,25 +79,48 @@ test("help for composed subcommand", async () => {
 	expect(result.exitCode).toBe(0);
 });
 
-test("asynchronous type conversion works for failures", async () => {
-	const result = await runApp1([
-		"composed",
-		"cat",
-		"https://mock.httpstatus.io/404",
-	]);
-	expect(result.all).toMatchSnapshot();
-	expect(result.exitCode).toBe(1);
+const httpTest = test.extend<{ httpUrl: string }>({
+	httpUrl: async ({ task: _task }, use) => {
+		const server = createServer((request, response) => {
+			const status = request.url === "/200" ? 200 : 404;
+			response.writeHead(status, { "Content-Type": "text/plain" });
+			response.end(status === 200 ? "200 OK" : "404 Not Found");
+		});
+		server.listen(0, "127.0.0.1");
+		await once(server, "listening");
+		try {
+			const address = server.address();
+			if (!address || typeof address === "string") {
+				throw new Error("Expected a TCP address for the HTTP fixture");
+			}
+			await use(`http://127.0.0.1:${address.port}`);
+		} finally {
+			await new Promise<void>((resolve, reject) => {
+				server.close((error) => (error ? reject(error) : resolve()));
+			});
+		}
+	},
 });
 
-test("asynchronous type conversion works for success", async () => {
-	const result = await runApp1([
-		"composed",
-		"cat",
-		"https://mock.httpstatus.io/200",
-	]);
-	expect(result.all).toMatchSnapshot();
-	expect(result.exitCode).toBe(0);
-});
+httpTest(
+	"asynchronous type conversion works for failures",
+	async ({ httpUrl }) => {
+		const result = await runApp1(["composed", "cat", `${httpUrl}/404`]);
+		expect(
+			result.all?.replace(httpUrl, "http://127.0.0.1:<port>"),
+		).toMatchSnapshot();
+		expect(result.exitCode).toBe(1);
+	},
+);
+
+httpTest(
+	"asynchronous type conversion works for success",
+	async ({ httpUrl }) => {
+		const result = await runApp1(["composed", "cat", `${httpUrl}/200`]);
+		expect(result.all).toMatchSnapshot();
+		expect(result.exitCode).toBe(0);
+	},
+);
 
 test("subcommands show their version", async () => {
 	const result = await runApp1(["--version"]);
