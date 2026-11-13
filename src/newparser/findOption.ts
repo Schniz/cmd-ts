@@ -16,16 +16,28 @@ export function findOption(
 	},
 ): Option[] {
 	const result: Option[] = [];
+	// Most decoders look up one name. Avoid an includes call for every AST node.
+	const longName = opts.longNames[0];
+	const shortName = opts.shortNames[0];
+	const multipleLongNames = opts.longNames.length > 1;
+	const multipleShortNames = opts.shortNames.length > 1;
 
 	for (const node of nodes) {
-		if (node.type === "longOption" && opts.longNames.includes(node.key)) {
+		if (
+			node.type === "longOption" &&
+			(node.key === longName ||
+				(multipleLongNames && opts.longNames.includes(node.key)))
+		) {
 			result.push(node);
 			continue;
 		}
 
 		if (node.type === "shortOptions" && opts.shortNames.length) {
 			for (const option of node.options) {
-				if (opts.shortNames.includes(option.key)) {
+				if (
+					option.key === shortName ||
+					(multipleShortNames && opts.shortNames.includes(option.key))
+				) {
 					result.push(option);
 				}
 			}

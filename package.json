@@ -13,6 +13,7 @@
 	},
 	"files": ["dist", "batteries"],
 	"scripts": {
+		"bench": "tsx scripts/benchmark.ts",
 		"build": "tsc && tsc --project ./tsconfig.esm.json",
 		"lint": "biome check src test example",
 		"now-build": "mdbook build --dest-dir=public",
