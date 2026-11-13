@@ -13,6 +13,8 @@
 	},
 	"files": ["dist", "batteries"],
 	"scripts": {
+		"bench:e2e": "node scripts/benchmark-e2e.cjs",
+		"bench": "tsx scripts/benchmark.ts",
 		"build": "tsc && tsc --project ./tsconfig.esm.json",
 		"lint": "biome check src test example",
 		"now-build": "mdbook build --dest-dir=public",

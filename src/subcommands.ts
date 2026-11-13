@@ -64,16 +64,21 @@ export function subcommands<
 	const circuitbreaker = createCircuitBreaker(!!config.version);
 	const type: From<string, keyof Commands> = {
 		async from(str) {
-			const commands = Object.entries(config.cmds).map(([name, cmd]) => {
+			// Keep declaration order: an earlier alias can shadow a later name.
+			// Build the suggestion list only when lookup fails. Do not cache it:
+			// callers can change the command table and aliases between runs.
+			const commandEntries = Object.entries(config.cmds);
+			for (const [name, cmd] of commandEntries) {
+				if (name === str || cmd.aliases?.includes(str)) {
+					return name as keyof Commands;
+				}
+			}
+			const commands = commandEntries.map(([name, cmd]) => {
 				return {
 					cmdName: name as keyof Commands,
 					names: [name, ...(cmd.aliases ?? [])],
 				};
 			});
-			const cmd = commands.find((x) => x.names.includes(str));
-			if (cmd) {
-				return cmd.cmdName;
-			}
 			let errorMessage = "Not a valid subcommand name";
 
 			const closeOptions = didYouMean(

@@ -8,8 +8,8 @@ import type {
 import { Exit } from "./effects";
 import { errorBox } from "./errorBox";
 import type { PrintHelp, Versioned } from "./helpdoc";
-import { type AstNode, parse as doParse } from "./newparser/parser";
-import { tokenize } from "./newparser/tokenizer";
+import { parseArguments } from "./newparser/parseArguments";
+import type { AstNode } from "./newparser/parser";
 
 export type Handling<Values, Result> = { handler: (values: Values) => Result };
 
@@ -108,6 +108,5 @@ function parseCommon<R extends Runner<any, any>>(
 
 	ap.register(registerContext);
 
-	const tokens = tokenize(strings);
-	return doParse(tokens, registerContext);
+	return parseArguments(strings, registerContext);
 }

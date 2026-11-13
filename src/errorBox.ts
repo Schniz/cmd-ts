@@ -26,9 +26,14 @@ function highlight(
 	}
 
 	if (error.nodes.length === 0) return;
+	// A large unknown-argument error otherwise scans its full node list for
+	// every input node. Avoid allocating a Set for the common one-node case.
+	const errorNodes = error.nodes.length > 1 ? new Set(error.nodes) : undefined;
+	const isError = (node: AstNode) =>
+		errorNodes ? errorNodes.has(node) : error.nodes[0] === node;
 
 	nodes.forEach((node) => {
-		if (error.nodes.includes(node)) {
+		if (isError(node)) {
 			foundError();
 			return strings.push(chalk.red(node.raw));
 		}
@@ -36,7 +41,7 @@ function highlight(
 			let failed = false;
 			let s = "";
 			for (const option of node.options) {
-				if (error.nodes.includes(option)) {
+				if (isError(option)) {
 					s += chalk.red(option.raw);
 					failed = true;
 				} else {
