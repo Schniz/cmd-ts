@@ -1,0 +1,16 @@
+test/__snapshots__/ui.test.ts.snap
+  h_3ceb785fe0a1f8 27
+test/ui.test.ts
+  h_3ceb785fe0a1f8 1-2,82-102,105-123
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "4e361a33f4ea4137d1c7933a6243520024f30f75",
+  "prompts": {},
+  "humans": {
+    "h_3ceb785fe0a1f8": {
+      "author": "Gal Schlezinger <gal@spitfire.co.il>"
+    }
+  }
+}
