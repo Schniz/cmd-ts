@@ -4,7 +4,6 @@ import type { ArgParser, ParseContext, ParsingResult } from "./argparser";
 import type { Default } from "./default";
 import type { OutputOf } from "./from";
 import type { Descriptive, Displayed, ProvidesHelp } from "./helpdoc";
-import type { PositionalArgument } from "./newparser/parser";
 import type { HasType, Type } from "./type";
 import { string } from "./types";
 import type { AllOrNothing } from "./utils";
@@ -62,14 +61,12 @@ function fullPositional<Decoder extends Type<string, any>>(
 			nodes,
 			visitedNodes,
 		}: ParseContext): Promise<ParsingResult<OutputOf<Decoder>>> {
-			const positionals = nodes.filter(
-				(node): node is PositionalArgument =>
-					node.type === "positionalArgument" && !visitedNodes.has(node),
+			// Only one positional is consumed. Do not collect the entire remainder.
+			const positional = nodes.find(
+				(node) => node.type === "positionalArgument" && !visitedNodes.has(node),
 			);
 
 			const defaultValueFn = config.defaultValue ?? config.type.defaultValue;
-
-			const positional = positionals[0];
 
 			if (!positional) {
 				if (defaultValueFn) {
